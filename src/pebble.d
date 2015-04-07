@@ -1584,25 +1584,1023 @@ Tuplet TupletInteger(uint key, int integer) {
     return TupletIntegerImpl(key, integer);
 }
 
+/**
+ * Callback for \ref dict_serialize_tuplets() utility.
+ *
+ * Params:
+ * data = The data of the serialized dictionary
+ * size = The size of data
+ * context = The context pointer as passed in to dict_serialize_tuplets()
+ *
+ * See_Also: dict_serialize_tuplets
+ */
+alias void function (const(ubyte)* data, ushort size, void* context)
+DictionarySerializeCallback;
 
-/// TODO: We got here last in our pebble adventures.
+/**
+ * Utility function that takes a list of Tuplets from which a dictionary
+ * will be serialized, ready to transmit or store.
+ *
+ * Note: The callback will be called before the function returns, so
+ * the data the that `context` points to, can be stack allocated.
+ *
+ * Params:
+ * callback = The callback that will be called with the serialized data of the
+ *     generated dictionary.
+ * context = Pointer to any application specific data that gets passed into
+ *     the callback.
+ * tuplets = An array of Tuplets that need to be serialized into the
+ *     dictionary.
+ * tuplets_count = The number of tuplets that follow.
+ *
+ * Returns: DICT_OK, DICT_NOT_ENOUGH_STORAGE or DICT_INVALID_ARGS.
+ */
+extern(C) DictionaryResult dict_serialize_tuplets
+(DictionarySerializeCallback callback, void* context, const Tuplet* tuplets,
+const ubyte tuplets_count);
 
-alias void function (const(ubyte)*, ushort, void*) DictionarySerializeCallback;
-alias void function (uint, const(_Anonymous_19)*, const(_Anonymous_19)*, void*) DictionaryKeyUpdatedCallback;
-alias _Anonymous_21 AppMessageResult;
-alias void function (_Anonymous_20*, void*) AppMessageInboxReceived;
-alias void function (_Anonymous_21, void*) AppMessageInboxDropped;
-alias void function (_Anonymous_20*, void*) AppMessageOutboxSent;
-alias void function (_Anonymous_20*, _Anonymous_21, void*) AppMessageOutboxFailed;
-alias void function (uint, const(_Anonymous_19)*, const(_Anonymous_19)*, void*) AppSyncTupleChangedCallback;
-alias void function (_Anonymous_17, _Anonymous_21, void*) AppSyncErrorCallback;
-alias void* ResHandle;
-alias _Anonymous_22 AppWorkerResult;
-alias _Anonymous_23 AppWorkerMessage;
-alias void function (ushort, _Anonymous_23*) AppWorkerMessageHandler;
-alias _Anonymous_24 SniffInterval;
-alias void function (void*) AppTimerCallback;
-alias int status_t;
+/**
+ * Utility function that takes an array of Tuplets and serializes them into
+ * a dictionary with a given buffer and size.
+ *
+ * Params:
+ * tuplets = The array of tuplets
+ * tuplets_count = The number of tuplets in the array
+ * buffer = The buffer in which to write the serialized dictionary
+ * size_in_out = The buffer size in bytes will be taken here, and the value
+ *     given here will be set to the number of bytes written.
+ *
+ * Returns: DICT_OK, DICT_NOT_ENOUGH_STORAGE or DICT_INVALID_ARGS
+ */
+extern(C) DictionaryResult dict_serialize_tuplets_to_buffer
+(const Tuplet* tuplets, const ubyte tuplets_count, ubyte* buffer,
+uint* size_in_out);
+
+/**
+ * Serializes an array of Tuplets into a dictionary with a given buffer and
+ * size.
+ *
+ * Params:
+ * iter = The dictionary iterator.
+ * tuplets = The array of tuplets.
+ * tuplets_count = The number of tuplets in the array.
+ * buffer = The buffer in which to write the serialized dictionary.
+ * size_in_out = The buffer size in bytes will be taken here, and the value
+ *     given here will be set to the number of bytes written.
+ *
+ * Returns: DICT_OK, DICT_NOT_ENOUGH_STORAGE or DICT_INVALID_ARGS
+ */
+extern(C) DictionaryResult dict_serialize_tuplets_to_buffer_with_iter
+(DictionaryIterator* iter, const Tuplet* tuplets, const ubyte tuplets_count,
+ubyte* buffer, uint* size_in_out);
+
+/**
+ * Serializes a Tuplet and writes the resulting Tuple into a dictionary.
+ *
+ * Params:
+ * iter = The dictionary iterator.
+ * tuplet = The Tuplet describing the key/value pair to write.
+ *
+ * Returns: DICT_OK, DICT_NOT_ENOUGH_STORAGE or DICT_INVALID_ARGS
+ */
+extern(C) DictionaryResult dict_write_tuplet
+(DictionaryIterator* iter, const Tuplet* tuplet);
+
+/**
+ * Calculates the number of bytes that a dictionary will occupy, given
+ * one or more Tuplets that need to be stored in the dictionary.
+ *
+ * Note: See dict_calc_buffer_size() for the formula for the calculation.
+ *
+ * Params:
+ * tuplets = An array of Tuplets that need to be stored in the dictionary.
+ * tuplets_count = The total number of Tuplets that follow.
+ *
+ * Returns: The total number of bytes of storage needed.
+ * See_Also: Tuplet
+ */
+extern(C) uint dict_calc_buffer_size_from_tuplets
+(const Tuplet* tuplets, const ubyte tuplets_count);
+
+/**
+ * Type of the callback used in dict_merge().
+ *
+ * Params:
+ * key = The key that is being updated.
+ * new_tuple = The new tuple. The tuple points to the actual,
+ *     updated destination dictionary or NULL_TUPLE in case there was an
+ *     error (e.g. backing buffer was too small).  Therefore the Tuple can be
+ *     used after the callback returns, until the destination dictionary
+ *     storage is free'd (by the application itself).
+ * old_tuple = The values that will be replaced with `new_tuple`.
+ *     The key, value and type will be equal to the previous tuple in the
+ *     old destination dictionary, however the `old_tuple points to a
+ *     stack-allocated copy of the old data.
+ * context = Pointer to application specific data. The storage backing
+ *     `old_tuple` can only be used during the callback and will no longer be
+ *     valid after the callback returns.
+ *
+ * See_Also: dict_merge
+ */
+alias void function
+(uint key, const(Tuple)* new_tuple, const(Tuple)* old_tuple, void* context)
+DictionaryKeyUpdatedCallback;
+
+/**
+ * Merges entries from another "source" dictionary into a "destination"
+ * dictionary.
+ *
+ * All Tuples from the source are written into the destination dictionary,
+ * while updating the exsting Tuples with matching keys.
+ *
+ * Params:
+ * dest = The destination dictionary to update
+ * dest_max_size_in_out = In: the maximum size of buffer backing `dest`.
+ *     Out: the final size of the updated dictionary.
+ * source = The source dictionary of which its Tuples will be used to
+ *     update dest.
+ * update_existing_keys_only = Specify True if only the existing keys in
+ *     `dest` should be updated.
+ * key_callback = The callback that will be called for each Tuple in the
+ *     merged destination dictionary.
+ * context = Pointer to app specific data that will get passed in when
+ *     `update_key_callback` is called.
+ *
+ * Returns: DICT_OK, DICT_INVALID_ARGS, DICT_NOT_ENOUGH_STORAGE
+ */
+extern(C) DictionaryResult dict_merge(DictionaryIterator* dest,
+uint* dest_max_size_in_out, DictionaryIterator* source,
+const bool update_existing_keys_only,
+const DictionaryKeyUpdatedCallback key_callback, void* context);
+
+/**
+ * Tries to find a Tuple with specified key in a dictionary.
+ *
+ * Params:
+ * iter = Iterator to the dictionary to search in.
+ * key = The key for which to find a Tuple.
+ *
+ * Returns: Pointer to a found Tuple, or NULL if there was no Tuple with
+ *     the specified key.
+ */
+extern(C) Tuple* dict_find (const(DictionaryIterator)* iter, const uint key);
+
+/// AppMessage result codes.
+enum AppMessageResult {
+    /// All good, operation was successful.
+    ok = 0,
+    /// The other end did not confirm receiving the sent data with an
+    /// (n)ack in time.
+    sendTimeout = 2,
+    /// The other end rejected the sent data, with a "nack" reply.
+    sendRejected = 4,
+    /// The other end was not connected.
+    notConnected = 8,
+    /// The local application was not running.
+    notRunning = 16,
+    /// The function was called with invalid arguments.
+    invalidArgs = 32,
+    /// There are pending (in or outbound) messages that need to be
+    //processed first before new ones can be received or sent.
+    busy = 64,
+    /// The buffer was too small to contain the incoming message.
+    overflow = 128,
+    /// The resource had already been released.
+    alreadyReleased = 512,
+    /// The callback node was already registered, or its ListNode
+    /// has not been initialized.
+    callbackAlreadyRegistered = 1024,
+    /// The callback could not be deregistered, because it had not
+    /// been registered before.
+    callbackNotRegistered = 2048,
+    /// The support library did not have sufficient application memory
+    /// to perform the requested operation.
+    outOfMemory = 4096,
+    /// App message was closed.
+    closed = 8192,
+    /// An internal OS error prevented APP_MSG from completing an operation.
+    internalError = 16384
+}
+
+///
+enum APP_MSG_OK = AppMessageResult.ok;
+///
+enum APP_MSG_SEND_TIMEOUT = AppMessageResult.sendTimeout;
+///
+enum APP_MSG_SEND_REJECTED = AppMessageResult.sendRejected;
+///
+enum APP_MSG_NOT_CONNECTED = AppMessageResult.notConnected;
+///
+enum APP_MSG_APP_NOT_RUNNING = AppMessageResult.notRunning;
+///
+enum APP_MSG_INVALID_ARGS = AppMessageResult.invalidArgs;
+///
+enum APP_MSG_BUSY = AppMessageResult.busy;
+///
+enum APP_MSG_BUFFER_OVERFLOW = AppMessageResult.overflow;
+///
+enum APP_MSG_ALREADY_RELEASED = AppMessageResult.alreadyReleased;
+///
+enum APP_MSG_CALLBACK_ALREADY_REGISTERED =
+    AppMessageResult.callbackAlreadyRegistered;
+///
+enum APP_MSG_CALLBACK_NOT_REGISTERED = AppMessageResult.callbackNotRegistered;
+///
+enum APP_MSG_OUT_OF_MEMORY = AppMessageResult.outOfMemory;
+///
+enum APP_MSG_CLOSED = AppMessageResult.closed;
+///
+enum APP_MSG_INTERNAL_ERROR = AppMessageResult.internalError;
+
+/**
+ * Open AppMessage to transfers.
+ *
+ * Use dict_calc_buffer_size_from_tuplets() or dict_calc_buffer_size()
+ * to estimate the size you need.
+ *
+ * Note: It is recommended that if the Inbox will be used, that at least the
+ * Inbox callbacks should be registered before this call. Otherwise it is
+ * possible for an Inbox message to be NACK'ed without being seen by the
+ * application.
+ *
+ * Params:
+ * size_inbound = The required size for the Inbox buffer.
+ * size_outbound = The required size for the Outbox buffer.
+ *
+ * Returns: A result code such as APP_MSG_OK or APP_MSG_OUT_OF_MEMORY.
+ */
+extern(C) AppMessageResult app_message_open
+(const uint size_inbound, const uint size_outbound);
+
+/// Deregisters all callbacks and their context.
+extern(C) void app_message_deregister_callbacks();
+
+/**
+ * Called after an incoming message is received.
+ *
+ * Params:
+ * iterator = The dictionary iterator to the received message.
+ *     Never NULL. Note that the iterator cannot be modified or
+ *     saved off. The library may need to re-use the buffered space where
+ *     this message is supplied.  Returning from the callback indicates to the
+ *     library that the received message contents are no longer needed or
+ *     have already been externalized outside its buffering space and iterator.
+ * context = Pointer to application data as specified when registering the
+ *     callback.
+ */
+alias void function (DictionaryIterator* iterator, void* context)
+AppMessageInboxReceived;
+
+/**
+ * Called after an incoming message is dropped.
+ *
+ * Params:
+ * result = The reason why the message was dropped.
+ *     Some possibilities include APP_MSG_BUSY and APP_MSG_BUFFER_OVERFLOW.
+ * context = Pointer to application data as specified when registering the
+ * callback.
+ *
+ * Note that you can call app_message_outbox_begin() from this handler to
+ * prepare a new message. This will invalidate the previous dictionary
+ * iterator; do not use it after calling app_message_outbox_begin().
+ */
+alias void function(AppMessageResult reason, void* context)
+AppMessageInboxDropped;
+
+/**
+ * Called after an outbound message has been sent and the reply has been
+ * received.
+ *
+ * Params:
+ * iterator = The dictionary iterator to the sent message. The iterator will
+ *     be in the final state that was sent. Note that the iterator cannot be
+ *     modified or saved off as the library will re-open the dictionary with
+ *     dict_begin() after this callback returns.
+ * context = Pointer to application data as specified when registering the
+ *     callback.
+ */
+alias void function(DictionaryIterator* iterator, void* context)
+AppMessageOutboxSent;
+
+// TODO: We got here last.
+
+/**
+ * Called after an outbound message has not been sent successfully.
+ *
+ * Note that you can call app_message_outbox_begin() from this handler to
+ * prepare a new message. This will invalidate the previous dictionary
+ * iterator; do not use it after calling app_message_outbox_begin().
+ *
+ * Params:
+ * iterator = The dictionary iterator to the sent message. The iterator will
+ *     be in the final state that was sent. Note that the iterator cannot be
+ *     modified or saved off as the library will re-open the dictionary with
+ *     dict_begin() after this callback returns.
+ * result = The result of the operation. Some possibilities for the value
+ *     include \ref APP_MSG_SEND_TIMEOUT, APP_MSG_SEND_REJECTED,
+ *     APP_MSG_NOT_CONNECTED, APP_MSG_APP_NOT_RUNNING, and the combination
+ *     `(APP_MSG_NOT_CONNECTED | APP_MSG_APP_NOT_RUNNING)`.
+ * context = Pointer to application data as specified when registering the
+ *     callback.
+ */
+alias void function(DictionaryIterator* iterator, AppMessageResult reason,
+void* context) AppMessageOutboxFailed;
+
+/**
+ * Gets the context that will be passed to all AppMessage callbacks.
+ *
+ * Returns: The current context on record.
+ */
+extern(C) void* app_message_get_context();
+
+/**
+ * Sets the context that will be passed to all AppMessage callbacks.
+ *
+ * Params:
+ * context = The context that will be passed to all AppMessage callbacks.
+ *
+ * Returns: The previous context that was on record.
+ */
+extern(C) void* app_message_set_context(void* context);
+
+/**
+ * Registers a function that will be called after any Inbox message is
+ * received successfully.
+ *
+ * Only one callback may be registered at a time. Each subsequent call to this
+ * function will replace the previous callback. The callback is optional;
+ * setting it to NULL will deregister the current callback and no function will
+ * be called anymore.
+ *
+ * Params:
+ * received_callback = The callback that will be called going forward; NULL to
+ *     not have a callback.
+ *
+ * Returns: The previous callback (or NULL) that was on record.
+ */
+extern(C) AppMessageInboxReceived app_message_register_inbox_received
+(AppMessageInboxReceived received_callback);
+
+/**
+ * Registers a function that will be called after any Inbox message is
+ * received but dropped by the system.
+ *
+ * Only one callback may be registered at a time. Each subsequent call to this
+ * function will replace the previous callback. The callback is optional;
+ * setting it to NULL will deregister the current callback and no function will
+ * be called anymore.
+ *
+ * Params:
+ * dropped_callback = The callback that will be called going forward;
+ *     NULL to not have a callback.
+ *
+ * Returns: The previous callback (or NULL) that was on record.
+ */
+extern(C) AppMessageInboxDropped app_message_register_inbox_dropped
+(AppMessageInboxDropped dropped_callback);
+
+/**
+ * Registers a function that will be called after any Outbox message is sent
+ * and an ACK reply occurs in a timely fashion.
+ *
+ * Only one callback may be registered at a time. Each subsequent call to this
+ * function will replace the previous callback. The callback is optional;
+ * setting it to NULL will deregister the current callback and no function will
+ * be called anymore.
+ *
+ * Params:
+ * sent_callback = The callback that will be called going forward; NULL to not
+ *     have a callback.
+ *
+ * Returns: The previous callback (or NULL) that was on record.
+ */
+extern(C) AppMessageOutboxSent app_message_register_outbox_sent
+(AppMessageOutboxSent sent_callback);
+
+/**
+ * Registers a function that will be called after any Outbox message is not
+ * sent with a timely ACK reply. The call to \ref app_message_outbox_send()
+ * must have succeeded.
+ *
+ * Only one callback may be registered at a time. Each subsequent call to this
+ * function will replace the previous callback. The callback is optional;
+ * setting it to NULL will deregister the current callback and no function will
+ * be called anymore.
+ *
+ * Params:
+ * failed_callback = The callback that will be called going forward; NULL to
+ *     not have a callback.
+ *
+ * Returns: The previous callback (or NULL) that was on record.
+ */
+extern(C) AppMessageOutboxFailed app_message_register_outbox_failed
+(AppMessageOutboxFailed failed_callback);
+
+/**
+ * Programatically determine the inbox size maximum in the current
+ * configuration.
+ *
+ * Returns: The inbox size maximum on this firmware.
+ *
+ * See_Also: APP_MESSAGE_INBOX_SIZE_MINIMUM
+ * See_Also: app_message_outbox_size_maximum()
+ */
+extern(C) uint app_message_inbox_size_maximum();
+
+/**
+ * Programatically determine the outbox size maximum in the current
+ * configuration.
+ *
+ * Returns: The outbox size maximum on this firmware.
+ *
+ * See_Also: APP_MESSAGE_OUTBOX_SIZE_MINIMUM
+ * See_Also: app_message_inbox_size_maximum()
+ */
+extern(C) uint app_message_outbox_size_maximum();
+
+/**
+ * Begin writing to the Outbox's Dictionary buffer.
+ *
+ * Note: After a successful call, one can add values to the dictionary using
+ * functions like dict_write_data() and friends.
+ *
+ * Params:
+ * iterator = Location to write the DictionaryIterator pointer.
+ *     This will be NULL on failure.
+ *
+ * Returns: A result code, including but not limited to APP_MSG_OK,
+ *     APP_MSG_INVALID_ARGS or APP_MSG_BUSY.
+ *
+ * See_Also: Dictionary
+ */
+extern(C) AppMessageResult app_message_outbox_begin
+(DictionaryIterator** iterator);
+
+/**
+ * Sends the outbound dictionary.
+ *
+ * Returns: A result code, including but not limited to APP_MSG_OK or
+ *     APP_MSG_BUSY. The APP_MSG_OK code does not mean that the message was
+ *     sent successfully, but only that the start of processing was successful.
+ *     Since this call is asynchronous, callbacks provide the final result
+ *     instead.
+ *
+ * See_Also: AppMessageOutboxSent
+ * See_Also: AppMessageOutboxFailed
+ */
+extern(C) AppMessageResult app_message_outbox_send();
+
+/**
+ * As long as the firmware maintains its current major version, inboxes of
+ * this size or smaller will be allowed.
+ *
+ * See_Also: app_message_inbox_size_maximum()
+ * See_Also: APP_MESSAGE_OUTBOX_SIZE_MINIMUM
+ */
+enum size_t APP_MESSAGE_INBOX_SIZE_MINIMUM = 124;
+
+/**
+ * As long as the firmware maintains its current major version, outboxes of
+ * this size or smaller will be allowed.
+ *
+ * See_Also: app_message_outbox_size_maximum()
+ * See_Also: APP_MESSAGE_INBOX_SIZE_MINIMUM
+ */
+enum size_t APP_MESSAGE_OUTBOX_SIZE_MINIMUM = 636;
+
+/**
+ * Called whenever a Tuple changes. This does not necessarily mean the value
+ * in the Tuple has changed. When the internal "current" dictionary gets
+ * updated, existing Tuples might get shuffled around in the backing buffer,
+ * even though the values stay the same. In this callback, the client code
+ * gets the chance to remove the old reference and start using the new one.
+ * In this callback, your application MUST clean up any references to the
+ * `old_tuple` of a PREVIOUS call to this callback (and replace it with the
+ * `new_tuple` that is passed in with the current call).
+ *
+ * Params:
+ * key = The key for which the Tuple was changed.
+ * new_tuple = The new tuple. The tuple points to the actual, updated
+ *     "current" dictionary, as backed by the buffer internal to the AppSync
+ *     struct. Therefore the Tuple can be used after the callback returns,
+ *     until the AppSync is deinited. In case there was an error
+ *     (e.g. storage shortage), this `new_tuple` can be `NULL_TUPLE`.
+ * old_tuple = The values that will be replaced with `new_tuple`. The key,
+ *     value and type will be equal to the previous tuple in the old
+ *     destination dictionary; however, the `old_tuple` points to a
+ *     stack-allocated copy of the old data. This value will be `NULL_TUPLE`
+ *     when the initial values are being set.
+ * context = Pointer to application specific data, as set using
+ *     app_sync_init().
+ *
+ * See_Also: app_sync_init()
+ */
+alias void function
+(uint key, const(Tuple)* new_tuple, const(Tuple)* old_tuple, void* context)
+AppSyncTupleChangedCallback;
+
+/**
+ * Called whenever there was an error.
+ *
+ * Params:
+ * dict_error = The dictionary result error code, if the error was dictionary
+ *     related.
+ * app_message_error = The app_message result error code, if the error was
+ *     app_message related.
+ * context = Pointer to application specific data, as set using
+ *     app_sync_init().
+ *
+ * See_Also: app_sync_init()
+ */
+alias void function(DictionaryResult dict_error,
+AppMessageResult app_message_error, void* context) AppSyncErrorCallback;
+
+/// The callback type for an AppSync context.
+struct CallbackType {
+    /// The callback for a value being changed.
+    AppSyncTupleChangedCallback value_changed;
+    /// The sync error callback.
+    AppSyncErrorCallback error;
+    /// The callback context.
+    void* context;
+}
+
+/// An AppSync context.
+struct AppSync {
+    /// The current dictionary iterator.
+    DictionaryIterator current_iter;
+
+    union {
+        /// The current dictionary.
+        Dictionary* current;
+        /// The buffer.
+        ubyte* buffer;
+    }
+
+    /// The size of the buffer.
+    ushort buffer_size;
+    /// The callback
+    CallbackType callback;
+}
+
+/**
+ * Initialized an AppSync system with specific buffer size and initial keys
+ * and values. The `callback.value_changed` callback will be called
+ * __asynchronously__ with the initial keys and values, as to avoid
+ * duplicating code to update your app's UI.
+ *
+ * Note: Only updates for the keys specified in this initial array will be
+ * accepted by AppSync, updates for other keys that might come in will just be
+ * ignored.
+ *
+ * Params:
+ * s = The AppSync context to initialize.
+ * buffer = The buffer that AppSync should use.
+ * buffer_size = The size of the backing storage of the "current" dictionary.
+ *     Use dict_calc_buffer_size_from_tuplets() to estimate the size you need.
+ * keys_and_initial_values = An array of Tuplets with the initial keys and
+ *     values.
+ * count = The number of Tuplets in the `keys_and_initial_values` array.
+ * tuple_changed_callback = The callback that will handle changed
+ *     key/value pairs.
+ * error_callback = The callback that will handle errors.
+ * context = Pointer to app specific data that will get passed into calls
+ *     to the callbacks.
+ */
+extern(C) void app_sync_init(AppSync* s, ubyte* buffer,
+const ushort buffer_size, const Tuplet* keys_and_initial_values,
+const ubyte count, AppSyncTupleChangedCallback tuple_changed_callback,
+AppSyncErrorCallback error_callback, void* context);
+
+/**
+ * Cleans up an AppSync system. It frees the buffer allocated by an
+ * app_sync_init() call and deregisters itself from the AppMessage subsystem.
+ *
+ * Params:
+ * s = The AppSync context to deinit.
+ */
+extern(C) void app_sync_deinit(AppSync* s);
+
+/**
+ * Updates key/value pairs using an array of Tuplets.
+ *
+ * Note: The call will attempt to send the updated keys and values to the
+ * application on the other end.
+ *
+ * Only after the other end has acknowledged the update, the `.value_changed`
+ * callback will be called to confirm the update has completed and your
+ * application code can update its user interface.
+ *
+ * Params:
+ * s = The AppSync context.
+ * keys_and_values_to_update = An array of Tuplets with the keys and
+ *     values to update. The data in the Tuplets are copied during the call,
+ *     so the array can be stack-allocated.
+ * count = The number of Tuplets in the `keys_and_values_to_update` array.
+ *
+ * Returns: The result code from the AppMessage subsystem. Can be
+ *     APP_MSG_OK, APP_MSG_BUSY or APP_MSG_INVALID_ARGS.
+ */
+extern(C) AppMessageResult app_sync_set
+(AppSync* s, const Tuplet* keys_and_values_to_update, const ubyte count);
+
+/**
+ * Finds and gets a tuple in the "current" dictionary.
+ *
+ * Params:
+ * s = The AppSync context
+ * key = The key for which to find a Tuple.
+ *
+ * Returns: Pointer to a found Tuple, or NULL if there was no Tuple with the
+ *     specified key.
+ */
+extern(C) const(Tuple)* app_sync_get(const(AppSync)* s, const uint key);
+
+struct ResourceHandleType {}
+
+/**
+ * Opaque reference to a resource.
+ *
+ * See_Also: resource_get_handle()
+ */
+alias ResourceHandleType* ResHandle;
+
+// TODO: Define this.
+// #define RESOURCE_ID_FONT_FALLBACK RESOURCE_ID_GOTHIC_14
+
+/**
+ * Gets the resource handle for a file identifier.
+ *
+ * The resource IDs are auto-generated by the Pebble build process, based
+ * on the `appinfo.json`. The "name" field of each resource is prefixed
+ * by `RESOURCE_ID_` and made visible to the application (through the
+ * `build/src/resource_ids.auto.h` header which is automatically included).
+ *
+ * For example, given the following fragment of `appinfo.json`:
+ *     ...
+ *     "resources" : {
+ *         "media": [
+ *             {
+ *                 "name": "MY_ICON",
+ *                 "file": "img/icon.png",
+ *                 "type": "png",
+ *             },
+ *          ...
+ *
+ * The generated file identifier for this resource is `RESOURCE_ID_MY_ICON`.
+ * To get a resource handle for that resource write:
+ *
+ * ResHandle rh = resource_get_handle(RESOURCE_ID_MY_ICON);
+ *
+ * Params:
+ * resource_id = The resource ID.
+ */
+extern(C) ResHandle resource_get_handle(uint resource_id);
+
+/**
+ * Gets the size of the resource given a resource handle.
+ *
+ * Params:
+ * h = The handle to the resource
+ *
+ * Returns: The size of the resource in bytes.
+ */
+extern(C) size_t resource_size(ResHandle h);
+
+/**
+ * Copies the bytes for the resource with a given handle from flash storage
+ * into a given buffer.
+ *
+ * Params:
+ * h = The handle to the resource.
+ * buffer = The buffer to load the resource data into.
+ * max_length = The maximum number of bytes to copy.
+ *
+ * Returns: The number of bytes actually copied.
+ */
+extern(C) size_t resource_load(ResHandle h, ubyte* buffer, size_t max_length);
+
+/**
+ * Copies a range of bytes from a resource with a given handle into a
+ * given buffer.
+ *
+ * Params:
+ * h = The handle to the resource.
+ * start_offset = The offset in bytes at which to start reading from the
+ *     resource.
+ * buffer = The buffer to load the resource data into.
+ * num_bytes = The maximum number of bytes to copy.
+ *
+ * Returns: The number of bytes actually copied.
+ */
+extern(C) size_t resource_load_byte_range
+(ResHandle h, uint start_offset, ubyte* buffer, size_t num_bytes);
+
+/**
+ * The event loop for apps, to be used in app's main().
+ * Will block until the app is ready to exit.
+ */
+extern(C) void app_event_loop();
+
+/// Possible error codes from app_worker_launch, app_worker_kill.
+enum AppWorkerResult {
+    /// Success.
+    success = 0,
+    /// No worker found for the current app.
+    noWorker = 1,
+    /// A worker for a different app is already running.
+    differentApp = 2,
+    /// The worker is not running.
+    notRunning = 3,
+    /// The worker is already running.
+    alreadyRunning = 4,
+    /// The user will be asked for confirmation.
+    askingConfirmation = 5
+}
+
+///
+enum APP_WORKER_RESULT_SUCCESS = AppWorkerResult.success;
+///
+enum APP_WORKER_RESULT_NO_WORKER = AppWorkerResult.noWorker;
+///
+enum APP_WORKER_RESULT_DIFFERENT_APP = AppWorkerResult.differentApp;
+///
+enum APP_WORKER_RESULT_NOT_RUNNING = AppWorkerResult.notRunning;
+///
+enum APP_WORKER_RESULT_ALREADY_RUNNING = AppWorkerResult.alreadyRunning;
+///
+enum APP_WORKER_RESULT_ASKING_CONFIRMATION = AppWorkerResult.askingConfirmation;
+
+/**
+ * Generic structure of a worker message that can be sent between an app and
+ * its worker.
+ */
+struct AppWorkerMessage {
+    ushort data0;
+    ushort data1;
+    ushort data2;
+}
+
+/**
+ * Determine if the worker for the current app is running
+ *
+ * Returns: true if running.
+ */
+extern(C) bool app_worker_is_running();
+
+/**
+ * Launch the worker for the current app. Note that this is an asynchronous
+ * operation, a result code of APP_WORKER_RESULT_SUCCESS merely means that the
+ * request was successfully queued up.
+ *
+ * Returns: result code.
+ */
+extern(C) AppWorkerResult app_worker_launch();
+
+/**
+ * Kill the worker for the current app. Note that this is an asynchronous
+ * operation, a result code of APP_WORKER_RESULT_SUCCESS merely means that the
+ * request was successfully queued up.
+ *
+ * Returns: result code
+ */
+extern(C) AppWorkerResult app_worker_kill();
+
+/**
+ * Callback type for worker messages. Messages can be sent from worker to
+ * app or vice versa.
+ *
+ * Params:
+ * type = An application defined message type
+ * data = pointer to message data. The receiver must know the structure of
+ * the data provided by the sender.
+ */
+alias void function(ushort type, AppWorkerMessage* data)
+AppWorkerMessageHandler;
+
+/**
+ * Subscribe to worker messages. Once subscribed, the handler gets called on
+ * every message emitted by the other task (either worker or app).
+ *
+ * Params:
+ * handler = A callback to be executed when the event is received.
+ *
+ * Returns: true on success.
+ */
+extern(C) bool app_worker_message_subscribe(AppWorkerMessageHandler handler);
+
+/**
+ * Unsubscribe from worker messages. Once unsubscribed, the previously
+ * registered handler will no longer be called.
+ *
+ * Returns: true on success
+ */
+extern(C) bool app_worker_message_unsubscribe();
+
+/**
+ * Send a message to the other task (either worker or app).
+ *
+ * Params:
+ * type = An application defined message type.
+ * data = the message data structure.
+ */
+extern(C) void app_worker_send_message(ubyte type, AppWorkerMessage* data);
+
+/**
+ * Intervals during which the Bluetooth module may enter a low power mode.
+ * The sniff interval defines the period during which the Bluetooth module may
+ * not exchange (ACL) packets. The longer the sniff interval, the more time the
+ * Bluetooth module may spend in a low power mode.
+ *
+ * It may be necessary to reduce the sniff interval if an app requires reduced
+ * latency when sending messages.
+ *
+ * Note: These settings have a dramatic effect on the Pebble's energy
+ * consumption. Use the normal sniff interval whenever possible.
+ * Note, however, that switching between modes increases power consumption
+ * during the process. Frequent switching between modes is thus
+ * discouraged. Ensure you do not drop to normal frequently.
+ * The Bluetooth module is a major consumer of the Pebble's energy.
+ */
+enum SniffInterval {
+    normal = 0,
+    reduced = 1
+}
+
+///
+enum SNIFF_INTERVAL_NORMAL = SniffInterval.normal;
+///
+enum SNIFF_INTERVAL_REDUCED = SniffInterval.reduced;
+
+/**
+ * Set the Bluetooth module's sniff interval.
+ *
+ * The sniff interval will be restored to normal by the OS after the app's
+ * de-init handler is called. Set the sniff interval to normal whenever
+ * possible.
+ */
+extern(C) void app_comm_set_sniff_interval(const SniffInterval interval);
+
+/**
+ * Get the Bluetooth module's sniff interval.
+ *
+ * Returns: The SniffInterval value corresponding to the current interval.
+ */
+extern(C) SniffInterval app_comm_get_sniff_interval();
+
+/**
+ * Waits for a certain amount of milliseconds
+ *
+ * Params:
+ * millis = The number of milliseconds to wait for.
+ */
+extern(C) void psleep(int millis);
+
+struct AppTimer;
+
+/**
+ * The type of function which can be called when a timer fires.
+ *
+ * Params:
+ * data = The callback data passed to app_timer_register().
+ */
+alias void function (void* data) AppTimerCallback;
+
+/**
+ * Registers a timer that ends up in callback being called some
+ * specified time in the future.
+ *
+ * Params:
+ * timeout_ms = The expiry time in milliseconds from the current time.
+ * callback = The callback that gets called at expiry time.
+ * callback_data = The data that will be passed to callback.
+ *
+ * Returns: A pointer to an `AppTimer` that can be used to later reschedule
+ *     or cancel this timer
+ */
+extern(C) AppTimer* app_timer_register
+(uint timeout_ms, AppTimerCallback callback, void* callback_data);
+
+/**
+ * Reschedules an already running timer for some point in the future.
+ *
+ * Params:
+ * timer_handle = The timer to reschedule.
+ * new_timeout_ms = The new expiry time in milliseconds from the current time.
+ *
+ * Returns: true if the timer was rescheduled, false if the timer has
+ *     already elapsed.
+ */
+extern(C) bool app_timer_reschedule
+(AppTimer* timer_handle, uint new_timeout_ms);
+
+/**
+ * Cancels an already registered timer.
+ * Once cancelled the handle may no longer be used for any purpose.
+ */
+extern(C) void app_timer_cancel(AppTimer* timer_handle);
+
+/**
+ * Calculates the number of bytes of heap memory not currently being used
+ * by the application.
+ *
+ * Returns: The number of bytes on the heap not currently being used.
+ */
+extern(C) size_t heap_bytes_free();
+
+/**
+ * Calculates the number of bytes of heap memory currently being used
+ * by the application.
+ *
+ * Returns: The number of bytes on the heap currently being used.
+ */
+extern(C) size_t heap_bytes_used();
+
+/// The maximum size of a persist value in bytes.
+enum size_t PERSIST_DATA_MAX_LENGTH = 256;
+
+/// The maximum size of a persist string in bytes including the
+/// NULL terminator.
+enum size_t PERSIST_STRING_MAX_LENGTH = PERSIST_DATA_MAX_LENGTH;
+
+/// Status codes.
+/// See_Also: status_t
+enum StatusCode : int {
+    /// Operation completed successfully.
+    success = 0,
+    /// An error occurred (no description).
+    error = -1,
+    /// No idea what went wrong.
+    unknownError = -2,
+    /// There was a generic internal logic error.
+    internalError = -3,
+    /// The function was not called correctly.
+    invalidArgument = -4,
+    /// Insufficient allocatable memory available.
+    outOfMemory = -5,
+    /// Insufficient long-term storage available.
+    outOfStorage = -6,
+    /// Insufficient resources available.
+    outOfResources = -7,
+    /// Argument out of range (may be dynamic).
+    outOfRange = -8,
+    /// Target of operation does not exist.
+    doesNotExist = -9,
+    /// Operation not allowed (may depend on state).
+    invalidOperation = -10,
+    /// Another operation prevented this one.
+    busy = -11,
+    /// Equivalent of boolean true.
+    _true = 1,
+    /// Equivalent of boolean false.
+    _false = 0,
+    /// For list-style requests. At end of list.
+    noMoreItems = 2,
+    /// No action was taken as none was required.
+    noActionRequired = 3
+}
+
+///
+enum S_SUCCESS = StatusCode.success;
+///
+enum E_ERROR = StatusCode.error;
+///
+enum E_UNKNOWN = StatusCode.uknown;
+///
+enum E_INTERNAL = StatusCode.internalError;
+///
+enum E_INVALID_ARGUMENT = StatusCode.invalidArgument;
+///
+enum E_OUT_OF_MEMORY = StatusCode.outOfMemory;
+///
+enum E_OUT_OF_STORAGE = StatusCode.outOfStorage;
+///
+enum E_OUT_OF_RESOURCES = StatusCode.outOfResources;
+///
+enum E_RANGE = StatusCode.outOfRange;
+///
+enum E_DOES_NOT_EXIST = StatusCode.doesNotExist;
+///
+enum E_INVALID_OPERATION = StatusCode.invalidOperation;
+///
+enum E_BUSY = StatusCode.busy;
+///
+enum S_TRUE = StatusCode._true;
+///
+enum S_FALSE = StatusCode._false;
+///
+enum S_NO_MORE_ITEMS = StatusCode.noMoreItems;
+///
+enum S_NO_ACTION_REQUIRED = StatusCode.noActionRequired;
+
+// Because we can control the size of the enum in D, we can use the right type
+// for the status code values.
+
+/// Return value for system operations.
+alias status_t = StatusCode;
+
+//TODO: We got to this point in our header translation.
+
 alias int WakeupId;
 alias void function (int, int) WakeupHandler;
 alias _Anonymous_25 AppLaunchReason;
@@ -1681,61 +2679,6 @@ enum _Anonymous_12
     YEAR_UNIT = 32
 }
 
-
-
-enum _Anonymous_21
-{
-    APP_MSG_OK = 0,
-    APP_MSG_SEND_TIMEOUT = 2,
-    APP_MSG_SEND_REJECTED = 4,
-    APP_MSG_NOT_CONNECTED = 8,
-    APP_MSG_APP_NOT_RUNNING = 16,
-    APP_MSG_INVALID_ARGS = 32,
-    APP_MSG_BUSY = 64,
-    APP_MSG_BUFFER_OVERFLOW = 128,
-    APP_MSG_ALREADY_RELEASED = 512,
-    APP_MSG_CALLBACK_ALREADY_REGISTERED = 1024,
-    APP_MSG_CALLBACK_NOT_REGISTERED = 2048,
-    APP_MSG_OUT_OF_MEMORY = 4096,
-    APP_MSG_CLOSED = 8192,
-    APP_MSG_INTERNAL_ERROR = 16384
-}
-
-enum _Anonymous_22
-{
-    APP_WORKER_RESULT_SUCCESS = 0,
-    APP_WORKER_RESULT_NO_WORKER = 1,
-    APP_WORKER_RESULT_DIFFERENT_APP = 2,
-    APP_WORKER_RESULT_NOT_RUNNING = 3,
-    APP_WORKER_RESULT_ALREADY_RUNNING = 4,
-    APP_WORKER_RESULT_ASKING_CONFIRMATION = 5
-}
-
-enum _Anonymous_24
-{
-    SNIFF_INTERVAL_NORMAL = 0,
-    SNIFF_INTERVAL_REDUCED = 1
-}
-
-enum StatusCode
-{
-    S_SUCCESS = 0,
-    E_ERROR = -1,
-    E_UNKNOWN = -2,
-    E_INTERNAL = -3,
-    E_INVALID_ARGUMENT = -4,
-    E_OUT_OF_MEMORY = -5,
-    E_OUT_OF_STORAGE = -6,
-    E_OUT_OF_RESOURCES = -7,
-    E_RANGE = -8,
-    E_DOES_NOT_EXIST = -9,
-    E_INVALID_OPERATION = -10,
-    E_BUSY = -11,
-    S_TRUE = 1,
-    S_FALSE = 0,
-    S_NO_MORE_ITEMS = 2,
-    S_NO_ACTION_REQUIRED = 3
-}
 
 enum _Anonymous_25
 {
@@ -1827,33 +2770,6 @@ enum _Anonymous_31
     MenuRowAlignCenter = 1,
     MenuRowAlignTop = 2,
     MenuRowAlignBottom = 3
-}
-
-struct _Anonymous_20
-{
-    Dictionary* dictionary;
-    const(void)* end;
-    Tuple* cursor;
-}
-
-
-struct AppSync
-{
-    DictionaryIterator current_iter;
-    ushort buffer_size;
-    struct
-    {
-        AppSyncTupleChangedCallback value_changed;
-        AppSyncErrorCallback error;
-        void* context;
-    }
-}
-
-struct _Anonymous_23
-{
-    ushort data0;
-    ushort data1;
-    ushort data2;
 }
 
 struct GPoint
@@ -2048,48 +2964,6 @@ union GColor8
     ubyte argb;
 }
 
-DictionaryResult dict_serialize_tuplets (DictionarySerializeCallback callback, void* context, const Tuplet* tuplets, const ubyte tuplets_count);
-DictionaryResult dict_serialize_tuplets_to_buffer (const Tuplet* tuplets, const ubyte tuplets_count, ubyte* buffer, uint* size_in_out);
-DictionaryResult dict_serialize_tuplets_to_buffer_with_iter (DictionaryIterator* iter, const Tuplet* tuplets, const ubyte tuplets_count, ubyte* buffer, uint* size_in_out);
-DictionaryResult dict_write_tuplet (DictionaryIterator* iter, const Tuplet* tuplet);
-uint dict_calc_buffer_size_from_tuplets (const Tuplet* tuplets, const ubyte tuplets_count);
-DictionaryResult dict_merge (DictionaryIterator* dest, uint* dest_max_size_in_out, DictionaryIterator* source, const bool update_existing_keys_only, const DictionaryKeyUpdatedCallback key_callback, void* context);
-Tuple* dict_find (const(DictionaryIterator)* iter, const uint key);
-AppMessageResult app_message_open (const uint size_inbound, const uint size_outbound);
-void app_message_deregister_callbacks ();
-void* app_message_get_context ();
-void* app_message_set_context (void* context);
-AppMessageInboxReceived app_message_register_inbox_received (AppMessageInboxReceived received_callback);
-AppMessageInboxDropped app_message_register_inbox_dropped (AppMessageInboxDropped dropped_callback);
-AppMessageOutboxSent app_message_register_outbox_sent (AppMessageOutboxSent sent_callback);
-AppMessageOutboxFailed app_message_register_outbox_failed (AppMessageOutboxFailed failed_callback);
-uint app_message_inbox_size_maximum ();
-uint app_message_outbox_size_maximum ();
-AppMessageResult app_message_outbox_begin (DictionaryIterator** iterator);
-AppMessageResult app_message_outbox_send ();
-void app_sync_init (AppSync* s, ubyte* buffer, const ushort buffer_size, const Tuplet* keys_and_initial_values, const ubyte count, AppSyncTupleChangedCallback tuple_changed_callback, AppSyncErrorCallback error_callback, void* context);
-void app_sync_deinit (AppSync* s);
-AppMessageResult app_sync_set (AppSync* s, const Tuplet* keys_and_values_to_update, const ubyte count);
-const(Tuple)* app_sync_get (const(AppSync)* s, const uint key);
-ResHandle resource_get_handle (uint resource_id);
-size_t resource_size (ResHandle h);
-size_t resource_load (ResHandle h, ubyte* buffer, size_t max_length);
-size_t resource_load_byte_range (ResHandle h, uint start_offset, ubyte* buffer, size_t num_bytes);
-void app_event_loop ();
-bool app_worker_is_running ();
-AppWorkerResult app_worker_launch ();
-AppWorkerResult app_worker_kill ();
-bool app_worker_message_subscribe (AppWorkerMessageHandler handler);
-bool app_worker_message_unsubscribe ();
-void app_worker_send_message (ubyte type, AppWorkerMessage* data);
-void app_comm_set_sniff_interval (const SniffInterval interval);
-SniffInterval app_comm_get_sniff_interval ();
-void psleep (int millis);
-AppTimer* app_timer_register (uint timeout_ms, AppTimerCallback callback, void* callback_data);
-bool app_timer_reschedule (AppTimer* timer_handle, uint new_timeout_ms);
-void app_timer_cancel (AppTimer* timer_handle);
-size_t heap_bytes_free ();
-size_t heap_bytes_used ();
 bool persist_exists (const uint key);
 int persist_get_size (const uint key);
 bool persist_read_bool (const uint key);
