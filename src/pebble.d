@@ -1882,8 +1882,6 @@ AppMessageInboxDropped;
 alias void function(DictionaryIterator* iterator, void* context)
 AppMessageOutboxSent;
 
-// TODO: We got here last.
-
 /**
  * Called after an outbound message has not been sent successfully.
  *
@@ -2599,12 +2597,536 @@ enum S_NO_ACTION_REQUIRED = StatusCode.noActionRequired;
 /// Return value for system operations.
 alias status_t = StatusCode;
 
+/**
+ * Checks whether a value has been set for a given key in persistent storage.
+ *
+ * Params:
+ * key = The key of the field to check.
+ *
+ * Returns: true if a value exists, otherwise false.
+ */
+extern(C) bool persist_exists(const uint key);
+
+/**
+ * Gets the size of a value for a given key in persistent storage.
+ *
+ * Params:
+ * key = The key of the field to lookup the data size.
+ *
+ * Returns: The size of the value in bytes or E_DOES_NOT_EXIST
+ * if there is no field matching the given key.
+ */
+extern(C) int persist_get_size(const uint key);
+
+/**
+ * Reads a bool value for a given key from persistent storage.
+ * If the value has not yet been set, this will return false.
+ *
+ * Params:
+ * key = The key of the field to read from.
+ *
+ * Returns: The bool value of the key to read from.
+ */
+extern(C) bool persist_read_bool(const uint key);
+
+/**
+ * Reads an int value for a given key from persistent storage.
+ *
+ * Note: The int is a signed 32-bit integer.
+ *
+ * If the value has not yet been set, this will return 0.
+ *
+ * Params:
+ * key = The key of the field to read from.
+ *
+ * Returns: The int value of the key to read from.
+ */
+extern(C) int persist_read_int(const uint key);
+
+/**
+ * Reads a blob of data for a given key from persistent storage into
+ * a given buffer.
+ *
+ * If the value has not yet been set, the given buffer is left unchanged.
+ *
+ * Params:
+ * key = The key of the field to read from.
+ * buffer = The pointer to a buffer to be written to.
+ * buffer_size = The maximum size of the given buffer.
+ *
+ * Returns: The number of bytes written into the buffer or E_DOES_NOT_EXIST
+ * if there is no field matching the given key.
+ */
+extern(C) int persist_read_data
+(const uint key, void* buffer, const size_t buffer_size);
+
+/**
+ * Reads a string for a given key from persistent storage into a given buffer.
+ * The string will be null terminated.
+ *
+ * If the value has not yet been set, the given buffer is left unchanged.
+ *
+ * Params:
+ * key = The key of the field to read from.
+ * buffer = The pointer to a buffer to be written to.
+ * buffer_size = The maximum size of the given buffer.
+ *     This includes the null character.
+ *
+ * Returns: The number of bytes written into the buffer or E_DOES_NOT_EXIST
+ *     if there is no field matching the given key.
+ */
+extern(C) int persist_read_string
+(const uint key, char* buffer, const size_t buffer_size);
+
+/**
+ * Writes a bool value flag for a given key into persistent storage.
+ *
+ * Params:
+ * key = The key of the field to write to.
+ * value = The boolean value to write.
+ */
+extern(C) status_t persist_write_bool(const uint key, const bool value);
+
+/**
+ * Writes an int value for a given key into persistent storage.
+ *
+ * Note: The int is a signed 32-bit integer.
+ *
+ * Params:
+ * key = The key of the field to write to.
+ * value = The int value to write.
+ */
+extern(C) status_t persist_write_int(const uint key, const int value);
+
+/**
+ * Writes a blob of data of a specified size in bytes for a given key into persistent storage.
+ *
+ * The maximum size is PERSIST_DATA_MAX_LENGTH
+ *
+ * Params:
+ * key = The key of the field to write to.
+ * data = The pointer to the blob of data.
+ * size = The size in bytes.
+ *
+ * Returns: The number of bytes written.
+ */
+extern(C) int persist_write_data
+(const uint key, const(void)* data, const size_t size);
+
+/**
+ * Writes a string a given key into persistent storage.
+ * The maximum size is PERSIST_STRING_MAX_LENGTH including the null terminator.
+ *
+ * Params:
+ * key = The key of the field to write to.
+ * cstring = The pointer to null terminated string.
+ *
+ * Returns: The number of bytes written.
+ */
+extern(C) int persist_write_string(const uint key, const(char)* cstring);
+
+/**
+ * Deletes the value of a key from persistent storage.
+ *
+ * Params:
+ * key = The key of the field to delete from.
+ */
+extern(C) status_t persist_delete(const uint key);
+
 //TODO: We got to this point in our header translation.
 
+/// The identifier for a wakeup event.
 alias int WakeupId;
-alias void function (int, int) WakeupHandler;
-alias _Anonymous_25 AppLaunchReason;
+
+/**
+ * The type of function which can be called when a wakeup event occurs.
+ *
+ * Params:
+ * wakeup_id = The id of the wakeup event that occurred.
+ * cookie = The scheduled cookie provided to wakeup_schedule.
+ */
+extern(C) alias void function(WakeupId wakeup_id, int cookie) WakeupHandler;
+
+/**
+ * Registers a WakeupHandler to be called when wakeup events occur.
+ *
+ * Params:
+ * handler = The callback that gets called when the wakeup event occurs.
+ */
+extern(C) void wakeup_service_subscribe(WakeupHandler handler);
+
+/**
+ * Registers a wakeup event that triggers a callback at the specified time.
+ *
+ * Applications may only schedule up to 8 wakeup events.
+ * Wakeup events are given a 1 minute duration window,
+ * in that no application may schedule a wakeup event with 1 minute of a
+ * currently scheduled wakeup event.
+ *
+ * Params:
+ * timestamp = The requested time (UTC) for the wakeup event to occur
+ * cookie = The application specific reason for the wakeup event.
+ * notify_if_missed = On powering on Pebble, will alert user when
+ *     notifications were missed due to Pebble being off.
+ *
+ * Returns: negative values indicate errors (StatusCode).
+ *     E_RANGE if the event cannot be scheduled due to another event in
+ *     that period.
+ *     E_INVALID_ARGUMENT if the time requested is in the past.
+ *     E_OUT_OF_RESOURCES if the application has already scheduled all
+ *     8 wakeup events.
+ *     E_INTERNAL if a system error occurred during scheduling.
+ */
+extern(C) WakeupId wakeup_schedule
+(time_t timestamp, int cookie, bool notify_if_missed);
+
+/**
+ * Cancels a wakeup event.
+ *
+ * Params:
+ * wakeup_id = Wakeup event to cancel
+ */
+extern(C) void wakeup_cancel(WakeupId wakeup_id);
+
+/// Cancels all wakeup events for the app.
+extern(C) void wakeup_cancel_all();
+
+/**
+ * Retrieves the wakeup event info for an app that was launched
+ * by a wakeup_event (ie. launch_reason() === APP_LAUNCH_WAKEUP)
+ * so that an app may display information regarding the wakeup event
+ *
+ * Params:
+ * wakeup_id = WakeupId for the wakeup event that caused the app to wakeup.
+ * cookie = App provided reason for the wakeup event.
+ *
+ * Returns: true if app was launched due to a wakeup event, false otherwise.
+ */
+extern(C) bool wakeup_get_launch_event(WakeupId* wakeup_id, int* cookie);
+
+/**
+ * Checks if the current WakeupId is still scheduled and therefore valid.
+ *
+ * Params:
+ * wakeup_id = Wakeup event to query for validity and scheduled time.
+ * timestamp = Optionally points to an address of a time_t variable to
+ *     store the time that the wakeup event is scheduled to occur.
+ *     (The time is in UTC, but local time when clock_is_timezone_set
+ *     returns false).
+ *     You may pass NULL instead if you do not need it.
+ *
+ * Returns: true if WakeupId is still scheduled, false if it doesn't exist or
+ *     has already occurred
+ */
+extern(C) bool wakeup_query(WakeupId wakeup_id, time_t* timestamp);
+
+/**
+ * AppLaunchReason is used to inform the application about how it was launched
+ *
+ * Note: New launch reasons may be added in the future.
+ * As a best practice, it is recommended to only handle the cases that
+ * the app needs to know about, rather than trying to handle all
+ * possible launch reasons.
+ */
+enum AppLaunchReason {
+    /// App launched by the system
+    system = 0,
+    /// App launched by user selection in launcher menu.
+    user = 1,
+    /// App launched by mobile or companion app.
+    phone = 2,
+    /// App launched by wakeup event.
+    wakeup = 3,
+    /// App launched by worker calling worker_launch_app().
+    worker = 4,
+    /// App launched by user using quick launch.
+    quickLaunch = 5,
+    /// App launched by user opening it from a pin.
+    timelineAction = 6
+}
+
+///
+enum APP_LAUNCH_SYSTEM = AppLaunchReason.system;
+///
+enum APP_LAUNCH_USER = AppLaunchReason.user;
+///
+enum APP_LAUNCH_PHONE = AppLaunchReason.phone;
+///
+enum APP_LAUNCH_WAKEUP = AppLaunchReason.wakeup;
+///
+enum APP_LAUNCH_WORKER = AppLaunchReason.worker;
+///
+enum APP_LAUNCH_QUICK_LAUNCH = AppLaunchReason.quickLaunch;
+///
+enum APP_LAUNCH_TIMELINE_ACTION = AppLaunchReason.timelineAction;
+
+/**
+ * Provides the method used to launch the current application.
+ *
+ * Returns: The method or reason the current application was launched.
+ */
+extern(C) AppLaunchReason launch_reason();
+
+/**
+ * Get the argument passed to the app when it was launched.
+ *
+ * Note: Currently the only way to pass arguments to apps is by using an
+ * openWatchApp action on a pin.
+ *
+ * Returns: The argument passed to the app, or 0 if the app wasn't launched
+ *     from a Launch App action.
+ */
+extern(C) uint launch_get_args();
+
+/// A 8-bit colour value with an alpha channel.
+struct GColor8 {
+    ubyte argb;
+
+    /// Blue
+    @safe pure
+    @property ubyte b() const
+    out(value) {
+        assert(value >= 0 && value <= 3);
+    } body {
+        return argb >> 6;
+    }
+
+    /// Set the blue value.
+    @safe pure
+    @property void b(ubyte value)
+    in {
+        assert(value >= 0 && value <= 3);
+    } body {
+        argb = (argb & 0b00_11_11_11) | (value << 6);
+    }
+
+    /// Green
+    @safe pure
+    @property ubyte g() const
+    out(value) {
+        assert(value >= 0 && value <= 3);
+    } body {
+        return (argb & 0b00_11_00_00) >> 4;
+    }
+
+    /// Set the green value.
+    @safe pure
+    @property void g(ubyte value)
+    in {
+        assert(value >= 0 && value <= 3);
+    } body {
+        argb = (argb & 0b11_00_11_11) | (value << 4);
+    }
+
+    /// Red
+    @safe pure
+    @property ubyte r() const
+    out(value) {
+        assert(value >= 0 && value <= 3);
+    } body {
+        return (argb & 0b00_00_11_00) >> 2;
+    }
+
+    /// Set the red value.
+    @safe pure
+    @property void r(ubyte value)
+    in {
+        assert(value >= 0 && value <= 3);
+    } body {
+        argb = (argb & 0b11_11_00_11) | (value << 2);
+    }
+
+    /**
+     * The alpha value.
+     *
+     * 3 = 100% opaque,
+     * 2 = 66% opaque,
+     * 1 = 33% opaque,
+     * 0 = transparent.
+     */
+    @safe pure
+    @property ubyte a() const
+    out(value) {
+        assert(value >= 0 && value <= 3);
+    } body {
+        return argb & 0b00_00_00_11;
+    }
+
+    /// Set the alpha value.
+    @safe pure
+    @property void a(ubyte value)
+    in {
+        assert(value >= 0 && value <= 3);
+    } body {
+        argb = (argb & 0b11_11_11_00) | value;
+    }
+}
+
 alias GColor8 GColor;
+
+/**
+ * Comparison function for GColors.
+ *
+ * This simply returns x == y in D, so it is not recommended and exists only
+ * for helping port code to D.
+ */
+deprecated("Use x == y instead of GColorEq(x, y)")
+@safe pure
+bool GColorEq(GColor8 x, GColor8 y) {
+    return x == y;
+}
+
+
+// TODO: This macro was defined for swapping out color and black and white.
+// We should perhaps handle this somehow.
+
+// #define COLOR_FALLBACK(color, bw) (color)
+
+/**
+ * Represents a point in a 2-dimensional coordinate system.
+ *
+ * Note: Conventionally, the origin of Pebble's 2D coordinate system
+ * is in the upper, lefthand corner its x-axis extends to the right and
+ * its y-axis extends to the bottom of the screen.
+ */
+struct GPoint {
+    short x;
+    short y;
+}
+
+/// A zero GPoint.
+enum GPointZero = GPoint.init;
+
+/**
+ * Tests whether 2 points are equal.
+ *
+ * Params:
+ * point_a = Pointer to the first point
+ * point_b = Pointer to the second point
+ *
+ * Returns: `true` if both points are equal, `false` if not.
+ */
+deprecated("Use x == y instead of gpoint_equal(&x, &y)")
+@safe pure
+bool gpoint_equal(const GPoint* point_a, const GPoint* point_b) {
+   return *point_a == *point_b;
+}
+
+/// Represents a 2-dimensional size.
+struct GSize {
+    /// The width
+    short w;
+    /// The height
+    short h;
+}
+
+/// GSize of (0, 0).
+enum GSizeZero = GSize.init;
+
+/**
+ * Tests whether 2 sizes are equal.
+ *
+ * Params:
+ * size_a = Pointer to the first size.
+ * size_b = Pointer to the second size.
+ *
+ * Returns: `true` if both sizes are equal, `false` if not.
+ */
+deprecated("Use x == y instead of gsize_equal(&x, &y)")
+@safe pure
+bool gsize_equal(const(GSize)* size_a, const(GSize)* size_b) {
+    return *size_z == *size_b;
+}
+
+/**
+ * Represents a rectangle and defining it using the origin of
+ * the upper-lefthand corner and its size.
+ */
+struct GRect {
+    GPoint origin;
+    GSize size;
+
+    /// Create a rectangle with an origin and a size.
+    @safe pure
+    this(GPoint origin, GSize size) {
+        this.origin = origin;
+        this.size = size;
+    }
+
+    deprecated(
+        "Use GRect(GPoint(x, y), GSize(w, h)) "
+        "instead of GRect(x, y, w, h)"
+    )
+    @safe pure
+    this(short x, short y, short w, short h) {
+        this(GPoint(x, y), GSize(w, h));
+    }
+
+
+    /**
+     * Tests whether the size of the rectangle is (0, 0).
+     *
+     * Note: If the width and/or height of a rectangle is negative, this
+     * function will return `true`!
+     *
+     * Returns: `true` if the rectangle its size is (0, 0), or `false` if not.
+    */
+    @safe pure
+    @property bool is_empty() const {
+        return cast(int) size == 0;
+    }
+
+    /**
+     * Converts the rectangle's values so that the components of its size
+     * (width and/or height) are both positive.
+     *
+     * If the width and/or height are negative, the origin will offset,
+     * so that the final rectangle overlaps with the original.
+     *
+     * For example, a GRect with size (-10, -5) and origin (20, 20),
+     * will be standardized to size (10, 5) and origin (10, 15).
+     */
+    @safe pure
+    void standardize() {
+        if (size.w < 0) {
+            origin.x + size.w;
+            size.w = -size.w;
+        }
+
+        if (size.h < 0) {
+            origin.y + size.h;
+            size.h = -size.h;
+        }
+    }
+}
+
+/// A zero GRect.
+enum GRectZero = GRect.init;
+
+deprecated("Use x == y instead of grect_equal(&x, &y)")
+@safe pure
+bool grect_equal(const GRect* rect_a, const GRect* rect_b) {
+    return *rect_a == *rect_b;
+}
+
+deprecated("Use x.is_empty instead of grect_is_empty(&x)")
+@safe pure
+bool grect_is_empty(const GRect* rect) {
+    return rect.is_empty;
+}
+
+deprecated("Use x.standardize() instead of grect_standardize(&x)")
+@safe pure
+void grect_standardize(GRect* rect) {
+    rect.standardize();
+}
+
+// TODO: Implement this in D instead.
+/// Clip one rectangle with another.
+extern(C) void grect_clip(GRect* rect_to_clip, const GRect* rect_clipper);
+
+/// TODO: We got here last.
+
 alias _Anonymous_26 GCompOp;
 alias _Anonymous_27 GCornerMask;
 alias void* GFont;
@@ -2680,16 +3202,6 @@ enum _Anonymous_12
 }
 
 
-enum _Anonymous_25
-{
-    APP_LAUNCH_SYSTEM = 0,
-    APP_LAUNCH_USER = 1,
-    APP_LAUNCH_PHONE = 2,
-    APP_LAUNCH_WAKEUP = 3,
-    APP_LAUNCH_WORKER = 4,
-    APP_LAUNCH_QUICK_LAUNCH = 5,
-    APP_LAUNCH_TIMELINE_ACTION = 6
-}
 
 enum GBitmapFormat
 {
@@ -2770,24 +3282,6 @@ enum _Anonymous_31
     MenuRowAlignCenter = 1,
     MenuRowAlignTop = 2,
     MenuRowAlignBottom = 3
-}
-
-struct GPoint
-{
-    short x;
-    short y;
-}
-
-struct GSize
-{
-    short w;
-    short h;
-}
-
-struct GRect
-{
-    GPoint origin;
-    GSize size;
 }
 
 struct GPathInfo
@@ -2956,281 +3450,249 @@ struct GContext;
 struct SimpleMenuLayer;
 
 
-struct AppTimer;
 
 
-union GColor8
-{
-    ubyte argb;
-}
-
-bool persist_exists (const uint key);
-int persist_get_size (const uint key);
-bool persist_read_bool (const uint key);
-int persist_read_int (const uint key);
-int persist_read_data (const uint key, void* buffer, const size_t buffer_size);
-int persist_read_string (const uint key, char* buffer, const size_t buffer_size);
-status_t persist_write_bool (const uint key, const bool value);
-status_t persist_write_int (const uint key, const int value);
-int persist_write_data (const uint key, const(void)* data, const size_t size);
-int persist_write_string (const uint key, const(char)* cstring);
-status_t persist_delete (const uint key);
-void wakeup_service_subscribe (WakeupHandler handler);
-WakeupId wakeup_schedule (time_t timestamp, int cookie, bool notify_if_missed);
-void wakeup_cancel (WakeupId wakeup_id);
-void wakeup_cancel_all ();
-bool wakeup_get_launch_event (WakeupId* wakeup_id, int* cookie);
-bool wakeup_query (WakeupId wakeup_id, time_t* timestamp);
-AppLaunchReason launch_reason ();
-uint launch_get_args ();
-bool GColorEq (GColor8 x, GColor8 y);
-bool gpoint_equal (const GPoint* point_a, const GPoint* point_b);
-bool gsize_equal (const(GSize)* size_a, const(GSize)* size_b);
-bool grect_equal (const GRect* rect_a, const GRect* rect_b);
-bool grect_is_empty (const GRect* rect);
-void grect_standardize (GRect* rect);
-void grect_clip (GRect* rect_to_clip, const GRect* rect_clipper);
-bool grect_contains_point (const(GRect)* rect, const(GPoint)* point);
-GPoint grect_center_point (const(GRect)* rect);
-GRect grect_crop (GRect rect, const int crop_size_px);
-ushort gbitmap_get_bytes_per_row (const(GBitmap)* bitmap);
-GBitmapFormat gbitmap_get_format (const(GBitmap)* bitmap);
-ubyte* gbitmap_get_data (const(GBitmap)* bitmap);
-void gbitmap_set_data (GBitmap* bitmap, ubyte* data, GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy);
-GRect gbitmap_get_bounds (const(GBitmap)* bitmap);
-void gbitmap_set_bounds (GBitmap* bitmap, GRect bounds);
-GColor* gbitmap_get_palette (const(GBitmap)* bitmap);
-void gbitmap_set_palette (GBitmap* bitmap, GColor* palette, bool free_on_destroy);
-GBitmap* gbitmap_create_with_resource (uint resource_id);
-GBitmap* gbitmap_create_with_data (const(ubyte)* data);
-GBitmap* gbitmap_create_as_sub_bitmap (const(GBitmap)* base_bitmap, GRect sub_rect);
-GBitmap* gbitmap_create_from_png_data (const(ubyte)* png_data, size_t png_data_size);
-GBitmap* gbitmap_create_blank (GSize size, GBitmapFormat format);
-GBitmap* gbitmap_create_blank_with_palette (GSize size, GBitmapFormat format, GColor* palette, bool free_on_destroy);
-void gbitmap_destroy (GBitmap* bitmap);
-GBitmapSequence* gbitmap_sequence_create_with_resource (uint resource_id);
-bool gbitmap_sequence_update_bitmap_next_frame (GBitmapSequence* bitmap_sequence, GBitmap* bitmap, uint* delay_ms);
-void gbitmap_sequence_destroy (GBitmapSequence* bitmap_sequence);
-bool gbitmap_sequence_restart (GBitmapSequence* bitmap_sequence);
-int gbitmap_sequence_get_current_frame_idx (GBitmapSequence* bitmap_sequence);
-int gbitmap_sequence_get_total_num_frames (GBitmapSequence* bitmap_sequence);
-uint gbitmap_sequence_get_loop_count (GBitmapSequence* bitmap_sequence);
-void gbitmap_sequence_set_loop_count (GBitmapSequence* bitmap_sequence, uint loop_count);
-GSize gbitmap_sequence_get_bitmap_size (GBitmapSequence* bitmap_sequence);
-void grect_align (GRect* rect, const(GRect)* inside_rect, const GAlign alignment, const bool clip);
-void graphics_context_set_stroke_color (GContext* ctx, GColor color);
-void graphics_context_set_fill_color (GContext* ctx, GColor color);
-void graphics_context_set_text_color (GContext* ctx, GColor color);
-void graphics_context_set_compositing_mode (GContext* ctx, GCompOp mode);
-void graphics_context_set_antialiased (GContext* ctx, bool enable);
-void graphics_context_set_stroke_width (GContext* ctx, ubyte stroke_width);
-void graphics_draw_pixel (GContext* ctx, GPoint point);
-void graphics_draw_line (GContext* ctx, GPoint p0, GPoint p1);
-void graphics_draw_rect (GContext* ctx, GRect rect);
-void graphics_fill_rect (GContext* ctx, GRect rect, ushort corner_radius, GCornerMask corner_mask);
-void graphics_draw_circle (GContext* ctx, GPoint p, ushort radius);
-void graphics_fill_circle (GContext* ctx, GPoint p, ushort radius);
-void graphics_draw_round_rect (GContext* ctx, GRect rect, ushort radius);
-void graphics_draw_bitmap_in_rect (GContext* ctx, const(GBitmap)* bitmap, GRect rect);
-GBitmap* graphics_capture_frame_buffer (GContext* ctx);
-GBitmap* graphics_capture_frame_buffer_format (GContext* ctx, GBitmapFormat format);
-bool graphics_release_frame_buffer (GContext* ctx, GBitmap* buffer);
-bool graphics_frame_buffer_is_captured (GContext* ctx);
-GPath* gpath_create (const(GPathInfo)* init);
-void gpath_destroy (GPath* gpath);
-void gpath_draw_filled (GContext* ctx, GPath* path);
-void gpath_draw_outline (GContext* ctx, GPath* path);
-void gpath_rotate_to (GPath* path, int angle);
-void gpath_move_to (GPath* path, GPoint point);
-GFont fonts_get_system_font (const(char)* font_key);
-GFont fonts_load_custom_font (ResHandle handle);
-void fonts_unload_custom_font (GFont font);
-void graphics_draw_text (GContext* ctx, const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment, const GTextLayoutCacheRef layout);
-GSize graphics_text_layout_get_content_size (const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment);
-ubyte click_number_of_clicks_counted (ClickRecognizerRef recognizer);
-ButtonId click_recognizer_get_button_id (ClickRecognizerRef recognizer);
-bool click_recognizer_is_repeating (ClickRecognizerRef recognizer);
-Layer* layer_create (GRect frame);
-Layer* layer_create_with_data (GRect frame, size_t data_size);
-void layer_destroy (Layer* layer);
-void layer_mark_dirty (Layer* layer);
-void layer_set_update_proc (Layer* layer, LayerUpdateProc update_proc);
-void layer_set_frame (Layer* layer, GRect frame);
-GRect layer_get_frame (const(Layer)* layer);
-void layer_set_bounds (Layer* layer, GRect bounds);
-GRect layer_get_bounds (const(Layer)* layer);
-Window* layer_get_window (const(Layer)* layer);
-void layer_remove_from_parent (Layer* child);
-void layer_remove_child_layers (Layer* parent);
-void layer_add_child (Layer* parent, Layer* child);
-void layer_insert_below_sibling (Layer* layer_to_insert, Layer* below_sibling_layer);
-void layer_insert_above_sibling (Layer* layer_to_insert, Layer* above_sibling_layer);
-void layer_set_hidden (Layer* layer, bool hidden);
-bool layer_get_hidden (const(Layer)* layer);
-void layer_set_clips (Layer* layer, bool clips);
-bool layer_get_clips (const(Layer)* layer);
-void* layer_get_data (const(Layer)* layer);
-Window* window_create ();
-void window_destroy (Window* window);
-void window_set_click_config_provider (Window* window, ClickConfigProvider click_config_provider);
-void window_set_click_config_provider_with_context (Window* window, ClickConfigProvider click_config_provider, void* context);
-ClickConfigProvider window_get_click_config_provider (const(Window)* window);
-void* window_get_click_config_context (Window* window);
-void window_set_window_handlers (Window* window, WindowHandlers handlers);
-Layer* window_get_root_layer (const(Window)* window);
-void window_set_background_color (Window* window, GColor background_color);
-void window_set_fullscreen (Window* window, bool enabled);
-bool window_get_fullscreen (const(Window)* window);
-void window_set_status_bar_icon (Window* window, const(GBitmap)* icon);
-bool window_is_loaded (Window* window);
-void window_set_user_data (Window* window, void* data);
-void* window_get_user_data (const(Window)* window);
-void window_single_click_subscribe (ButtonId button_id, ClickHandler handler);
-void window_single_repeating_click_subscribe (ButtonId button_id, ushort repeat_interval_ms, ClickHandler handler);
-void window_multi_click_subscribe (ButtonId button_id, ubyte min_clicks, ubyte max_clicks, ushort timeout, bool last_click_only, ClickHandler handler);
-void window_long_click_subscribe (ButtonId button_id, ushort delay_ms, ClickHandler down_handler, ClickHandler up_handler);
-void window_raw_click_subscribe (ButtonId button_id, ClickHandler down_handler, ClickHandler up_handler, void* context);
-void window_set_click_context (ButtonId button_id, void* context);
-void window_stack_push (Window* window, bool animated);
-Window* window_stack_pop (bool animated);
-void window_stack_pop_all (const bool animated);
-bool window_stack_remove (Window* window, bool animated);
-Window* window_stack_get_top_window ();
-bool window_stack_contains_window (Window* window);
-Animation* animation_create ();
-bool animation_destroy (Animation* animation);
-Animation* animation_clone (Animation* from);
-Animation* animation_sequence_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
-Animation* animation_sequence_create_from_array (Animation** animation_array, uint array_len);
-Animation* animation_spawn_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
-Animation* animation_spawn_create_from_array (Animation** animation_array, uint array_len);
-bool animation_set_position (Animation* animation, uint milliseconds);
-bool animation_get_position (Animation* animation, int* position);
-bool animation_set_reverse (Animation* animation, bool reverse);
-bool animation_get_reverse (Animation* animation);
-bool animation_set_play_count (Animation* animation, uint play_count);
-uint animation_get_play_count (Animation* animation);
-bool animation_set_duration (Animation* animation, uint duration_ms);
-uint animation_get_duration (Animation* animation, bool include_delay, bool include_play_count);
-bool animation_set_delay (Animation* animation, uint delay_ms);
-uint animation_get_delay (Animation* animation);
-bool animation_set_curve (Animation* animation, AnimationCurve curve);
-AnimationCurve animation_get_curve (Animation* animation);
-bool animation_set_custom_curve (Animation* animation, AnimationCurveFunction curve_function);
-AnimationCurveFunction animation_get_custom_curve (Animation* animation);
-bool animation_set_handlers (Animation* animation, AnimationHandlers callbacks, void* context);
-void* animation_get_context (Animation* animation);
-bool animation_schedule (Animation* animation);
-bool animation_unschedule (Animation* animation);
-void animation_unschedule_all ();
-bool animation_is_scheduled (Animation* animation);
-bool animation_set_implementation (Animation* animation, const(AnimationImplementation)* implementation);
-const(AnimationImplementation)* animation_get_implementation (Animation* animation);
-PropertyAnimation* property_animation_create_layer_frame (Layer* layer, GRect* from_frame, GRect* to_frame);
-PropertyAnimation* property_animation_create (const(PropertyAnimationImplementation)* implementation, void* subject, void* from_value, void* to_value);
-void property_animation_destroy (PropertyAnimation* property_animation);
-void property_animation_update_int16 (PropertyAnimation* property_animation, const uint distance_normalized);
-void property_animation_update_gpoint (PropertyAnimation* property_animation, const uint distance_normalized);
-void property_animation_update_grect (PropertyAnimation* property_animation, const uint distance_normalized);
-Animation* property_animation_get_animation (PropertyAnimation* property_animation);
-bool property_animation_subject (PropertyAnimation* property_animation, void** subject, bool set);
-bool property_animation_from (PropertyAnimation* property_animation, void* from, size_t size, bool set);
-bool property_animation_to (PropertyAnimation* property_animation, void* to, size_t size, bool set);
-TextLayer* text_layer_create (GRect frame);
-void text_layer_destroy (TextLayer* text_layer);
-Layer* text_layer_get_layer (TextLayer* text_layer);
-void text_layer_set_text (TextLayer* text_layer, const(char)* text);
-const(char)* text_layer_get_text (TextLayer* text_layer);
-void text_layer_set_background_color (TextLayer* text_layer, GColor color);
-void text_layer_set_text_color (TextLayer* text_layer, GColor color);
-void text_layer_set_overflow_mode (TextLayer* text_layer, GTextOverflowMode line_mode);
-void text_layer_set_font (TextLayer* text_layer, GFont font);
-void text_layer_set_text_alignment (TextLayer* text_layer, GTextAlignment text_alignment);
-GSize text_layer_get_content_size (TextLayer* text_layer);
-void text_layer_set_size (TextLayer* text_layer, const GSize max_size);
-ScrollLayer* scroll_layer_create (GRect frame);
-void scroll_layer_destroy (ScrollLayer* scroll_layer);
-Layer* scroll_layer_get_layer (const(ScrollLayer)* scroll_layer);
-void scroll_layer_add_child (ScrollLayer* scroll_layer, Layer* child);
-void scroll_layer_set_click_config_onto_window (ScrollLayer* scroll_layer, Window* window);
-void scroll_layer_set_callbacks (ScrollLayer* scroll_layer, ScrollLayerCallbacks callbacks);
-void scroll_layer_set_context (ScrollLayer* scroll_layer, void* context);
-void scroll_layer_set_content_offset (ScrollLayer* scroll_layer, GPoint offset, bool animated);
-GPoint scroll_layer_get_content_offset (ScrollLayer* scroll_layer);
-void scroll_layer_set_content_size (ScrollLayer* scroll_layer, GSize size);
-GSize scroll_layer_get_content_size (const(ScrollLayer)* scroll_layer);
-void scroll_layer_set_frame (ScrollLayer* scroll_layer, GRect frame);
-void scroll_layer_scroll_up_click_handler (ClickRecognizerRef recognizer, void* context);
-void scroll_layer_scroll_down_click_handler (ClickRecognizerRef recognizer, void* context);
-void scroll_layer_set_shadow_hidden (ScrollLayer* scroll_layer, bool hidden);
-bool scroll_layer_get_shadow_hidden (const(ScrollLayer)* scroll_layer);
-InverterLayer* inverter_layer_create (GRect frame);
-void inverter_layer_destroy (InverterLayer* inverter_layer);
-Layer* inverter_layer_get_layer (InverterLayer* inverter_layer);
-void menu_cell_basic_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title, const(char)* subtitle, GBitmap* icon);
-void menu_cell_title_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
-void menu_cell_basic_header_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
-short menu_index_compare (MenuIndex* a, MenuIndex* b);
-MenuLayer* menu_layer_create (GRect frame);
-void menu_layer_destroy (MenuLayer* menu_layer);
-Layer* menu_layer_get_layer (const(MenuLayer)* menu_layer);
-ScrollLayer* menu_layer_get_scroll_layer (const(MenuLayer)* menu_layer);
-void menu_layer_set_callbacks (MenuLayer* menu_layer, void* callback_context, MenuLayerCallbacks callbacks);
-void menu_layer_set_click_config_onto_window (MenuLayer* menu_layer, Window* window);
-void menu_layer_set_selected_next (MenuLayer* menu_layer, bool up, MenuRowAlign scroll_align, bool animated);
-void menu_layer_set_selected_index (MenuLayer* menu_layer, MenuIndex index, MenuRowAlign scroll_align, bool animated);
-MenuIndex menu_layer_get_selected_index (const(MenuLayer)* menu_layer);
-void menu_layer_reload_data (MenuLayer* menu_layer);
-void menu_layer_shadow_enable (MenuLayer* menu_layer, bool enable);
-SimpleMenuLayer* simple_menu_layer_create (GRect frame, Window* window, const(SimpleMenuSection)* sections, int num_sections, void* callback_context);
-void simple_menu_layer_destroy (SimpleMenuLayer* menu_layer);
-Layer* simple_menu_layer_get_layer (const(SimpleMenuLayer)* simple_menu);
-int simple_menu_layer_get_selected_index (const(SimpleMenuLayer)* simple_menu);
-void simple_menu_layer_set_selected_index (SimpleMenuLayer* simple_menu, int index, bool animated);
-MenuLayer* simple_menu_layer_get_menu_layer (SimpleMenuLayer* simple_menu);
-ActionBarLayer* action_bar_layer_create ();
-void action_bar_layer_destroy (ActionBarLayer* action_bar_layer);
-Layer* action_bar_layer_get_layer (ActionBarLayer* action_bar_layer);
-void action_bar_layer_set_context (ActionBarLayer* action_bar, void* context);
-void action_bar_layer_set_click_config_provider (ActionBarLayer* action_bar, ClickConfigProvider click_config_provider);
-void action_bar_layer_set_icon (ActionBarLayer* action_bar, ButtonId button_id, const(GBitmap)* icon);
-void action_bar_layer_clear_icon (ActionBarLayer* action_bar, ButtonId button_id);
-void action_bar_layer_add_to_window (ActionBarLayer* action_bar, Window* window);
-void action_bar_layer_remove_from_window (ActionBarLayer* action_bar);
-void action_bar_layer_set_background_color (ActionBarLayer* action_bar, GColor background_color);
-BitmapLayer* bitmap_layer_create (GRect frame);
-void bitmap_layer_destroy (BitmapLayer* bitmap_layer);
-Layer* bitmap_layer_get_layer (const(BitmapLayer)* bitmap_layer);
-const(GBitmap)* bitmap_layer_get_bitmap (BitmapLayer* bitmap_layer);
-void bitmap_layer_set_bitmap (BitmapLayer* bitmap_layer, const(GBitmap)* bitmap);
-void bitmap_layer_set_alignment (BitmapLayer* bitmap_layer, GAlign alignment);
-void bitmap_layer_set_background_color (BitmapLayer* bitmap_layer, GColor color);
-void bitmap_layer_set_compositing_mode (BitmapLayer* bitmap_layer, GCompOp mode);
-RotBitmapLayer* rot_bitmap_layer_create (GBitmap* bitmap);
-void rot_bitmap_layer_destroy (RotBitmapLayer* bitmap);
-void rot_bitmap_layer_set_corner_clip_color (RotBitmapLayer* bitmap, GColor color);
-void rot_bitmap_layer_set_angle (RotBitmapLayer* bitmap, int angle);
-void rot_bitmap_layer_increment_angle (RotBitmapLayer* bitmap, int angle_change);
-void rot_bitmap_set_src_ic (RotBitmapLayer* bitmap, GPoint ic);
-void rot_bitmap_set_compositing_mode (RotBitmapLayer* bitmap, GCompOp mode);
-NumberWindow* number_window_create (const(char)* label, NumberWindowCallbacks callbacks, void* callback_context);
-void number_window_destroy (NumberWindow* number_window);
-void number_window_set_label (NumberWindow* numberwindow, const(char)* label);
-void number_window_set_max (NumberWindow* numberwindow, int max);
-void number_window_set_min (NumberWindow* numberwindow, int min);
-void number_window_set_value (NumberWindow* numberwindow, int value);
-void number_window_set_step_size (NumberWindow* numberwindow, int step);
-int number_window_get_value (const(NumberWindow)* numberwindow);
-Window* number_window_get_window (NumberWindow* numberwindow);
-void vibes_cancel ();
-void vibes_short_pulse ();
-void vibes_long_pulse ();
-void vibes_double_pulse ();
-void vibes_enqueue_custom_pattern (VibePattern pattern);
-void light_enable_interaction ();
-void light_enable (bool enable);
-tm* localtime (const(time_t)* timep);
-tm* gmtime (const(time_t)* timep);
-time_t mktime (tm* tb);
-time_t time (time_t* tloc);
-ushort time_ms (time_t* tloc, ushort* out_ms);
+extern(C) bool grect_contains_point (const(GRect)* rect, const(GPoint)* point);
+extern(C) GPoint grect_center_point (const(GRect)* rect);
+extern(C) GRect grect_crop (GRect rect, const int crop_size_px);
+extern(C) ushort gbitmap_get_bytes_per_row (const(GBitmap)* bitmap);
+extern(C) GBitmapFormat gbitmap_get_format (const(GBitmap)* bitmap);
+extern(C) ubyte* gbitmap_get_data (const(GBitmap)* bitmap);
+extern(C) void gbitmap_set_data (GBitmap* bitmap, ubyte* data, GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy);
+extern(C) GRect gbitmap_get_bounds (const(GBitmap)* bitmap);
+extern(C) void gbitmap_set_bounds (GBitmap* bitmap, GRect bounds);
+extern(C) GColor* gbitmap_get_palette (const(GBitmap)* bitmap);
+extern(C) void gbitmap_set_palette (GBitmap* bitmap, GColor* palette, bool free_on_destroy);
+extern(C) GBitmap* gbitmap_create_with_resource (uint resource_id);
+extern(C) GBitmap* gbitmap_create_with_data (const(ubyte)* data);
+extern(C) GBitmap* gbitmap_create_as_sub_bitmap (const(GBitmap)* base_bitmap, GRect sub_rect);
+extern(C) GBitmap* gbitmap_create_from_png_data (const(ubyte)* png_data, size_t png_data_size);
+extern(C) GBitmap* gbitmap_create_blank (GSize size, GBitmapFormat format);
+extern(C) GBitmap* gbitmap_create_blank_with_palette (GSize size, GBitmapFormat format, GColor* palette, bool free_on_destroy);
+extern(C) void gbitmap_destroy (GBitmap* bitmap);
+extern(C) GBitmapSequence* gbitmap_sequence_create_with_resource (uint resource_id);
+extern(C) bool gbitmap_sequence_update_bitmap_next_frame (GBitmapSequence* bitmap_sequence, GBitmap* bitmap, uint* delay_ms);
+extern(C) void gbitmap_sequence_destroy (GBitmapSequence* bitmap_sequence);
+extern(C) bool gbitmap_sequence_restart (GBitmapSequence* bitmap_sequence);
+extern(C) int gbitmap_sequence_get_current_frame_idx (GBitmapSequence* bitmap_sequence);
+extern(C) int gbitmap_sequence_get_total_num_frames (GBitmapSequence* bitmap_sequence);
+extern(C) uint gbitmap_sequence_get_loop_count (GBitmapSequence* bitmap_sequence);
+extern(C) void gbitmap_sequence_set_loop_count (GBitmapSequence* bitmap_sequence, uint loop_count);
+extern(C) GSize gbitmap_sequence_get_bitmap_size (GBitmapSequence* bitmap_sequence);
+extern(C) void grect_align (GRect* rect, const(GRect)* inside_rect, const GAlign alignment, const bool clip);
+extern(C) void graphics_context_set_stroke_color (GContext* ctx, GColor color);
+extern(C) void graphics_context_set_fill_color (GContext* ctx, GColor color);
+extern(C) void graphics_context_set_text_color (GContext* ctx, GColor color);
+extern(C) void graphics_context_set_compositing_mode (GContext* ctx, GCompOp mode);
+extern(C) void graphics_context_set_antialiased (GContext* ctx, bool enable);
+extern(C) void graphics_context_set_stroke_width (GContext* ctx, ubyte stroke_width);
+extern(C) void graphics_draw_pixel (GContext* ctx, GPoint point);
+extern(C) void graphics_draw_line (GContext* ctx, GPoint p0, GPoint p1);
+extern(C) void graphics_draw_rect (GContext* ctx, GRect rect);
+extern(C) void graphics_fill_rect (GContext* ctx, GRect rect, ushort corner_radius, GCornerMask corner_mask);
+extern(C) void graphics_draw_circle (GContext* ctx, GPoint p, ushort radius);
+extern(C) void graphics_fill_circle (GContext* ctx, GPoint p, ushort radius);
+extern(C) void graphics_draw_round_rect (GContext* ctx, GRect rect, ushort radius);
+extern(C) void graphics_draw_bitmap_in_rect (GContext* ctx, const(GBitmap)* bitmap, GRect rect);
+extern(C) GBitmap* graphics_capture_frame_buffer (GContext* ctx);
+extern(C) GBitmap* graphics_capture_frame_buffer_format (GContext* ctx, GBitmapFormat format);
+extern(C) bool graphics_release_frame_buffer (GContext* ctx, GBitmap* buffer);
+extern(C) bool graphics_frame_buffer_is_captured (GContext* ctx);
+extern(C) GPath* gpath_create (const(GPathInfo)* init);
+extern(C) void gpath_destroy (GPath* gpath);
+extern(C) void gpath_draw_filled (GContext* ctx, GPath* path);
+extern(C) void gpath_draw_outline (GContext* ctx, GPath* path);
+extern(C) void gpath_rotate_to (GPath* path, int angle);
+extern(C) void gpath_move_to (GPath* path, GPoint point);
+extern(C) GFont fonts_get_system_font (const(char)* font_key);
+extern(C) GFont fonts_load_custom_font (ResHandle handle);
+extern(C) void fonts_unload_custom_font (GFont font);
+extern(C) void graphics_draw_text (GContext* ctx, const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment, const GTextLayoutCacheRef layout);
+extern(C) GSize graphics_text_layout_get_content_size (const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment);
+extern(C) ubyte click_number_of_clicks_counted (ClickRecognizerRef recognizer);
+extern(C) ButtonId click_recognizer_get_button_id (ClickRecognizerRef recognizer);
+extern(C) bool click_recognizer_is_repeating (ClickRecognizerRef recognizer);
+extern(C) Layer* layer_create (GRect frame);
+extern(C) Layer* layer_create_with_data (GRect frame, size_t data_size);
+extern(C) void layer_destroy (Layer* layer);
+extern(C) void layer_mark_dirty (Layer* layer);
+extern(C) void layer_set_update_proc (Layer* layer, LayerUpdateProc update_proc);
+extern(C) void layer_set_frame (Layer* layer, GRect frame);
+extern(C) GRect layer_get_frame (const(Layer)* layer);
+extern(C) void layer_set_bounds (Layer* layer, GRect bounds);
+extern(C) GRect layer_get_bounds (const(Layer)* layer);
+extern(C) Window* layer_get_window (const(Layer)* layer);
+extern(C) void layer_remove_from_parent (Layer* child);
+extern(C) void layer_remove_child_layers (Layer* parent);
+extern(C) void layer_add_child (Layer* parent, Layer* child);
+extern(C) void layer_insert_below_sibling (Layer* layer_to_insert, Layer* below_sibling_layer);
+extern(C) void layer_insert_above_sibling (Layer* layer_to_insert, Layer* above_sibling_layer);
+extern(C) void layer_set_hidden (Layer* layer, bool hidden);
+extern(C) bool layer_get_hidden (const(Layer)* layer);
+extern(C) void layer_set_clips (Layer* layer, bool clips);
+extern(C) bool layer_get_clips (const(Layer)* layer);
+extern(C) void* layer_get_data (const(Layer)* layer);
+extern(C) Window* window_create ();
+extern(C) void window_destroy (Window* window);
+extern(C) void window_set_click_config_provider (Window* window, ClickConfigProvider click_config_provider);
+extern(C) void window_set_click_config_provider_with_context (Window* window, ClickConfigProvider click_config_provider, void* context);
+extern(C) ClickConfigProvider window_get_click_config_provider (const(Window)* window);
+extern(C) void* window_get_click_config_context (Window* window);
+extern(C) void window_set_window_handlers (Window* window, WindowHandlers handlers);
+extern(C) Layer* window_get_root_layer (const(Window)* window);
+extern(C) void window_set_background_color (Window* window, GColor background_color);
+extern(C) void window_set_fullscreen (Window* window, bool enabled);
+extern(C) bool window_get_fullscreen (const(Window)* window);
+extern(C) void window_set_status_bar_icon (Window* window, const(GBitmap)* icon);
+extern(C) bool window_is_loaded (Window* window);
+extern(C) void window_set_user_data (Window* window, void* data);
+extern(C) void* window_get_user_data (const(Window)* window);
+extern(C) void window_single_click_subscribe (ButtonId button_id, ClickHandler handler);
+extern(C) void window_single_repeating_click_subscribe (ButtonId button_id, ushort repeat_interval_ms, ClickHandler handler);
+extern(C) void window_multi_click_subscribe (ButtonId button_id, ubyte min_clicks, ubyte max_clicks, ushort timeout, bool last_click_only, ClickHandler handler);
+extern(C) void window_long_click_subscribe (ButtonId button_id, ushort delay_ms, ClickHandler down_handler, ClickHandler up_handler);
+extern(C) void window_raw_click_subscribe (ButtonId button_id, ClickHandler down_handler, ClickHandler up_handler, void* context);
+extern(C) void window_set_click_context (ButtonId button_id, void* context);
+extern(C) void window_stack_push (Window* window, bool animated);
+extern(C) Window* window_stack_pop (bool animated);
+extern(C) void window_stack_pop_all (const bool animated);
+extern(C) bool window_stack_remove (Window* window, bool animated);
+extern(C) Window* window_stack_get_top_window ();
+extern(C) bool window_stack_contains_window (Window* window);
+extern(C) Animation* animation_create ();
+extern(C) bool animation_destroy (Animation* animation);
+extern(C) Animation* animation_clone (Animation* from);
+extern(C) Animation* animation_sequence_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
+extern(C) Animation* animation_sequence_create_from_array (Animation** animation_array, uint array_len);
+extern(C) Animation* animation_spawn_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
+extern(C) Animation* animation_spawn_create_from_array (Animation** animation_array, uint array_len);
+extern(C) bool animation_set_position (Animation* animation, uint milliseconds);
+extern(C) bool animation_get_position (Animation* animation, int* position);
+extern(C) bool animation_set_reverse (Animation* animation, bool reverse);
+extern(C) bool animation_get_reverse (Animation* animation);
+extern(C) bool animation_set_play_count (Animation* animation, uint play_count);
+extern(C) uint animation_get_play_count (Animation* animation);
+extern(C) bool animation_set_duration (Animation* animation, uint duration_ms);
+extern(C) uint animation_get_duration (Animation* animation, bool include_delay, bool include_play_count);
+extern(C) bool animation_set_delay (Animation* animation, uint delay_ms);
+extern(C) uint animation_get_delay (Animation* animation);
+extern(C) bool animation_set_curve (Animation* animation, AnimationCurve curve);
+extern(C) AnimationCurve animation_get_curve (Animation* animation);
+extern(C) bool animation_set_custom_curve (Animation* animation, AnimationCurveFunction curve_function);
+extern(C) AnimationCurveFunction animation_get_custom_curve (Animation* animation);
+extern(C) bool animation_set_handlers (Animation* animation, AnimationHandlers callbacks, void* context);
+extern(C) void* animation_get_context (Animation* animation);
+extern(C) bool animation_schedule (Animation* animation);
+extern(C) bool animation_unschedule (Animation* animation);
+extern(C) void animation_unschedule_all ();
+extern(C) bool animation_is_scheduled (Animation* animation);
+extern(C) bool animation_set_implementation (Animation* animation, const(AnimationImplementation)* implementation);
+extern(C) const(AnimationImplementation)* animation_get_implementation (Animation* animation);
+extern(C) PropertyAnimation* property_animation_create_layer_frame (Layer* layer, GRect* from_frame, GRect* to_frame);
+extern(C) PropertyAnimation* property_animation_create (const(PropertyAnimationImplementation)* implementation, void* subject, void* from_value, void* to_value);
+extern(C) void property_animation_destroy (PropertyAnimation* property_animation);
+extern(C) void property_animation_update_int16 (PropertyAnimation* property_animation, const uint distance_normalized);
+extern(C) void property_animation_update_gpoint (PropertyAnimation* property_animation, const uint distance_normalized);
+extern(C) void property_animation_update_grect (PropertyAnimation* property_animation, const uint distance_normalized);
+extern(C) Animation* property_animation_get_animation (PropertyAnimation* property_animation);
+extern(C) bool property_animation_subject (PropertyAnimation* property_animation, void** subject, bool set);
+extern(C) bool property_animation_from (PropertyAnimation* property_animation, void* from, size_t size, bool set);
+extern(C) bool property_animation_to (PropertyAnimation* property_animation, void* to, size_t size, bool set);
+extern(C) TextLayer* text_layer_create (GRect frame);
+extern(C) void text_layer_destroy (TextLayer* text_layer);
+extern(C) Layer* text_layer_get_layer (TextLayer* text_layer);
+extern(C) void text_layer_set_text (TextLayer* text_layer, const(char)* text);
+extern(C) const(char)* text_layer_get_text (TextLayer* text_layer);
+extern(C) void text_layer_set_background_color (TextLayer* text_layer, GColor color);
+extern(C) void text_layer_set_text_color (TextLayer* text_layer, GColor color);
+extern(C) void text_layer_set_overflow_mode (TextLayer* text_layer, GTextOverflowMode line_mode);
+extern(C) void text_layer_set_font (TextLayer* text_layer, GFont font);
+extern(C) void text_layer_set_text_alignment (TextLayer* text_layer, GTextAlignment text_alignment);
+extern(C) GSize text_layer_get_content_size (TextLayer* text_layer);
+extern(C) void text_layer_set_size (TextLayer* text_layer, const GSize max_size);
+extern(C) ScrollLayer* scroll_layer_create (GRect frame);
+extern(C) void scroll_layer_destroy (ScrollLayer* scroll_layer);
+extern(C) Layer* scroll_layer_get_layer (const(ScrollLayer)* scroll_layer);
+extern(C) void scroll_layer_add_child (ScrollLayer* scroll_layer, Layer* child);
+extern(C) void scroll_layer_set_click_config_onto_window (ScrollLayer* scroll_layer, Window* window);
+extern(C) void scroll_layer_set_callbacks (ScrollLayer* scroll_layer, ScrollLayerCallbacks callbacks);
+extern(C) void scroll_layer_set_context (ScrollLayer* scroll_layer, void* context);
+extern(C) void scroll_layer_set_content_offset (ScrollLayer* scroll_layer, GPoint offset, bool animated);
+extern(C) GPoint scroll_layer_get_content_offset (ScrollLayer* scroll_layer);
+extern(C) void scroll_layer_set_content_size (ScrollLayer* scroll_layer, GSize size);
+extern(C) GSize scroll_layer_get_content_size (const(ScrollLayer)* scroll_layer);
+extern(C) void scroll_layer_set_frame (ScrollLayer* scroll_layer, GRect frame);
+extern(C) void scroll_layer_scroll_up_click_handler (ClickRecognizerRef recognizer, void* context);
+extern(C) void scroll_layer_scroll_down_click_handler (ClickRecognizerRef recognizer, void* context);
+extern(C) void scroll_layer_set_shadow_hidden (ScrollLayer* scroll_layer, bool hidden);
+extern(C) bool scroll_layer_get_shadow_hidden (const(ScrollLayer)* scroll_layer);
+extern(C) InverterLayer* inverter_layer_create (GRect frame);
+extern(C) void inverter_layer_destroy (InverterLayer* inverter_layer);
+extern(C) Layer* inverter_layer_get_layer (InverterLayer* inverter_layer);
+extern(C) void menu_cell_basic_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title, const(char)* subtitle, GBitmap* icon);
+extern(C) void menu_cell_title_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
+extern(C) void menu_cell_basic_header_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
+extern(C) short menu_index_compare (MenuIndex* a, MenuIndex* b);
+extern(C) MenuLayer* menu_layer_create (GRect frame);
+extern(C) void menu_layer_destroy (MenuLayer* menu_layer);
+extern(C) Layer* menu_layer_get_layer (const(MenuLayer)* menu_layer);
+extern(C) ScrollLayer* menu_layer_get_scroll_layer (const(MenuLayer)* menu_layer);
+extern(C) void menu_layer_set_callbacks (MenuLayer* menu_layer, void* callback_context, MenuLayerCallbacks callbacks);
+extern(C) void menu_layer_set_click_config_onto_window (MenuLayer* menu_layer, Window* window);
+extern(C) void menu_layer_set_selected_next (MenuLayer* menu_layer, bool up, MenuRowAlign scroll_align, bool animated);
+extern(C) void menu_layer_set_selected_index (MenuLayer* menu_layer, MenuIndex index, MenuRowAlign scroll_align, bool animated);
+extern(C) MenuIndex menu_layer_get_selected_index (const(MenuLayer)* menu_layer);
+extern(C) void menu_layer_reload_data (MenuLayer* menu_layer);
+extern(C) void menu_layer_shadow_enable (MenuLayer* menu_layer, bool enable);
+extern(C) SimpleMenuLayer* simple_menu_layer_create (GRect frame, Window* window, const(SimpleMenuSection)* sections, int num_sections, void* callback_context);
+extern(C) void simple_menu_layer_destroy (SimpleMenuLayer* menu_layer);
+extern(C) Layer* simple_menu_layer_get_layer (const(SimpleMenuLayer)* simple_menu);
+extern(C) int simple_menu_layer_get_selected_index (const(SimpleMenuLayer)* simple_menu);
+extern(C) void simple_menu_layer_set_selected_index (SimpleMenuLayer* simple_menu, int index, bool animated);
+extern(C) MenuLayer* simple_menu_layer_get_menu_layer (SimpleMenuLayer* simple_menu);
+extern(C) ActionBarLayer* action_bar_layer_create ();
+extern(C) void action_bar_layer_destroy (ActionBarLayer* action_bar_layer);
+extern(C) Layer* action_bar_layer_get_layer (ActionBarLayer* action_bar_layer);
+extern(C) void action_bar_layer_set_context (ActionBarLayer* action_bar, void* context);
+extern(C) void action_bar_layer_set_click_config_provider (ActionBarLayer* action_bar, ClickConfigProvider click_config_provider);
+extern(C) void action_bar_layer_set_icon (ActionBarLayer* action_bar, ButtonId button_id, const(GBitmap)* icon);
+extern(C) void action_bar_layer_clear_icon (ActionBarLayer* action_bar, ButtonId button_id);
+extern(C) void action_bar_layer_add_to_window (ActionBarLayer* action_bar, Window* window);
+extern(C) void action_bar_layer_remove_from_window (ActionBarLayer* action_bar);
+extern(C) void action_bar_layer_set_background_color (ActionBarLayer* action_bar, GColor background_color);
+extern(C) BitmapLayer* bitmap_layer_create (GRect frame);
+extern(C) void bitmap_layer_destroy (BitmapLayer* bitmap_layer);
+extern(C) Layer* bitmap_layer_get_layer (const(BitmapLayer)* bitmap_layer);
+extern(C) const(GBitmap)* bitmap_layer_get_bitmap (BitmapLayer* bitmap_layer);
+extern(C) void bitmap_layer_set_bitmap (BitmapLayer* bitmap_layer, const(GBitmap)* bitmap);
+extern(C) void bitmap_layer_set_alignment (BitmapLayer* bitmap_layer, GAlign alignment);
+extern(C) void bitmap_layer_set_background_color (BitmapLayer* bitmap_layer, GColor color);
+extern(C) void bitmap_layer_set_compositing_mode (BitmapLayer* bitmap_layer, GCompOp mode);
+extern(C) RotBitmapLayer* rot_bitmap_layer_create (GBitmap* bitmap);
+extern(C) void rot_bitmap_layer_destroy (RotBitmapLayer* bitmap);
+extern(C) void rot_bitmap_layer_set_corner_clip_color (RotBitmapLayer* bitmap, GColor color);
+extern(C) void rot_bitmap_layer_set_angle (RotBitmapLayer* bitmap, int angle);
+extern(C) void rot_bitmap_layer_increment_angle (RotBitmapLayer* bitmap, int angle_change);
+extern(C) void rot_bitmap_set_src_ic (RotBitmapLayer* bitmap, GPoint ic);
+extern(C) void rot_bitmap_set_compositing_mode (RotBitmapLayer* bitmap, GCompOp mode);
+extern(C) NumberWindow* number_window_create (const(char)* label, NumberWindowCallbacks callbacks, void* callback_context);
+extern(C) void number_window_destroy (NumberWindow* number_window);
+extern(C) void number_window_set_label (NumberWindow* numberwindow, const(char)* label);
+extern(C) void number_window_set_max (NumberWindow* numberwindow, int max);
+extern(C) void number_window_set_min (NumberWindow* numberwindow, int min);
+extern(C) void number_window_set_value (NumberWindow* numberwindow, int value);
+extern(C) void number_window_set_step_size (NumberWindow* numberwindow, int step);
+extern(C) int number_window_get_value (const(NumberWindow)* numberwindow);
+extern(C) Window* number_window_get_window (NumberWindow* numberwindow);
+extern(C) void vibes_cancel ();
+extern(C) void vibes_short_pulse ();
+extern(C) void vibes_long_pulse ();
+extern(C) void vibes_double_pulse ();
+extern(C) void vibes_enqueue_custom_pattern (VibePattern pattern);
+extern(C) void light_enable_interaction ();
+extern(C) void light_enable (bool enable);
+extern(C) tm* localtime (const(time_t)* timep);
+extern(C) tm* gmtime (const(time_t)* timep);
+extern(C) time_t mktime (tm* tb);
+extern(C) time_t time (time_t* tloc);
+extern(C) ushort time_ms (time_t* tloc, ushort* out_ms);
