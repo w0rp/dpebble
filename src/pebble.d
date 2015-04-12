@@ -31,15 +31,15 @@ enum ButtonId {
 }
 
 ///
-enum BUTTON_ID_BACK = ButtonId.back;
+alias BUTTON_ID_BACK = ButtonId.back;
 ///
-enum BUTTON_ID_UP = ButtonId.up;
+alias BUTTON_ID_UP = ButtonId.up;
 ///
-enum BUTTON_ID_SELECT = ButtonId.select;
+alias BUTTON_ID_SELECT = ButtonId.select;
 ///
-enum BUTTON_ID_DOWN = ButtonId.down;
+alias BUTTON_ID_DOWN = ButtonId.down;
 ///
-enum NUM_BUTTONS = ButtonId.num;
+alias NUM_BUTTONS = ButtonId.num;
 
 /**
  * Get the ISO locale name for the language currently set on the watch.
@@ -63,13 +63,13 @@ enum WatchInfoModel {
 }
 
 ///
-enum WATCH_INFO_MODEL_UNKNOWN = WatchInfoModel.unknown;
+alias WATCH_INFO_MODEL_UNKNOWN = WatchInfoModel.unknown;
 ///
-enum WATCH_INFO_MODEL_PEBBLE_ORIGINAL = WatchInfoModel.original;
+alias WATCH_INFO_MODEL_PEBBLE_ORIGINAL = WatchInfoModel.original;
 ///
-enum WATCH_INFO_MODEL_PEBBLE_STEEL = WatchInfoModel.steel;
+alias WATCH_INFO_MODEL_PEBBLE_STEEL = WatchInfoModel.steel;
 ///
-enum WATCH_INFO_MODEL_PEBBLE_TIME = WatchInfoModel.time;
+alias WATCH_INFO_MODEL_PEBBLE_TIME = WatchInfoModel.time;
 
 /// The different watch colors.
 enum WatchInfoColor {
@@ -104,33 +104,33 @@ enum WatchInfoColor {
 }
 
 ///
-enum WATCH_INFO_COLOR_UNKNOWN = WatchInfoColor.unknown;
+alias WATCH_INFO_COLOR_UNKNOWN = WatchInfoColor.unknown;
 ///
-enum WATCH_INFO_COLOR_BLACK = WatchInfoColor.black;
+alias WATCH_INFO_COLOR_BLACK = WatchInfoColor.black;
 ///
-enum WATCH_INFO_COLOR_WHITE = WatchInfoColor.white;
+alias WATCH_INFO_COLOR_WHITE = WatchInfoColor.white;
 ///
-enum WATCH_INFO_COLOR_RED = WatchInfoColor.red;
+alias WATCH_INFO_COLOR_RED = WatchInfoColor.red;
 ///
-enum WATCH_INFO_COLOR_ORANGE = WatchInfoColor.orange;
+alias WATCH_INFO_COLOR_ORANGE = WatchInfoColor.orange;
 ///
-enum WATCH_INFO_COLOR_GREY = WatchInfoColor.grey;
+alias WATCH_INFO_COLOR_GREY = WatchInfoColor.grey;
 ///
-enum WATCH_INFO_COLOR_STAINLESS_STEEL = WatchInfoColor.stainless_steel;
+alias WATCH_INFO_COLOR_STAINLESS_STEEL = WatchInfoColor.stainless_steel;
 ///
-enum WATCH_INFO_COLOR_MATTE_BLACK = WatchInfoColor.matte_black;
+alias WATCH_INFO_COLOR_MATTE_BLACK = WatchInfoColor.matte_black;
 ///
-enum WATCH_INFO_COLOR_BLUE = WatchInfoColor.blue;
+alias WATCH_INFO_COLOR_BLUE = WatchInfoColor.blue;
 ///
-enum WATCH_INFO_COLOR_GREEN = WatchInfoColor.green;
+alias WATCH_INFO_COLOR_GREEN = WatchInfoColor.green;
 ///
-enum WATCH_INFO_COLOR_PINK = WatchInfoColor.pink;
+alias WATCH_INFO_COLOR_PINK = WatchInfoColor.pink;
 ///
-enum WATCH_INFO_COLOR_TIME_WHITE = WatchInfoColor.time_white;
+alias WATCH_INFO_COLOR_TIME_WHITE = WatchInfoColor.time_white;
 ///
-enum WATCH_INFO_COLOR_TIME_BLACK = WatchInfoColor.time_black;
+alias WATCH_INFO_COLOR_TIME_BLACK = WatchInfoColor.time_black;
 ///
-enum WATCH_INFO_COLOR_TIME_RED = WatchInfoColor.time_red;
+alias WATCH_INFO_COLOR_TIME_RED = WatchInfoColor.time_red;
 
 /**
  * Data structure containing the version of the firmware running on the watch.
@@ -236,21 +236,21 @@ enum WeekDay {
 }
 
 ///
-enum TODAY = WeekDay.today;
+alias TODAY = WeekDay.today;
 ///
-enum SUNDAY = WeekDay.sunday;
+alias SUNDAY = WeekDay.sunday;
 ///
-enum MONDAY = WeekDay.monday;
+alias MONDAY = WeekDay.monday;
 ///
-enum TUESDAY = WeekDay.tuesday;
+alias TUESDAY = WeekDay.tuesday;
 ///
-enum WEDNESDAY = WeekDay.wednesday;
+alias WEDNESDAY = WeekDay.wednesday;
 ///
-enum THURSDAY = WeekDay.thursday;
+alias THURSDAY = WeekDay.thursday;
 ///
-enum FRIDAY = WeekDay.friday;
+alias FRIDAY = WeekDay.friday;
 ///
-enum SATURDAY = WeekDay.saturday;
+alias SATURDAY = WeekDay.saturday;
 
 /**
  * Copies a time string into the buffer, formatted according to the user's
@@ -446,11 +446,11 @@ enum AccelAxisType {
 }
 
 ///
-enum ACCEL_AXIS_X = AccelAxisType.x;
+alias ACCEL_AXIS_X = AccelAxisType.x;
 ///
-enum ACCEL_AXIS_Y = AccelAxisType.y;
+alias ACCEL_AXIS_Y = AccelAxisType.y;
 ///
-enum ACCEL_AXIS_Z = AccelAxisType.z;
+alias ACCEL_AXIS_Z = AccelAxisType.z;
 
 /**
  * Callback type for accelerometer data events.
@@ -493,13 +493,13 @@ enum AccelSamplingRate {
 }
 
 ///
-enum ACCEL_SAMPLING_10HZ = AccelSamplingRate._10hz;
+alias ACCEL_SAMPLING_10HZ = AccelSamplingRate._10hz;
 ///
-enum ACCEL_SAMPLING_25HZ = AccelSamplingRate._25hz;
+alias ACCEL_SAMPLING_25HZ = AccelSamplingRate._25hz;
 ///
-enum ACCEL_SAMPLING_50HZ = AccelSamplingRate._50hz;
+alias ACCEL_SAMPLING_50HZ = AccelSamplingRate._50hz;
 ///
-enum ACCEL_SAMPLING_100HZ = AccelSamplingRate._100hz;
+alias ACCEL_SAMPLING_100HZ = AccelSamplingRate._100hz;
 
 /**
  * Peek at the last recorded reading.
@@ -615,11 +615,11 @@ enum CompassStatus {
 }
 
 ///
-enum CompassStatusDataInvalid = CompassStatus.data_invaild;
+alias CompassStatusDataInvalid = CompassStatus.data_invaild;
 ///
-enum CompassStatusCalibrating = CompassStatus.calibrating;
+alias CompassStatusCalibrating = CompassStatus.calibrating;
 ///
-enum CompassStatusCalibrated = CompassStatus.calibrated;
+alias CompassStatusCalibrated = CompassStatus.calibrated;
 
 /**
  * Represents an angle relative to a reference direction,
@@ -721,17 +721,17 @@ enum TimeUnits {
 }
 
 ///
-enum SECOND_UNIT = TimeUnits.second;
+alias SECOND_UNIT = TimeUnits.second;
 ///
-enum MINUTE_UNIT = TimeUnits.minute;
+alias MINUTE_UNIT = TimeUnits.minute;
 ///
-enum HOUR_UNIT = TimeUnits.hour;
+alias HOUR_UNIT = TimeUnits.hour;
 ///
-enum DAY_UNIT = TimeUnits.day;
+alias DAY_UNIT = TimeUnits.day;
 ///
-enum MONTH_UNIT = TimeUnits.month;
+alias MONTH_UNIT = TimeUnits.month;
 ///
-enum YEAR_UNIT = TimeUnits.year;
+alias YEAR_UNIT = TimeUnits.year;
 
 /// FIXME: tm was redefined here.
 
@@ -793,11 +793,11 @@ enum DataLoggingItemType {
 }
 
 ///
-enum DATA_LOGGING_BYTE_ARRAY = DataLoggingItemType.byte_array;
+alias DATA_LOGGING_BYTE_ARRAY = DataLoggingItemType.byte_array;
 ///
-enum DATA_LOGGING_UINT = DataLoggingItemType._uint;
+alias DATA_LOGGING_UINT = DataLoggingItemType._uint;
 ///
-enum DATA_LOGGING_INT = DataLoggingItemType._int;
+alias DATA_LOGGING_INT = DataLoggingItemType._int;
 
 /**
  * Enumerated values describing the possible outcomes of data logging
@@ -819,17 +819,17 @@ enum DataLoggingResult {
 }
 
 ///
-enum DATA_LOGGING_SUCCESS = DataLoggingResult.success;
+alias DATA_LOGGING_SUCCESS = DataLoggingResult.success;
 ///
-enum DATA_LOGGING_BUSY = DataLoggingResult.busy;
+alias DATA_LOGGING_BUSY = DataLoggingResult.busy;
 ///
-enum DATA_LOGGING_FULL = DataLoggingResult.full;
+alias DATA_LOGGING_FULL = DataLoggingResult.full;
 ///
-enum DATA_LOGGING_NOT_FOUND = DataLoggingResult.not_found;
+alias DATA_LOGGING_NOT_FOUND = DataLoggingResult.not_found;
 ///
-enum DATA_LOGGING_CLOSED = DataLoggingResult.closed;
+alias DATA_LOGGING_CLOSED = DataLoggingResult.closed;
 ///
-enum DATA_LOGGING_INVALID_PARAMS = DataLoggingResult.invalid_params;
+alias DATA_LOGGING_INVALID_PARAMS = DataLoggingResult.invalid_params;
 
 /**
  * Create a new data logging session.
@@ -904,6 +904,7 @@ align(1):
     ubyte byte15;
 }
 
+/// The size of UUIDs.
 enum UUID_SIZE = 16;
 
 /// This function mirrors a macro in the C header.
@@ -979,15 +980,15 @@ enum AppLogLevel: ubyte {
 }
 
 ///
-enum APP_LOG_LEVEL_ERROR = AppLogLevel.error;
+alias APP_LOG_LEVEL_ERROR = AppLogLevel.error;
 ///
-enum APP_LOG_LEVEL_WARNING = AppLogLevel.warning;
+alias APP_LOG_LEVEL_WARNING = AppLogLevel.warning;
 ///
-enum APP_LOG_LEVEL_INFO = AppLogLevel.info;
+alias APP_LOG_LEVEL_INFO = AppLogLevel.info;
 ///
-enum APP_LOG_LEVEL_DEBUG = AppLogLevel._debug;
+alias APP_LOG_LEVEL_DEBUG = AppLogLevel._debug;
 ///
-enum APP_LOG_LEVEL_VERBOSE = AppLogLevel.verbose;
+alias APP_LOG_LEVEL_VERBOSE = AppLogLevel.verbose;
 
 /**
  *  Log an app message.
@@ -1035,15 +1036,15 @@ enum DictionaryResult {
 }
 
 ///
-enum DICT_OK = DictionaryResult.ok;
+alias DICT_OK = DictionaryResult.ok;
 ///
-enum DICT_NOT_ENOUGH_STORAGE = DictionaryResult.not_enough_storage;
+alias DICT_NOT_ENOUGH_STORAGE = DictionaryResult.not_enough_storage;
 ///
-enum DICT_INVALID_ARGS = DictionaryResult.invalid_args;
+alias DICT_INVALID_ARGS = DictionaryResult.invalid_args;
 ///
-enum DICT_INTERNAL_INCONSISTENCY = DictionaryResult.internal_inconsistency;
+alias DICT_INTERNAL_INCONSISTENCY = DictionaryResult.internal_inconsistency;
 ///
-enum DICT_MALLOC_FAILED = DictionaryResult.malloc_failed;
+alias DICT_MALLOC_FAILED = DictionaryResult.malloc_failed;
 
 /// Values representing the type of data that the `value` field of a
 /// Tuple contains.
@@ -1061,13 +1062,13 @@ enum TupleType: ubyte {
 }
 
 ///
-enum TUPLE_BYTE_ARRAY = TupleType.byte_array;
+alias TUPLE_BYTE_ARRAY = TupleType.byte_array;
 ///
-enum TUPLE_CSTRING = TupleType.cstring;
+alias TUPLE_CSTRING = TupleType.cstring;
 ///
-enum TUPLE_UINT = TupleType._uint;
+alias TUPLE_UINT = TupleType._uint;
 ///
-enum TUPLE_INT = TupleType._int;
+alias TUPLE_INT = TupleType._int;
 
 
 /**
@@ -1783,34 +1784,34 @@ enum AppMessageResult {
 }
 
 ///
-enum APP_MSG_OK = AppMessageResult.ok;
+alias APP_MSG_OK = AppMessageResult.ok;
 ///
-enum APP_MSG_SEND_TIMEOUT = AppMessageResult.sendTimeout;
+alias APP_MSG_SEND_TIMEOUT = AppMessageResult.sendTimeout;
 ///
-enum APP_MSG_SEND_REJECTED = AppMessageResult.sendRejected;
+alias APP_MSG_SEND_REJECTED = AppMessageResult.sendRejected;
 ///
-enum APP_MSG_NOT_CONNECTED = AppMessageResult.notConnected;
+alias APP_MSG_NOT_CONNECTED = AppMessageResult.notConnected;
 ///
-enum APP_MSG_APP_NOT_RUNNING = AppMessageResult.notRunning;
+alias APP_MSG_APP_NOT_RUNNING = AppMessageResult.notRunning;
 ///
-enum APP_MSG_INVALID_ARGS = AppMessageResult.invalidArgs;
+alias APP_MSG_INVALID_ARGS = AppMessageResult.invalidArgs;
 ///
-enum APP_MSG_BUSY = AppMessageResult.busy;
+alias APP_MSG_BUSY = AppMessageResult.busy;
 ///
-enum APP_MSG_BUFFER_OVERFLOW = AppMessageResult.overflow;
+alias APP_MSG_BUFFER_OVERFLOW = AppMessageResult.overflow;
 ///
-enum APP_MSG_ALREADY_RELEASED = AppMessageResult.alreadyReleased;
+alias APP_MSG_ALREADY_RELEASED = AppMessageResult.alreadyReleased;
 ///
-enum APP_MSG_CALLBACK_ALREADY_REGISTERED =
+alias APP_MSG_CALLBACK_ALREADY_REGISTERED =
     AppMessageResult.callbackAlreadyRegistered;
 ///
-enum APP_MSG_CALLBACK_NOT_REGISTERED = AppMessageResult.callbackNotRegistered;
+alias APP_MSG_CALLBACK_NOT_REGISTERED = AppMessageResult.callbackNotRegistered;
 ///
-enum APP_MSG_OUT_OF_MEMORY = AppMessageResult.outOfMemory;
+alias APP_MSG_OUT_OF_MEMORY = AppMessageResult.outOfMemory;
 ///
-enum APP_MSG_CLOSED = AppMessageResult.closed;
+alias APP_MSG_CLOSED = AppMessageResult.closed;
 ///
-enum APP_MSG_INTERNAL_ERROR = AppMessageResult.internalError;
+alias APP_MSG_INTERNAL_ERROR = AppMessageResult.internalError;
 
 /**
  * Open AppMessage to transfers.
@@ -2317,17 +2318,17 @@ enum AppWorkerResult {
 }
 
 ///
-enum APP_WORKER_RESULT_SUCCESS = AppWorkerResult.success;
+alias APP_WORKER_RESULT_SUCCESS = AppWorkerResult.success;
 ///
-enum APP_WORKER_RESULT_NO_WORKER = AppWorkerResult.noWorker;
+alias APP_WORKER_RESULT_NO_WORKER = AppWorkerResult.noWorker;
 ///
-enum APP_WORKER_RESULT_DIFFERENT_APP = AppWorkerResult.differentApp;
+alias APP_WORKER_RESULT_DIFFERENT_APP = AppWorkerResult.differentApp;
 ///
-enum APP_WORKER_RESULT_NOT_RUNNING = AppWorkerResult.notRunning;
+alias APP_WORKER_RESULT_NOT_RUNNING = AppWorkerResult.notRunning;
 ///
-enum APP_WORKER_RESULT_ALREADY_RUNNING = AppWorkerResult.alreadyRunning;
+alias APP_WORKER_RESULT_ALREADY_RUNNING = AppWorkerResult.alreadyRunning;
 ///
-enum APP_WORKER_RESULT_ASKING_CONFIRMATION = AppWorkerResult.askingConfirmation;
+alias APP_WORKER_RESULT_ASKING_CONFIRMATION = AppWorkerResult.askingConfirmation;
 
 /**
  * Generic structure of a worker message that can be sent between an app and
@@ -2421,14 +2422,16 @@ extern(C) void app_worker_send_message(ubyte type, AppWorkerMessage* data);
  * The Bluetooth module is a major consumer of the Pebble's energy.
  */
 enum SniffInterval {
+    ///
     normal = 0,
+    ///
     reduced = 1
 }
 
 ///
-enum SNIFF_INTERVAL_NORMAL = SniffInterval.normal;
+alias SNIFF_INTERVAL_NORMAL = SniffInterval.normal;
 ///
-enum SNIFF_INTERVAL_REDUCED = SniffInterval.reduced;
+alias SNIFF_INTERVAL_REDUCED = SniffInterval.reduced;
 
 /**
  * Set the Bluetooth module's sniff interval.
@@ -2559,37 +2562,37 @@ enum StatusCode : int {
 }
 
 ///
-enum S_SUCCESS = StatusCode.success;
+alias S_SUCCESS = StatusCode.success;
 ///
-enum E_ERROR = StatusCode.error;
+alias E_ERROR = StatusCode.error;
 ///
-enum E_UNKNOWN = StatusCode.uknown;
+alias E_UNKNOWN = StatusCode.uknown;
 ///
-enum E_INTERNAL = StatusCode.internalError;
+alias E_INTERNAL = StatusCode.internalError;
 ///
-enum E_INVALID_ARGUMENT = StatusCode.invalidArgument;
+alias E_INVALID_ARGUMENT = StatusCode.invalidArgument;
 ///
-enum E_OUT_OF_MEMORY = StatusCode.outOfMemory;
+alias E_OUT_OF_MEMORY = StatusCode.outOfMemory;
 ///
-enum E_OUT_OF_STORAGE = StatusCode.outOfStorage;
+alias E_OUT_OF_STORAGE = StatusCode.outOfStorage;
 ///
-enum E_OUT_OF_RESOURCES = StatusCode.outOfResources;
+alias E_OUT_OF_RESOURCES = StatusCode.outOfResources;
 ///
-enum E_RANGE = StatusCode.outOfRange;
+alias E_RANGE = StatusCode.outOfRange;
 ///
-enum E_DOES_NOT_EXIST = StatusCode.doesNotExist;
+alias E_DOES_NOT_EXIST = StatusCode.doesNotExist;
 ///
-enum E_INVALID_OPERATION = StatusCode.invalidOperation;
+alias E_INVALID_OPERATION = StatusCode.invalidOperation;
 ///
-enum E_BUSY = StatusCode.busy;
+alias E_BUSY = StatusCode.busy;
 ///
-enum S_TRUE = StatusCode._true;
+alias S_TRUE = StatusCode._true;
 ///
-enum S_FALSE = StatusCode._false;
+alias S_FALSE = StatusCode._false;
 ///
-enum S_NO_MORE_ITEMS = StatusCode.noMoreItems;
+alias S_NO_MORE_ITEMS = StatusCode.noMoreItems;
 ///
-enum S_NO_ACTION_REQUIRED = StatusCode.noActionRequired;
+alias S_NO_ACTION_REQUIRED = StatusCode.noActionRequired;
 
 // Because we can control the size of the enum in D, we can use the right type
 // for the status code values.
@@ -2846,19 +2849,19 @@ enum AppLaunchReason {
 }
 
 ///
-enum APP_LAUNCH_SYSTEM = AppLaunchReason.system;
+alias APP_LAUNCH_SYSTEM = AppLaunchReason.system;
 ///
-enum APP_LAUNCH_USER = AppLaunchReason.user;
+alias APP_LAUNCH_USER = AppLaunchReason.user;
 ///
-enum APP_LAUNCH_PHONE = AppLaunchReason.phone;
+alias APP_LAUNCH_PHONE = AppLaunchReason.phone;
 ///
-enum APP_LAUNCH_WAKEUP = AppLaunchReason.wakeup;
+alias APP_LAUNCH_WAKEUP = AppLaunchReason.wakeup;
 ///
-enum APP_LAUNCH_WORKER = AppLaunchReason.worker;
+alias APP_LAUNCH_WORKER = AppLaunchReason.worker;
 ///
-enum APP_LAUNCH_QUICK_LAUNCH = AppLaunchReason.quickLaunch;
+alias APP_LAUNCH_QUICK_LAUNCH = AppLaunchReason.quickLaunch;
 ///
-enum APP_LAUNCH_TIMELINE_ACTION = AppLaunchReason.timelineAction;
+alias APP_LAUNCH_TIMELINE_ACTION = AppLaunchReason.timelineAction;
 
 /**
  * Provides the method used to launch the current application.
@@ -3125,19 +3128,1851 @@ void grect_standardize(GRect* rect) {
 /// Clip one rectangle with another.
 extern(C) void grect_clip(GRect* rect_to_clip, const GRect* rect_clipper);
 
-/// TODO: We got here last.
 
-alias _Anonymous_26 GCompOp;
-alias _Anonymous_27 GCornerMask;
-alias void* GFont;
-alias _Anonymous_28 GTextOverflowMode;
-alias _Anonymous_29 GTextAlignment;
+/**
+ * Tests whether a rectangle contains a point.
+ *
+ * Params:
+ * rect = The rectangle
+ * point = The point
+ *
+ * Returns: `true` if the rectangle contains the point, or `false` if it
+ *     does not.
+ */
+extern(C) bool grect_contains_point(const(GRect)* rect, const(GPoint)* point);
+
+
+/**
+ * Convenience function to compute the center-point of a given rectangle.
+ *
+ * This is equal to `(rect->x + rect->width / 2, rect->y + rect->height / 2)`.
+ *
+ * Params:
+ * rect = The rectangle for which to calculate the center point.
+ *
+ * Returns: The point at the center of `rect`
+ */
+extern(C) GPoint grect_center_point(const(GRect)* rect);
+
+/**
+ * Reduce the width and height of a rectangle by insetting each of the edges
+ * with a fixed inset. The returned rectangle will be centered relative to
+ * the input rectangle.
+ *
+ * Note: The function will trip an assertion if the crop yields a rectangle
+ * with negative width or height.
+ *
+ * A positive inset value results in a smaller rectangle, while negative
+ * inset value results in a larger rectangle.
+ *
+ * Params:
+ * rect = The rectangle that will be inset.
+ * crop_size_px = The inset by which each of the rectangle will be inset.
+ *
+ * Returns: The cropped rectangle.
+ */
+extern(C) GRect grect_crop(GRect rect, const int crop_size_px);
+
+
+/// The format of a GBitmap can either be 1-bit or 8-bit.
+enum GBitmapFormat {
+    /// 1-bit black and white. 0 = black, 1 = white.
+    _1bit = 0,
+    /// 6-bit color + 2 bit alpha channel. See \ref GColor8 for pixel format.
+    _8bit = 1,
+    _1bitPalette = 2,
+    _2bitPalette = 3,
+    _4bitPalette = 4,
+}
+
+///
+alias GBitmapFormat1Bit = GBitmapFormat._1bit;
+///
+alias GBitmapFormat8Bit = GBitmapFormat._8bit;
+///
+alias GBitmapFormat1BitPalette = GBitmapFormat._1bitPalette;
+///
+alias GBitmapFormat2BitPalette = GBitmapFormat._2bitPalette;
+///
+alias GBitmapFormat4BitPalette = GBitmapFormat._4bitPalette;
+
+/// A opaque struct for a bitmap.
+struct GBitmap;
+
+/// A opaque struct for a sequence of bitmaps.
+struct GBitmapSequence;
+
+/**
+ * Get the number of bytes per row in the bitmap data for the given GBitmap.
+ * This can be used as a safe way of iterating over the rows in the bitmap,
+ * since bytes per row should be set according to format.
+ */
+extern(C) ushort gbitmap_get_bytes_per_row(const(GBitmap)* bitmap);
+
+/**
+ * Returns: The format of the given GBitmap.
+ */
+extern(C) GBitmapFormat gbitmap_get_format(const(GBitmap)* bitmap);
+
+/**
+ * Get a pointer to the data section of the given GBitmap.
+ *
+ * See_Also: gbitmap_get_bytes_per_row
+ */
+extern(C) ubyte* gbitmap_get_data(const(GBitmap)* bitmap);
+
+/**
+ * Set the bitmap data for the given GBitmap.
+ *
+ * Params:
+ * bitmap = A pointer to the GBitmap to set data to.
+ * data = A pointer to the bitmap data.
+ * format = The format of the bitmap data. If this is a palettized format,
+ *     make sure that there is an accompanying call to gbitmap_set_palette.
+ * row_size_bytes = How many bytes a single row takes. For example, bitmap
+ *     data of format GBitmapFormat1Bit must have a row size as a multiple
+ *     of 4 bytes.
+ * free_on_destroy = Set whether the data should be freed when the GBitmap
+ *     is destroyed.
+ *
+ * See_Also: gbitmap_destroy
+ */
+extern(C) void gbitmap_set_data(GBitmap* bitmap, ubyte* data,
+GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy);
+
+/// See_Also: gbitmap_set_bounds
+extern(C) GRect gbitmap_get_bounds(const(GBitmap)* bitmap);
+
+/**
+ * Set the bounds of the given GBitmap.
+ *
+ * See_Also: gbitmap_get_bounds
+ */
+extern(C) void gbitmap_set_bounds(GBitmap* bitmap, GRect bounds);
+
+/// See_Also: gbitmap_get_palette
+extern(C) GColor* gbitmap_get_palette(const(GBitmap)* bitmap);
+
+/**
+ * Set the palette for the given GBitmap.
+ *
+ * Params:
+ * bitmap = A pointer to the GBitmap to set the palette to.
+ * palette = The palette to be used. Make sure that the palette is large
+ *     enough for the bitmap's format.
+ * free_on_destroy = Set whether the palette data should be freed when the
+ *     GBitmap is destroyed.
+ *
+ * See_Also: gbitmap_get_format
+ * See_Also: gbitmap_destroy
+ * See_Also: gbitmap_set_palette
+ */
+extern(C) void gbitmap_set_palette
+(GBitmap* bitmap, GColor* palette, bool free_on_destroy);
+
+// TODO: Wrap these in an RAII type.
+
+/**
+ * Creates a new GBitmap on the heap using a Pebble image file stored
+ * as a resource.
+ *
+ * The resulting GBitmap must be destroyed using gbitmap_destroy().
+ *
+ * Params:
+ * resource_id = The ID of the bitmap resource to load.
+ *
+ * Returns: A pointer to the \ref GBitmap. `NULL` if the GBitmap could not
+ * be created.
+ */
+extern(C) GBitmap* gbitmap_create_with_resource(uint resource_id);
+
+/**
+ * Creates a new GBitmap on the heap initialized with the provided
+ * Pebble image data.
+ *
+ * The resulting GBitmap must be destroyed using gbitmap_destroy() but the
+ * image data will not be freed automatically. The developer is
+ * responsible for keeping the image data in memory as long as the bitmap
+ * is used and releasing it after the bitmap is destroyed.
+ *
+ * Note: One way to generate Pebble image data is to use bitmapgen.py in
+ * the Pebble SDK to generate a .pbi file.
+ *
+ * Params: data = The Pebble image data. Must not be NULL. The function
+ *     assumes the data to be correct; there are no sanity checks performed
+ *     on the data. The data will not be copied and the pointer must remain
+ *     valid for the lifetime of this GBitmap.
+ *
+ * Returns: A pointer to the GBitmap. `NULL` if the GBitmap could not
+ * be created.
+ */
+extern(C) GBitmap* gbitmap_create_with_data(const(ubyte)* data);
+
+/**
+ * Create a new GBitmap on the heap as a sub-bitmap of a 'base'
+ * GBitmap, using a GRect to indicate what portion of the base to use. The
+ * sub-bitmap will just reference the image data and palette of the base
+ * bitmap.
+ *
+ * No deep-copying occurs as a result of calling this function, thus the caller
+ * is responsible for making sure the base bitmap and palette will
+ * remain available when using the sub-bitmap. Note that you should not
+ * destroy the parent bitmap until the sub_bitmap has been destroyed.
+ *
+ * The resulting GBitmap must be destroyed using gbitmap_destroy().
+ *
+ * Params:
+ * base_bitmap = The bitmap that the sub-bitmap of which the image data
+ *     will be used by the sub-bitmap
+ * sub_rect = The rectangle within the image data of the base bitmap. The
+ *     bounds of the base bitmap will be used to clip `sub_rect`.
+ *
+ * Returns: A pointer to the GBitmap. `NULL` if the GBitmap could not
+ *     be created.
+ */
+extern(C) GBitmap* gbitmap_create_as_sub_bitmap
+(const(GBitmap)* base_bitmap, GRect sub_rect);
+
+/**
+ * The resulting \ref GBitmap must be destroyed using gbitmap_destroy().
+ *
+ * The developer is responsible for freeing png_data following this call.
+ *
+ * Note: PNG decoding currently supports 1,2,4 and 8 bit palettized
+ *     and grayscale images.
+ *
+ * Params:
+ * png_data = PNG image data.
+ * png_data_size = PNG image size in bytes.
+ *
+ * Returns: A pointer to the \ref GBitmap. `NULL` if the GBitmap could not
+ * be created.
+ */
+extern(C) GBitmap* gbitmap_create_from_png_data
+(const(ubyte)* png_data, size_t png_data_size);
+
+/**
+ * Creates a new blank GBitmap on the heap initialized to zeroes.
+ * In the case that the format indicates a palettized bitmap,
+ * a palette of appropriate size will also be allocated on the heap.
+ *
+ * The resulting GBitmap must be destroyed using gbitmap_destroy().
+ *
+ * Params:
+ * size = The Pebble image dimensions as a GSize.
+ * format = The GBitmapFormat the created image should be in.
+ *
+ * Returns: A pointer to the GBitmap. `NULL` if the GBitmap could not
+ * be created
+ */
+extern(C) GBitmap* gbitmap_create_blank(GSize size, GBitmapFormat format);
+
+/**
+ * Creates a new blank GBitmap on the heap, initialized to zeroes, and assigns
+ * it the given palette.
+ *
+ * No deep-copying of the palette occurs, so the caller is responsible for
+ * making sure the palette remains available when using the resulting bitmap.
+ * Management of that memory can be handed off to the system with the
+ * free_on_destroy argument.
+ *
+ * Params:
+ * size = The Pebble image dimensions as a GSize.
+ * format = The GBitmapFormat the created image and palette should be in.
+ * palette = A pointer to a palette that is to be used for this GBitmap.
+ *     The palette should be large enough to hold enough colors for the
+ *     specified format. For example, GBitmapFormat2BitPalette should have
+ *     4 colors, since 2^2 = 4.
+ * free_on_destroy = Set whether the palette data should be freed along with
+ *     the bitmap data when the GBitmap is destroyed.
+ *
+ * Returns: A Pointer to the GBitmap. `NULL` if the GBitmap could not be
+ *     created.
+ */
+extern(C) GBitmap* gbitmap_create_blank_with_palette
+(GSize size, GBitmapFormat format, GColor* palette, bool free_on_destroy);
+
+/**
+ * Destroy a GBitmap.
+ * This must be called for every bitmap that's been created with
+ * gbitmap_create_*
+ *
+ * This function will also free the memory of the bitmap data (bitmap->addr)
+ * if the bitmap was created with gbitmap_create_blank()
+ * or gbitmap_create_with_resource().
+ *
+ * If the GBitmap was created with gbitmap_create_with_data(),
+ * you must release the memory after calling gbitmap_destroy().
+ */
+extern(C) void gbitmap_destroy(GBitmap* bitmap);
+
+/**
+ * Loading the apng from resource, initializes header,
+ * duration and frame count only (IHDR, acTL, alTL chunks)
+ */
+extern(C) GBitmapSequence* gbitmap_sequence_create_with_resource
+(uint resource_id);
+
+/**
+ * Updates the contents of the bitmap sequence to the next frame
+ * and returns the delay in milliseconds until the next frame.
+ *
+ * Note: GBitmap must be large enough to accommodate the bitmap_sequence image
+ * gbitmap_sequence_get_bitmap_size
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ * bitmap = Pointer to the initialized GBitmap in which to render the bitmap
+ *     sequence.
+ *
+ * Returns: True if frame was rendered. False if all frames (and loops) have
+ *     been rendered for the sequence. Will also return false if frame could
+ *     not be rendered (includes out of memory errors).
+ */
+extern(C) bool gbitmap_sequence_update_bitmap_next_frame
+(GBitmapSequence* bitmap_sequence, GBitmap* bitmap, uint* delay_ms);
+
+/**
+ * Deletes the GBitmapSequence structure and frees any allocated
+ * memory/decoder_data
+ */
+extern(C) void gbitmap_sequence_destroy(GBitmapSequence* bitmap_sequence);
+
+/**
+ * Restarts the GBitmapSequence by positioning the read_cursor at the
+ * first frame
+ */
+extern(C) bool gbitmap_sequence_restart(GBitmapSequence* bitmap_sequence);
+
+/**
+ * This function gets the current frame number for the bitmap sequence.
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ *
+ * Returns: index of current frame in the current loop of the bitmap sequence.
+ */
+extern(C) int gbitmap_sequence_get_current_frame_idx
+(GBitmapSequence* bitmap_sequence);
+
+/**
+ * This function sets the total number of frames for the bitmap sequence
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ *
+ * Returns: number of frames contained in a single loop of the bitmap sequence.
+ */
+extern(C) int gbitmap_sequence_get_total_num_frames
+(GBitmapSequence* bitmap_sequence);
+
+/**
+ * This function gets the loop count (number of times to repeat) the bitmap
+ * sequence.
+ *
+ * Note: This value is initialized by the bitmap sequence data, and is modified
+ * by gbitmap_sequence_set_loop_count.
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ *
+ * Returns: Loop count of bitmap sequence, 0 for infinite.
+ */
+extern(C) uint gbitmap_sequence_get_loop_count
+(GBitmapSequence* bitmap_sequence);
+
+/**
+ * This function sets the loop count (number of times to repeat) the bitmap
+ * sequence.
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ * loop_count = Number of times to repeat the bitmap sequence.
+ */
+extern(C) void gbitmap_sequence_set_loop_count
+(GBitmapSequence* bitmap_sequence, uint loop_count);
+
+/**
+ * This function gets the minimum required size (dimensions) necessary
+ * to render the bitmap sequence to a GBitmap using the
+ * gbitmap_sequence_update_bitmap_next_frame.
+ *
+ * Params:
+ * bitmap_sequence = Pointer to loaded bitmap sequence.
+ *
+ * Returns: Dimensions required to render the bitmap sequence to a GBitmap.
+ */
+extern(C) GSize gbitmap_sequence_get_bitmap_size
+(GBitmapSequence* bitmap_sequence);
+
+/**
+ * Values to specify how two things should be aligned relative to each other.
+ *
+ * See_Also: bitmap_layer_set_alignment()
+ */
+enum GAlign {
+    /// Align by centering.
+    center = 0,
+    /// Align by making the top edges overlap and left edges overlap.
+    topLeft = 1,
+    /// Align by making the top edges overlap and left edges overlap.
+    topRight = 2,
+    /// Align by making the top edges overlap and centered horizontally.
+    top = 3,
+    /// Align by making the left edges overlap and centered vertically.
+    left = 4,
+    /// Align by making the bottom edges overlap and centered horizontally.
+    bottom = 5,
+    /// Align by making the right edges overlap and centered vertically.
+    right = 6,
+    /// Align by making the bottom edges overlap and right edges overlap.
+    bottomRight = 7,
+    /// Align by making the bottom edges overlap and left edges overlap.
+    bottomLeft = 8
+}
+
+///
+alias GAlignCenter = GAlign.center;
+///
+alias GAlignTopLeft = GAlign.topLeft;
+///
+alias GAlignTopRight = GAlign.topRight;
+///
+alias GAlignTop = GAlign.top;
+///
+alias GAlignLeft = GAlign.left;
+///
+alias GAlignBottom = GAlign.bottom;
+///
+alias GAlignRight = GAlign.right;
+///
+alias GAlignBottomRight = GAlign.bottomRight;
+///
+alias GAlignBottomLeft = GAlign.bottomLeft;
+
+/**
+ * Aligns one rectangle within another rectangle, using an alignment parameter.
+ * The relative coordinate systems of both rectangles are assumed to be the
+ * same. When clip is true, `rect` is also clipped by the constraint.
+ *
+ * Params:
+ * rect = The rectangle to align (in place).
+ * inside_rect = The rectangle in which to align `rect`.
+ * alignment = Determines the alignment of `rect` within `inside_rect` by
+ *     specifying what edges of should overlap.
+ * clip = Determines whether `rect` should be trimmed using the edges of
+ *     `inside_rect` in case `rect` extends outside of the area that
+ *     `inside_rect` covers after the alignment.
+ */
+extern(C) void grect_align(GRect* rect, const(GRect)* inside_rect,
+const GAlign alignment, const bool clip);
+
+/**
+ * Values to specify how the source image should be composited onto the
+ * destination image.
+ *
+ * There is no notion of "transparency" in the graphics system. However, the
+ * effect of transparency can be created by masking and using compositing
+ * modes.
+ *
+ * Contrived example of how the different compositing modes affect drawing.
+ * Often, the "destination image" is the render buffer and thus contains the
+ * image of what has been drawn before or "underneath".
+ *
+ * See_Also: bitmap_layer_set_compositing_mode()
+ * See_Also: graphics_context_set_compositing_mode()
+ * See_Also: graphics_draw_bitmap_in_rect()
+ */
+enum GCompOp {
+    /// Assign the pixel values of the source image to the destination pixels,
+    /// effectively replacing the previous values for those pixels.
+    assign = 0,
+    /// Assign the **inverted** pixel values of the source image to the
+    /// destination pixels, effectively replacing the previous values for
+    /// those pixels.
+    inverted = 1,
+    /// Use the boolean operator `OR` to composite the source and destination
+    /// pixels. The visual result of this compositing mode is the source's
+    /// white pixels are painted onto the destination and the source's black
+    /// pixels are treated as clear.
+    or = 2,
+    /// Use the boolean operator `AND` to composite the source and destination
+    /// pixels. The visual result of this compositing mode is the source's
+    /// black pixels are painted onto the destination and the source's white
+    /// pixels are treated as clear.
+    and = 3,
+    /// Clears the bits in the destination image, using the source image as i
+    /// mask. The visual result of this compositing mode is that for the parts
+    /// where the source image is white, the destination image will be painted
+    /// black. Other parts will be left untouched.
+    clear = 4,
+    /// Sets the bits in the destination image, using the source image as mask.
+    /// The visual result of this compositing mode is that for the parts where
+    /// the source image is black, the destination image will be painted white.
+    /// Other parts will be left untouched. When drawing color PNGs, this mode
+    /// will be required to apply any transparency.
+    set = 5
+}
+
+///
+alias GCompOpAssign = GCompOp.assign;
+///
+alias GCompOpAssignInverted = GCompOpAssign.inverted;
+///
+alias GCompOpOr = GCompOp.or;
+///
+alias GCompOpAnd = GCompOp.and;
+///
+alias GCompOpClear = GCompOp.clear;
+///
+alias GCompOpSet = GCompOp.set;
+
+struct GContext;
+
+/**
+ * Sets the current stroke color of the graphics context.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the stroke color.
+ * color = The new stroke color.
+ */
+extern(C) void graphics_context_set_stroke_color(GContext* ctx, GColor color);
+
+/**
+ * Sets the current fill color of the graphics context.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the fill color.
+ * color = The new fill color.
+ */
+extern(C) void graphics_context_set_fill_color(GContext* ctx, GColor color);
+
+/**
+ * Sets the current text color of the graphics context.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the text color.
+ * color = The new text color.
+ */
+extern(C) void graphics_context_set_text_color(GContext* ctx, GColor color);
+
+/**
+ * Sets the current bitmap compositing mode of the graphics context.
+ *
+ * Note: At the moment, this only affects the bitmaps drawing operations
+ * graphics_draw_bitmap_in_rect() and anything that uses that --, but it
+ * currently does not affect the filling or stroking operations.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the compositing mode.
+ * mode = The new compositing mode.
+ *
+ * See_Also: GCompOp
+ * See_Also: bitmap_layer_set_compositing_mode()
+ */
+extern(C) void graphics_context_set_compositing_mode
+(GContext* ctx, GCompOp mode);
+
+/**
+ * Sets whether antialiasing is applied to stroke drawing.
+ *
+ * Note: Default value is true.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the antialiasing.
+ * enable = enable or disable anti-aliasing.
+ */
+extern(C) void graphics_context_set_antialiased(GContext* ctx, bool enable);
+
+/**
+ * Sets the width of the stroke for drawing routines
+ *
+ * Note: If stroke width of zero is passed, it will be ignored and will not
+ * change the value stored in GContext. Currently, only odd stroke_width
+ * values are supported. If an even value is passed in, the value will be
+ * stored as is, but the drawing routines will round down to the
+ * previous integral value when drawing. Default value is 1.
+ *
+ * Params:
+ * ctx = The graphics context onto which to set the stroke width.
+ * stroke_width = Width in pixels of the stroke.
+ */
+extern(C) void graphics_context_set_stroke_width
+(GContext* ctx, ubyte stroke_width);
+
+/**
+ * Bit mask values to specify the corners of a rectangle.
+ * The values can be combines using binary OR (`|`),
+ *
+ * For example: the mask to indicate top left and bottom right corners can:
+ * be created as follows: GCornerTopLeft | GCornerBottomRight
+ */
+enum GCornerMask {
+    /// No corners
+    none = 0,
+    /// Top-Left corner
+    topLeft = 1,
+    /// Top-Right corner
+    topRight = 2,
+    /// Bottom-Left corner
+    bottomLeft = 4,
+    /// Bottom-Right corner
+    bottomRight = 8,
+    /// All corners
+    all = 15,
+    /// Top corners
+    top = 3,
+    /// Bottom corners
+    bottom = 12,
+    /// Left corners
+    left = 5,
+    /// Right corners
+    right = 10
+}
+
+///
+alias GCornerNone = GCorner.none;
+///
+alias GCornerTopLeft = GCorner.topLeft;
+///
+alias GCornerTopRight = GCorner.topRight;
+///
+alias GCornerBottomRight = GCorner.bottomRight;
+///
+alias GCornersAll = GCorner.all;
+///
+alias GCornersTop = GCorner.top;
+///
+alias GCornersBottom = GCorner.bottom;
+///
+alias GCornersLeft = GCorner.left;
+///
+alias GCornersRight = GCorner.right;
+
+/**
+ * Draws a pixel at given point in the current stroke color
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * point = The point at which to draw the pixel.
+ */
+extern(C) void graphics_draw_pixel(GContext* ctx, GPoint point);
+
+/**
+ * Draws line in the current stroke color, current stroke width and AA flag.
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * p0 = The starting point of the line
+ * p1 = The ending point of the line
+ */
+extern(C) void graphics_draw_line(GContext* ctx, GPoint p0, GPoint p1);
+
+/**
+ * Draws a 1-pixel wide rectangle outline in the current stroke color.
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw
+ * rect = The rectangle for which to draw the outline.
+ */
+extern(C) void graphics_draw_rect(GContext* ctx, GRect rect);
+
+/**
+ * Fills a retangle with the current fill color, optionally rounding all or
+ * a selection of its corners.
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * rect = The rectangle to fill.
+ * corner_radius = The rounding radius of the corners in pixels
+ *     (maximum is 8 pixels)
+ * corner_mask = Bitmask of the corners that need to be rounded.
+ *
+ * See_Also: GCornerMask
+ */
+extern(C) void graphics_fill_rect
+(GContext* ctx, GRect rect, ushort corner_radius, GCornerMask corner_mask);
+
+/**
+ * Draws the outline of a circle in the current stroke color
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * p = The center point of the circle
+ * radius = The radius in pixels.
+ */
+extern(C) void graphics_draw_circle(GContext* ctx, GPoint p, ushort radius);
+
+/**
+ * Fills a circle in the current fill color
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw
+ * p = The center point of the circle
+ * radius = The radius in pixels
+ */
+extern(C) void graphics_fill_circle(GContext* ctx, GPoint p, ushort radius);
+
+/**
+ * Draws the outline of a rounded rectangle in the current stroke color.
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * rect = The rectangle defining the dimensions of the rounded rectangle
+ *     to draw.
+ * radius = The corner radius in pixels.
+ */
+extern(C) void graphics_draw_round_rect
+(GContext* ctx, GRect rect, ushort radius);
+
+/**
+ * Draws a bitmap into the graphics context, inside the specified rectangle
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw the bitmap.
+ * bitmap = The bitmap to draw.
+ * rect = The rectangle in which to draw the bitmap.
+ *
+ * Note: If the size of `rect` is smaller than the size of the bitmap,
+ * the bitmap will be clipped on right and bottom edges. If the size of `rect`
+ * is larger than the size of the bitmap, the bitmap will be tiled
+ * automatically in both horizontal and vertical directions, effectively
+ * drawing a repeating pattern.
+ *
+ * See_Also: GBitmap
+ * See_Also: GContext
+ */
+extern(C) void graphics_draw_bitmap_in_rect
+(GContext* ctx, const(GBitmap)* bitmap, GRect rect);
+
+/**
+ * A shortcut to capture the framebuffer in the native format of the watch.
+ *
+ * See_Also: graphics_capture_frame_buffer_format
+ */
+extern(C) GBitmap* graphics_capture_frame_buffer(GContext* ctx);
+
+/**
+ * Captures the frame buffer for direct access, using the given format.
+ * Graphics functions will not affect the frame buffer while it is captured.
+ * The frame buffer is released when graphics_release_frame_buffer
+ * is called.
+ *
+ * The frame buffer must be released before the end of a layer's
+ * `.update_proc` for the layer to be drawn properly.
+ *
+ * While the frame buffer is captured calling graphics_capture_frame_buffer
+ * will fail and return `NULL`.
+ *
+ * Params:
+ * ctx = The graphics context providing the frame buffer.
+ * format = The format in which the framebuffer should be captured.
+ *     Supported formats are GBitmapFormat1Bit and GBitmapFormat8Bit.
+ *
+ * Returns: A pointer to the frame buffer. `NULL` if failed.
+ *
+ * See_Also: GBitmap
+ * See_Also: GBitmapFormat
+ */
+extern(C) GBitmap* graphics_capture_frame_buffer_format
+(GContext* ctx, GBitmapFormat format);
+
+/**
+ * Releases the frame buffer.
+ * Must be called before the end of a layer's `.update_proc` for the layer
+ * to be drawn properly.
+ *
+ * If `buffer` does not point to the address previously returned by
+ * graphics_capture_frame_buffer the frame buffer will not be released.
+ *
+ * Params:
+ * ctx = The graphics context providing the frame buffer.
+ * buffer = The pointer to frame buffer.
+ *
+ * Returns: true if the frame buffer was released successfully.
+ */
+extern(C) bool graphics_release_frame_buffer
+(GContext* ctx, GBitmap* buffer);
+
+/**
+ * Whether or not the frame buffer has been captured by
+ * graphics_capture_frame_buffer.
+ *
+ * Graphics functions will not affect the frame buffer until it has been
+ * released by
+ *
+ * graphics_release_frame_buffer.
+ *
+ * Params:
+ * ctx = The graphics context providing the frame buffer.
+ *
+ * Returns: true if the frame buffer has been captured.
+ */
+extern(C) bool graphics_frame_buffer_is_captured(GContext* ctx);
+
+/**
+ * Data structure describing a naked path
+ *
+ * Note: Note that this data structure only refers to an array of points;
+ * the points are not stored inside this data structure itself.
+ *
+ * In most cases, one cannot use a stack-allocated array of GPoints.
+ * Instead one often needs to provide longer-lived (static or "global")
+ * storage for the points.
+ */
+struct GPathInfo {
+    /// The number of points in the `points` array.
+    uint num_points;
+    /// Pointer to an array of points.
+    GPoint* points;
+}
+
+/**
+ * Data structure describing a path, plus its rotation and translation.
+ *
+ * Note: See the remark with GPathInfo
+ */
+struct GPath {
+    /// The number of points in the `points` array.
+    uint num_points;
+    /// Pointer to an array of points.
+    GPoint* points;
+    /// The rotation that will be used when drawing the path with
+    /// gpath_draw_filled() or gpath_draw_outline()
+    int rotation;
+    /// The translation that will to be used when drawing the path with
+    /// gpath_draw_filled() or gpath_draw_outline()
+    GPoint offset;
+}
+
+/**
+ * Creates a new GPath on the heap based on a series of points described by
+ * a GPathInfo.
+ *
+ * Values after initialization:
+ * `num_points` and `points` pointer: copied from the GPathInfo.
+ * `rotation`: 0
+ * `offset`: (0, 0)
+ *
+ * Returns: A pointer to the GPath. `NULL` if the GPath could not be created.
+ */
+extern(C) GPath* gpath_create(const(GPathInfo)* init);
+
+/// Free a dynamically allocated gpath created with gpath_create().
+extern(C) void gpath_destroy(GPath* gpath);
+
+/**
+ * Draws the fill of a path into a graphics context, using the current
+ * fill color, relative to the drawing area as set up by the layering system.
+ *
+ * Params:
+ * ctx = The graphics context to draw into.
+ * path = The path to fill.
+ *
+ * See_Also: graphics_context_set_fill_color()
+ */
+extern(C) void gpath_draw_filled(GContext* ctx, GPath* path);
+
+/**
+ * Draws the outline of a path into a graphics context, using the
+ * current stroke color, relative to the drawing area as set up by the
+ * layering system.
+ *
+ * Params:
+ * ctx = The graphics context to draw into.
+ * path = The path to fill.
+ *
+ * See_Also: graphics_context_set_stroke_color()
+ */
+extern(C) void gpath_draw_outline(GContext* ctx, GPath* path);
+
+/**
+ * Sets the absolute rotation of the path.
+ * The current rotation will be replaced by the specified angle.
+ *
+ * Note: Setting a rotation does not affect the points in the path directly.
+ * The rotation is applied on-the-fly during drawing, either using
+ * gpath_draw_filled() or gpath_draw_outline().
+ *
+ * Params:
+ * path = The path onto which to set the rotation
+ * angle = The absolute angle of the rotation. The angle is represented
+ * in the same way that is used with sin_lookup(). See TRIG_MAX_ANGLE
+ * for more information.
+ */
+extern(C) void gpath_rotate_to(GPath* path, int angle);
+
+/**
+ * Sets the absolute offset of the path. The current translation will be
+ * replaced by the specified offset.
+ *
+ * Params:
+ * path = The path onto which to set the translation.
+ * point = The point which is used as the vector for the translation.
+ *
+ * Note: Setting a translation does not affect the points in the path directly.
+ * The translation is applied on-the-fly during drawing, either using
+ * gpath_draw_filled() or gpath_draw_outline().
+ */
+extern(C) void gpath_move_to(GPath* path, GPoint point);
+
+struct GFontType{}
+
+/**
+ * Pointer to opaque font data structure.
+ *
+ * See_Also: fonts_load_custom_font()
+ * See_Also: text_layer_set_font()
+ * See_Also: graphics_draw_text()
+ */
+alias GFontType* GFont;
+
+/**
+ * Loads a system font corresponding to the specified font key.
+ *
+ * Note: This may load a font from the flash peripheral into RAM.
+ *
+ * Params:
+ * font_key = The string key of the font to load. See `pebble_fonts.h`
+ * for a list of system fonts.
+ *
+ * Returns:
+ * An opaque pointer to the loaded font, or, a pointer to the default
+ * (fallback) font if the specified font cannot be loaded.
+ */
+extern(C) GFont fonts_get_system_font(const(char)* font_key);
+
+/**
+ * Loads a custom font.
+ *
+ * Note: This may load a font from the flash peripheral into RAM.
+ *
+ * Params:
+ * handle = The resource handle of the font to load. See resource_ids.auto.h
+ *     for a list of resource IDs, and use resource_get_handle() to obtain
+ *     the resource handle.
+ *
+ * Returns: An opaque pointer to the loaded font, or a pointer to the default
+ *     (fallback) font if the specified font cannot be loaded.
+ *
+ * See_Also: Read the App Resources guide on how to embed a font into your app.
+ */
+extern(C) GFont fonts_load_custom_font(ResHandle handle);
+
+/**
+ * Unloads the specified custom font and frees the memory that is occupied by
+ * it.
+ *
+ * Params: font = The font to unload.
+ *
+ * Note: When an application exits, the system automatically unloads all fonts
+ * that have been loaded.
+ */
+extern(C) void fonts_unload_custom_font(GFont font);
+
+/**
+ * Text overflow mode controls the way text overflows when the string
+ * that is drawn does not fit inside the area constraint.
+ *
+ * See_Also: graphics_draw_text
+ * See_Also: text_layer_set_overflow_mode
+ */
+enum GTextOverflowMode {
+    /// On overflow, wrap words to a new line below the current one.
+    /// Once vertical space is consumed, the last line may be clipped.
+    wordWrap = 0,
+    /// On overflow, wrap words to a new line below the current one.
+    /// Once vertical space is consumed, truncate as needed to fit a trailing
+    /// ellipsis (...). Clipping may occur if the vertical space cannot
+    /// accommodate the first line of text.
+    ellipsis = 1,
+    /// Acts like 'ellipsis', plus trims leading and
+    /// trailing newlines, while treating all other newlines as spaces.
+    fill = 2
+}
+
+///
+alias GTextOverflowModeWordWrap = GTextOverflowMode.wordWrap;
+///
+alias GTextOverflowModeTrailingEllipsis = GTextOverflowMode.ellipsis;
+///
+alias GTextOverflowModeFill = GTextOverflowMode.fill;
+
+/**
+ * Text aligment controls the way the text is aligned inside the box the
+ * text is drawn into.
+ *
+ * See_Also: graphics_draw_text
+ * See_Also: text_layer_set_text_alignment
+ */
+enum GTextAlignment {
+    /// Aligns the text to the left of the drawing box.
+    left = 0,
+    /// Aligns the text centered inside the drawing box.
+    center = 1,
+    /// Aligns the text to the right of the drawing box.
+    right = 2
+}
+
+///
+alias GTextAlignmentLeft = GTextAlignment.left;
+///
+alias GTextAlignmentCenter = GTextAlignment.center;
+///
+alias GTextAlignmentRight = GTextAlignment.right;
+
+/// An opaque struct for text layout data.
+struct TextLayout {}
+
+deprecated("Use TextLayout* instead.")
 alias TextLayout* GTextLayoutCacheRef;
+
+deprecated("Use void* instead.")
 alias void* ClickRecognizerRef;
-alias void function (void*, void*) ClickHandler;
-alias void function (void*) ClickConfigProvider;
+
+/**
+ * Draw text into the current graphics context, using the context's
+ * current text color.
+ *
+ * The text will be drawn inside a box with the specified dimensions and
+ * configuration, with clipping occuring automatically.
+ *
+ * Params:
+ * ctx = The destination graphics context in which to draw.
+ * text = The zero terminated UTF-8 string to draw.
+ * font = The font in which the text should be set.
+ * box = The bounding box in which to draw the text. The first line of text
+ *     will be drawn against the top of the box.
+ * overflow_mode = The overflow behavior, in case the text is larger than
+ *     what fits inside the box.
+ * alignment = The horizontal alignment of the text
+ * layout = Optional layout cache data. Supply `NULL` to ignore the layout
+ *     caching mechanism.
+ */
+extern(C) void graphics_draw_text
+(GContext* ctx, const(char)* text, const GFont font, const GRect box,
+const GTextOverflowMode overflow_mode, const GTextAlignment alignment,
+const(TextLayout)* layout);
+
+/**
+ * Obtain the maximum size that a text with given font, overflow mode and
+ * alignment occupies within a given rectangular constraint.
+ *
+ * Params:
+ * text = The zero terminated UTF-8 string for which to calculate the size.
+ * font = The font in which the text should be set while calculating the size.
+ * box = The bounding box in which the text should be constrained.
+ * overflow_mode = The overflow behavior, in case the text is larger than what
+ *     fits inside the box.
+ * alignment = The horizontal alignment of the text.
+ *
+ * Returns: The maximum size occupied by the text.
+ */
+extern(C) GSize graphics_text_layout_get_content_size
+(const(char)* text, const GFont font, const GRect box,
+const GTextOverflowMode overflow_mode, const GTextAlignment alignment);
+
+/**
+ * Function signature of the callback that handles a recognized click pattern.
+ *
+ * Params:
+ * recognizer = The click recognizer that detected a "click" pattern.
+ * context = Pointer to application specified data
+ *    (see window_set_click_config_provider_with_context() and
+ *    window_set_click_context()). This defaults to the window.
+ *
+ * See_Also: ClickConfigProvider
+ */
+alias void function(void*, void*) ClickHandler;
+
+/**
+ * This callback is called every time the window becomes visible
+ * (and when you call window_set_click_config_provider() if
+ * the window is already visible).
+ *
+ * These subscriptions will get used by the click recognizers of each of the
+ * 4 buttons.
+ *
+ * context = Pointer to application specific data.
+ *
+ * See_Also: window_set_click_config_provider_with_context()
+ * See_Also: window_single_click_subscribe()
+ * See_Also: window_single_repeating_click_subscribe()
+ * See_Also: window_multi_click_subscribe()
+ * See_Also: window_long_click_subscribe()
+ * See_Also: window_raw_click_subscribe()
+ */
+alias void function(void*) ClickConfigProvider;
+
+/**
+ * Gets the click count.
+ *
+ * You can use this inside a click handler implementation to get the click
+ * count for multi_click and (repeated) click events.
+ *
+ * Params:
+ * recognizer = The click recognizer for which to get the click count.
+ *
+ * Returns: The number of consecutive clicks, and for auto-repeating the
+ * number of repetitions.
+ */
+extern(C) ubyte click_number_of_clicks_counted(void* recognizer);
+
+/**
+ * Gets the button identifier.
+ *
+ * You can use this inside a click handler implementation to get the button id for the click event.
+ *
+ * Params:
+ * recognizer = The click recognizer for which to get the button id that
+ *     caused the click event
+ *
+ * Returns: The ButtonId of the click recognizer
+ */
+extern(C) ButtonId click_recognizer_get_button_id(void* recognizer);
+
+/**
+ * Is this a repeating click.
+ *
+ * You can use this inside a click handler implementation to find out whether
+ * this is a repeating click or not.
+ *
+ * Params:
+ * recognizer = The click recognizer for which to find out whether this is a
+ * repeating click.
+ *
+ * Returns: true if this is a repeating click.
+ */
+extern(C) bool click_recognizer_is_repeating(void* recognizer);
+
+
+/// An opaque data type for an interface layer.
+struct Layer {}
+
+/**
+ * Function signature for a Layer's render callback (the name of the type
+ * is derived from the words 'update procedure').
+ *
+ * The system will call the `.update_proc` callback whenever the Layer needs
+ * to be rendered.
+ *
+ * Params:
+ * layer = The layer that needs to be rendered.
+ * ctx = The destination graphics context to draw into.
+ *
+ *
+ * See_Also: Graphics
+ * See_Also: layer_set_update_proc()
+ */
 alias void function (Layer*, GContext*) LayerUpdateProc;
-alias void function (Window*) WindowHandler;
+
+/**
+ * Creates a layer on the heap and sets its frame and bounds.
+ *
+ * Default values:
+ * * `bounds` : origin (0, 0) and a size equal to the frame that is passed in.
+ * * `clips` : `true`
+ * * `hidden` : `false`
+ * * `update_proc` : `NULL` (draws nothing)
+ *
+ * Params: frame The frame at which the layer should be initialized.
+ *
+ * See_Also: layer_set_frame()
+ * See_Also: layer_set_bounds()
+ *
+ * Returns: A pointer to the layer. `NULL` if the layer could not be created.
+ */
+extern(C) Layer* layer_create(GRect frame);
+
+/**
+ * Creates a layer on the heap with extra space for callback data, and set
+ * its frame andbounds.
+ *
+ * Default values:
+ * * `bounds` : origin (0, 0) and a size equal to the frame that is passed in.
+ * * `clips` : `true`
+ * * `hidden` : `false`
+ * * `update_proc` : `NULL` (draws nothing)
+ *
+ * Params:
+ * frame = The frame at which the layer should be initialized.
+ * data_size = The size (in bytes) of memory to allocate for callback data.
+ *
+ * See_Also: layer_create()
+ * See_Also; layer_set_frame()
+ * See_Also: layer_set_bounds()
+ *
+ * Returns: A pointer to the layer. `NULL` if the layer could not be created.
+ */
+extern(C) Layer* layer_create_with_data(GRect frame, size_t data_size);
+
+/// Destroys a layer previously created by layer_create.
+extern(C) void layer_destroy(Layer* layer);
+
+/**
+ * Marks the complete layer as "dirty", awaiting to be asked by the system to
+ * redraw itself. Typically, this function is called whenever state has
+ * changed that affects what the layer is displaying.
+ *
+ *
+ * * The layer's `.update_proc` will not be called before this function
+ * returns, but will be called asynchronously, shortly.
+ * * Internally, a call to this function will schedule a re-render of the
+ * window that the layer belongs to. In effect, all layers in that window's
+ * layer hierarchy will be asked to redraw.
+ * * If an earlier re-render request is still pending, this function is a
+ * no-op.
+ *
+ * Params:
+ * layer = The layer to mark dirty.
+ */
+extern(C) void layer_mark_dirty(Layer* layer);
+
+/**
+ * Sets the layer's render function.
+ *
+ * The system will call the `update_proc` automatically when the layer needs
+ * to redraw itself.
+ *
+ * Params:
+ * layer = Pointer to the layer structure.
+ * update_proc = Pointer to the function that will be called when the layer
+ *     needs to be rendered.
+ *
+ * Typically, one performs a series of drawing commands in the implementation
+ * of the `update_proc`, See Drawing, PathDrawing and TextDrawing.
+ *
+ * See_Also: layer_mark_dirty().
+ */
+extern(C) void layer_set_update_proc
+(Layer* layer, LayerUpdateProc update_proc);
+
+/**
+ * Sets the frame of the layer, which is it's bounding box relative to the
+ * coordinate system of its parent layer.
+ *
+ * The size of the layer's bounds will be extended automatically, so that
+ * the bounds cover the new frame.
+ *
+ * Params:
+ * layer = The layer for which to set the frame.
+ * frame = The new frame.
+ *
+ * See_Also: layer_set_bounds()
+ */
+extern(C) void layer_set_frame(Layer* layer, GRect frame);
+
+/**
+ * Gets the frame of the layer, which is it's bounding box relative to the
+ * coordinate system of its parent layer.
+ *
+ * If the frame has changed, layer_mark_dirty() will be called automatically.
+ *
+ * Params:
+ * layer = The layer for which to get the frame
+ *
+ * Returns: The frame of the layer
+ *
+ * See_Also: layer_set_frame
+ */
+extern(C) GRect layer_get_frame(const(Layer)* layer);
+
+/**
+ * Sets the bounds of the layer, which is it's bounding box relative to its
+ * frame. If the bounds has changed, layer_mark_dirty() will be called
+ * automatically.
+ *
+ * Params:
+ * layer = The layer for which to set the bounds.
+ * bounds = The new bounds
+ *
+ * See_Also: layer_set_frame()
+ */
+extern(C) void layer_set_bounds(Layer* layer, GRect bounds);
+
+/**
+ * Gets the bounds of the layer
+ *
+ * Params:
+ * layer = The layer for which to get the bounds.
+ *
+ * Returns: The bounds of the layer
+ *
+ * See_Also: layer_set_bounds
+ */
+extern(C) GRect layer_get_bounds(const(Layer)* layer);
+
+/**
+ * Gets the window that the layer is currently attached to.
+ *
+ * Params:
+ * layer = The layer for which to get the window.
+ *
+ * Returns: The window that this layer is currently attached to, or `NULL`
+ *    if it has not been added to a window's layer hierarchy.
+ *
+ * See_Also: window_get_root_layer()
+ * See_Also: layer_add_child()
+ */
+extern(C) Window* layer_get_window(const(Layer)* layer);
+
+/**
+ * Removes the layer from its current parent layer. If removed successfully,
+ * the child's parent layer will be marked dirty automatically.
+ *
+ * Params: child The layer to remove.
+ */
+extern(C) void layer_remove_from_parent(Layer* child);
+
+/**
+ * Removes child layers from given layer. If removed successfully,
+ * the child's parent layer will be marked dirty automatically.
+ *
+ * Params:
+ * parent = The layer from which to remove all child layers.
+ */
+extern(C) void layer_remove_child_layers(Layer* parent);
+
+/**
+ * Adds the child layer to a given parent layer, making it appear
+ * in front of its parent and in front of any existing child layers
+ * of the parent.
+ *
+ * If the child layer was already part of a layer hierarchy, it will
+ * be removed from its old parent first.
+ *
+ * If added successfully, the parent (and children) will be marked dirty
+ * automatically.
+ *
+ * Params:
+ * parent = The layer to which to add the child layer.
+ * child = The layer to add to the parent layer.
+ */
+extern(C) void layer_add_child(Layer* parent, Layer* child);
+
+/**
+ * Inserts the layer as a sibling behind another layer.
+ * The below_layer has to be a child of a parent layer,
+ * otherwise this function will be a noop.
+ * If inserted successfully, the parent (and children) will be marked dirty
+ * automatically.
+ *
+ * Params:
+ * layer_to_insert = The layer to insert into the hierarchy.
+ * below_sibling_layer = The layer that will be used as the sibling layer
+ *    above which the insertion will take place.
+ */
+extern(C) void layer_insert_below_sibling
+(Layer* layer_to_insert, Layer* below_sibling_layer);
+
+/**
+ * Inserts the layer as a sibling in front of another layer. The above_layer
+ * has to be a child of a parent layer, otherwise this function will be a noop.
+ *
+ * If inserted successfully, the parent (and children) will be marked dirty
+ * automatically.
+ *
+ * Params:
+ * layer_to_insert = The layer to insert into the hierarchy.
+ * above_sibling_layer = The layer that will be used as the sibling layer
+ *     below which the insertion will take place.
+ */
+extern(C) void layer_insert_above_sibling
+(Layer* layer_to_insert, Layer* above_sibling_layer);
+
+/**
+ * Sets the visibility of the layer.
+ * If the visibility has changed, layer_mark_dirty() will be called
+ * automatically on the parent layer.
+ *
+ * Params:
+ * layer = The layer for which to set the visibility.
+ * hidden = Supply `true` to make the layer hidden, or `false` to make it
+ *     non-hidden.
+ */
+extern(C) void layer_set_hidden(Layer* layer, bool hidden);
+
+/**
+ * Gets the visibility of the layer.
+ *
+ * Params:
+ * layer = The layer for which to get the visibility.
+ *
+ * Returns: True if the layer is hidden, false if it is not hidden.
+ */
+extern(C) bool layer_get_hidden(const(Layer)* layer);
+
+
+/**
+ * Sets whether clipping is enabled for the layer. If enabled, whatever
+ * the layer _and its children_ will draw using their `.update_proc`
+ * callbacks, will be clipped by the this layer's frame.
+ *
+ * If the clipping has changed, layer_mark_dirty() will be called
+ * automatically.
+ *
+ * Params:
+ * layer = The layer for which to set the clipping property.
+ * clips = Supply `true` to make the layer clip to its frame, or `false`
+ *     to make it non-clipping.
+ */
+extern(C) void layer_set_clips(Layer* layer, bool clips);
+
+/**
+ * Gets whether clipping is enabled for the layer. If enabled, whatever the
+ * layer _and its children_ will draw using their `.update_proc` callbacks,
+ * will be clipped by the this layer's frame.
+ *
+ * Params:
+ * layer = The layer for which to get the clipping property
+ *
+ * Returns: true if clipping is enabled for the layer, false if clipping is
+ *     not enabled for the layer.
+ */
+extern(C) bool layer_get_clips(const(Layer)* layer);
+
+/**
+ * Gets the data from a layer that has been created with an extra data region.
+ *
+ * Params:
+ * layer = The layer to get the data region from.
+ *
+ * Returns: A void pointer to the data region.
+ */
+extern(C) void* layer_get_data(const(Layer)* layer);
+
+/// The basic building block of the user interface.
+struct Window {}
+
+/**
+ * Function signature for a handler that deals with transition events of a
+ * window.
+ *
+ * See_Also: WindowHandlers
+ * See_Also: window_set_window_handlers()
+ */
+alias void function(Window*) WindowHandler;
+
+/**
+ * WindowHandlers
+ * These handlers are called by the WindowStack as windows get pushed
+ * on / popped.
+ *
+ * All these handlers use WindowHandler as their function signature.
+ *
+ * See_Also: window_set_window_handlers()
+ * See_Also: WindowStack
+ */
+struct WindowHandlers {
+    /**
+     * Called when the window is pushed to the screen when it's not loaded.
+     * This is a good moment to do the layout of the window.
+     */
+    WindowHandler load;
+    /**
+     * Called when the window comes on the screen (again). E.g. when
+     * second-top-most window gets revealed (again) after popping the top-most
+     * window, but also when the window is pushed for the first time. This is a
+     * good moment to start timers related to the window, or reset the UI, etc.
+     */
+    WindowHandler appear;
+    /**
+     * Called when the window leaves the screen, e.g. when another window
+     * is pushed, or this window is popped. Good moment to stop timers related
+     * to the window.
+     */
+    WindowHandler disappear;
+    /**
+     * Called when the window is deinited, but could be used in the future to
+     * free resources bound to windows that are not on screen.
+     */
+    WindowHandler unload;
+}
+
+/**
+ * Creates a new Window on the heap and initalizes it with the default values.
+ *
+ * * Background color : `GColorWhite`
+ * * Root layer's `update_proc` : function that fills the window's background
+ *     using `background_color`.
+ * * Full screen : no
+ * * `click_config_provider` : `NULL`
+ * * `window_handlers` : all `NULL`
+ * * `status_bar_icon` : `NULL` (none)
+ *
+ * Returns: A pointer to the window. `NULL` if the window could not be created.
+ */
+extern(C) Window* window_create();
+
+/// Destroys a Window previously created by window_create.
+extern(C) void window_destroy(Window* window);
+
+/**
+ * Sets the click configuration provider callback function on the window.
+ *
+ * This will automatically setup the input handlers of the window as well to
+ * use the click recognizer subsystem.
+ *
+ * Params:
+ * window = The window for which to set the click config provider.
+ * click_config_provider = The callback that will be called to configure the
+ *     click recognizers with the window.
+ *
+ * See_Also: Clicks
+ * See_Also: ClickConfigProvider
+ */
+extern(C) void window_set_click_config_provider
+(Window* window, ClickConfigProvider click_config_provider);
+
+/**
+ * Same as window_set_click_config_provider(), but will assign a custom
+ * context pointer (instead of the window pointer) that will be passed into
+ * the ClickHandler click event handlers.
+ *
+ * Params:
+ * window = The window for which to set the click config provider.
+ * click_config_provider = The callback that will be called to configure the
+ *     click recognizers with the window.
+ * context = Pointer to application specific data that will be passed to the
+ *     click configuration provider callback (defaults to the window).
+ *
+ * See_Also: Clicks
+ * See_Also: window_set_click_config_provider
+ */
+extern(C) void window_set_click_config_provider_with_context
+(Window* window, ClickConfigProvider click_config_provider, void* context);
+
+/**
+ * Gets the current click configuration provider of the window.
+ *
+ * Params:
+ * window = The window for which to get the click config provider.
+ */
+extern(C) ClickConfigProvider window_get_click_config_provider
+(const(Window)* window);
+
+/**
+ * Gets the current click configuration provider context of the window.
+ *
+ * Params:
+ * window = The window for which to get the click config provider context.
+ */
+extern(C) void* window_get_click_config_context(Window* window);
+
+/**
+ * Sets the window handlers of the window.
+ *
+ * These handlers get called e.g. when the user enters or leaves the window.
+ *
+ * Params:
+ * window = The window for which to set the window handlers.
+ * handlers = The handlers for the specified window.
+ *
+ * See_Also: WindowHandlers
+ */
+extern(C) void window_set_window_handlers
+(Window* window, WindowHandlers handlers);
+
+/**
+ * Gets the root Layer of the window.
+ * The root layer is the layer at the bottom of the layer hierarchy for
+ * this window.
+ *
+ * It is the window's "canvas" if you will. By default, the root layer
+ * only draws a solid fill with the window's background color.
+ *
+ * Params:
+ * window = The window for which to get the root layer.
+ *
+ * Returns: The window's root layer
+ */
+extern(C) Layer* window_get_root_layer(const(Window)* window);
+
+/**
+ * Sets the background color of the window, which is drawn automatically by the
+ * root layer of the window.
+ *
+ * Params:
+ * window = The window for which to set the background color.
+ * background_color = The new background color.
+ *
+ * See_Also: window_get_root_layer()
+ */
+extern(C) void window_set_background_color
+(Window* window, GColor background_color);
+
+/**
+ * Sets whether or not the window is fullscreen, consequently hiding the
+ * system status bar.
+ *
+ * Note: This needs to be called before pushing a window to the window stack.
+ *
+ * Params:
+ * window = The window for which to set its full-screen property
+ * enabled = true to make the window full-screen or false to leave space for
+ *     the system status bar.
+ *
+ * See_Also: window_get_fullscreen()
+ */
+extern(C) void window_set_fullscreen(Window* window, bool enabled);
+
+/**
+ * Gets whether the window is full-screen, consequently hiding the sytem
+ * status bar.
+ *
+ * Params:
+ * window = The window for which to get its full-screen property.
+ *
+ * Returns: true if the window is marked as fullscreen, false if it is not
+ *     marked as fullscreen.
+ */
+extern(C) bool window_get_fullscreen(const(Window)* window);
+
+/**
+ * Assigns an icon (max. 16x16 pixels) that can be displayed in the system
+ * status bar.
+ *
+ * When no icon is assigned, the icon of the previous window on the window
+ * stack is used.
+ *
+ * Note: This needs to be called before pushing a window to the window stack.
+ *
+ * Params:
+ * window = The window for which to set the status bar icon.
+ * icon = The new status bar icon.
+ */
+extern(C) void window_set_status_bar_icon
+(Window* window, const(GBitmap)* icon);
+
+/**
+ * Gets whether the window has been loaded.
+ *
+ * If a window is loaded, its `.load` handler has been called
+ * (and the `.unload` handler has not been called since).
+ *
+ * Params:
+ * window = The window to query its loaded status.
+ *
+ * Returns: true if the window is currently loaded or false if not.
+ *
+ * See_Also: WindowHandlers
+ */
+extern(C) bool window_is_loaded(Window* window);
+
+/**
+ * Sets a pointer to developer-supplied data that the window uses, to
+ * provide a means to access the data at later times in one of the window
+ * event handlers.
+ *
+ * Params:
+ * window = The window for which to set the user data.
+ * data = A pointer to user data.
+ *
+ * See_Also: window_get_user_data
+ */
+extern(C) void window_set_user_data(Window* window, void* data);
+
+/**
+ * Gets the pointer to developer-supplied data that was previously
+ * set using window_set_user_data().
+ *
+ * Params:
+ * window = The window for which to get the user data.
+ *
+ * See_Also: window_set_user_data
+ */
+extern(C) void* window_get_user_data(const(Window)* window);
+
+/**
+ * Subscribe to single click events.
+ *
+ * Note: Must be called from the ClickConfigProvider.
+ *
+ * Note: window_single_click_subscribe() and
+ * window_single_repeating_click_subscribe() conflict, and cannot both be
+ * used on the same button.
+ *
+ * Note: When there is a multi_click and/or long_click setup,
+ * there will be a delay before the single click.
+ *
+ * Params:
+ * button_id = The button events to subscribe to.
+ * handler = The ClickHandler to fire on this event. handler will get fired.
+ *     On the other hand, when there is no multi_click nor long_click setup,
+ *     the single click handler will fire directly on button down.
+ *
+ * See_Also: ButtonId
+ * See_Also: Clicks
+ * See_Also: window_single_repeating_click_subscribe
+ */
+extern(C) void window_single_click_subscribe
+(ButtonId button_id, ClickHandler handler);
+
+/**
+ * Subscribe to single click event, with a repeat interval.
+ * A single click is detected every time "repeat_interval_ms" has been reached.
+ *
+ * Note: Must be called from the ClickConfigProvider.
+ * Note: window_single_click_subscribe() and
+ * window_single_repeating_click_subscribe() conflict, and cannot both be used
+ * on the same button.
+ * Note: The back button cannot be overridden with a repeating click.
+ *
+ * Params:
+ * button_id = The button events to subscribe to.
+ * repeat_interval_ms = When holding down, how many milliseconds before the
+ *     handler is fired again. A value of 0ms means "no repeat timer".
+ *     The minimum is 30ms, and values below will be disregarded.
+ *     If there is a long-click handler subscribed on this button,
+ *     `repeat_interval_ms` will not be used.
+ * handler = The ClickHandler to fire on this event.
+ *
+ * See_Also: window_single_click_subscribe
+ */
+extern(C) void window_single_repeating_click_subscribe
+(ButtonId button_id, ushort repeat_interval_ms, ClickHandler handler);
+
+/**
+ * Subscribe to multi click events.
+ *
+ * Note: Must be called from the ClickConfigProvider.
+ *
+ * Params:
+ * button_id = The button events to subscribe to.
+ * min_clicks = Minimum number of clicks before handler is fired.
+ *     Defaults to 2.
+ * max_clicks = Maximum number of clicks after which the click counter is
+ *     reset. A value of 0 means use "min" also as "max".
+ * timeout = The delay after which a sequence of clicks is considered
+ *     finished, and the click counter is reset. A value of 0 means to use
+ *     the system default 300ms.
+ * last_click_only = Defaults to false. When true, only the handler for the
+ *     last multi-click is called.
+ * handler = The ClickHandler to fire on this event. Fired for multi-clicks,
+ *     as "filtered" by the `last_click_only`, `min`, and `max` parameters.
+ */
+extern(C) void window_multi_click_subscribe
+(ButtonId button_id, ubyte min_clicks, ubyte max_clicks, ushort timeout,
+bool last_click_only, ClickHandler handler);
+
+/**
+ * Subscribe to long click events.
+ *
+ * Note: Must be called from the ClickConfigProvider.
+ * Note: The back button cannot be overridden with a long click.
+ *
+ * Params:
+ * button_id = The button events to subscribe to.
+ * delay_ms = Milliseconds after which "handler" is fired. A value of 0 means
+ *     to use the system default 500ms.
+ * down_handler = The ClickHandler to fire as soon as the button has been
+ *     held for `delay_ms`. This may be NULL to have no down handler.
+ * up_handler The ClickHandler to fire on the release of a long click.
+ *     This may be NULL to have no up handler.
+ */
+extern(C) void window_long_click_subscribe(ButtonId button_id,
+ushort delay_ms, ClickHandler down_handler, ClickHandler up_handler);
+
+/**
+ * Subscribe to raw click events.
+ *
+ * Note: Must be called from within the ClickConfigProvider.
+ * Note: The back button cannot be overridden with a raw click.
+ *
+ * Params:
+ * button_id = The button events to subscribe to.
+ * down_handler = The ClickHandler to fire as soon as the button has been
+ * pressed. This may be NULL to have no down handler.
+ * up_handler = The ClickHandler to fire on the release of the button.
+ * This may be NULL to have no up handler.
+ * context = If this context is not NULL, it will override the general context.
+ */
+extern(C) void window_raw_click_subscribe(ButtonId button_id,
+ClickHandler down_handler, ClickHandler up_handler, void* context);
+
+/**
+ * Set the context that will be passed to handlers for the given button's
+ * events. By default the context passed to handlers is equal to the
+ * ClickConfigProvider context (defaults to the window).
+ *
+ * Note: Must be called from within the ClickConfigProvider.
+ *
+ * Params:
+ * button_id = The button to set the context for.
+ * context = Set the context that will be passed to handlers for the given
+ *     button's events.
+ */
+extern(C) void window_set_click_context(ButtonId button_id, void* context);
+
+/**
+ * Pushes the given window on the window navigation stack,
+ * on top of the current topmost window of the app.
+ *
+ * Params:
+ * window = The window to push on top.
+ * animated = Pass in `true` to animate the push using a sliding animation,
+ * or `false` to skip the animation.
+ */
+extern(C) void window_stack_push(Window* window, bool animated);
+
+/**
+ * Pops the topmost window on the navigation stack
+ *
+ * Params:
+ * animated = See window_stack_remove()
+ *
+ * Returns: The window that is popped, or NULL if there are no windows to pop.
+ */
+extern(C) Window* window_stack_pop(bool animated);
+
+/**
+ * Pops all windows.
+ *
+ * See_Also: window_stack_remove() for a description of the `animated`
+ * parameter and notes.
+ */
+extern(C) void window_stack_pop_all(const bool animated);
+
+/**
+ * Removes a given window from the window stack that belongs to the app task.
+ *
+ * Note: If there are no windows for the app left on the stack, the app
+ * will be killed by the system, shortly. To avoid this, make sure to push
+ * another window shortly after or before removing the last window.
+ *
+ * Params:
+ * window = The window to remove. If the window is NULL or if it is not on the
+ *     stack, this function is a no-op.
+ * animated
+ *     Pass in `true` to animate the removal of the window using
+ *     a side-to-side sliding animation to reveal the next window.
+ *     This is only used in case the window happens to be on top of the window
+ *     stack (thus visible).
+ *
+ * Returns: true if window was successfully removed, false otherwise.
+ */
+extern(C) bool window_stack_remove(Window* window, bool animated);
+
+/**
+ * Gets the topmost window on the stack that belongs to the app.
+ *
+ * Returns: The topmost window on the stack that belongs to the app or
+ * null if no app window could be found.
+ */
+extern(C) Window* window_stack_get_top_window();
+
+/**
+ * Checks if the window is on the window stack.
+ *
+ * Params:
+ * window = The window to look for on the window stack.
+ *
+ * Returns: true if the window is currently on the window stack.
+ */
+extern(C) bool window_stack_contains_window(Window* window);
+
+// TODO: Write a wrapper for the window pointers here.
+
 alias _Anonymous_30 AnimationCurve;
 alias uint function (uint) AnimationCurveFunction;
 alias void function (Animation*, void*) AnimationStartedHandler;
@@ -3203,66 +5038,6 @@ enum _Anonymous_12
 
 
 
-enum GBitmapFormat
-{
-    GBitmapFormat1Bit = 0,
-    GBitmapFormat8Bit = 1,
-    GBitmapFormat1BitPalette = 2,
-    GBitmapFormat2BitPalette = 3,
-    GBitmapFormat4BitPalette = 4
-}
-
-enum GAlign
-{
-    GAlignCenter = 0,
-    GAlignTopLeft = 1,
-    GAlignTopRight = 2,
-    GAlignTop = 3,
-    GAlignLeft = 4,
-    GAlignBottom = 5,
-    GAlignRight = 6,
-    GAlignBottomRight = 7,
-    GAlignBottomLeft = 8
-}
-
-enum _Anonymous_26
-{
-    GCompOpAssign = 0,
-    GCompOpAssignInverted = 1,
-    GCompOpOr = 2,
-    GCompOpAnd = 3,
-    GCompOpClear = 4,
-    GCompOpSet = 5
-}
-
-enum _Anonymous_27
-{
-    GCornerNone = 0,
-    GCornerTopLeft = 1,
-    GCornerTopRight = 2,
-    GCornerBottomLeft = 4,
-    GCornerBottomRight = 8,
-    GCornersAll = 15,
-    GCornersTop = 3,
-    GCornersBottom = 12,
-    GCornersLeft = 5,
-    GCornersRight = 10
-}
-
-enum _Anonymous_28
-{
-    GTextOverflowModeWordWrap = 0,
-    GTextOverflowModeTrailingEllipsis = 1,
-    GTextOverflowModeFill = 2
-}
-
-enum _Anonymous_29
-{
-    GTextAlignmentLeft = 0,
-    GTextAlignmentCenter = 1,
-    GTextAlignmentRight = 2
-}
-
 enum _Anonymous_30
 {
     AnimationCurveLinear = 0,
@@ -3284,27 +5059,7 @@ enum _Anonymous_31
     MenuRowAlignBottom = 3
 }
 
-struct GPathInfo
-{
-    uint num_points;
-    GPoint* points;
-}
 
-struct GPath
-{
-    uint num_points;
-    GPoint* points;
-    int rotation;
-    GPoint offset;
-}
-
-struct WindowHandlers
-{
-    WindowHandler load;
-    WindowHandler appear;
-    WindowHandler disappear;
-    WindowHandler unload;
-}
 
 struct AnimationHandlers
 {
@@ -3411,28 +5166,20 @@ struct NumberWindow;
 struct Animation;
 
 
-struct TextLayout;
-
-
 struct BitmapLayer;
 
 
 struct TextLayer;
 
 
-struct GBitmap;
-
-
 struct ActionBarLayer;
 
 
-struct Layer;
 
 
 struct ScrollLayer;
 
 
-struct Window;
 
 
 struct RotBitmapLayer;
@@ -3441,124 +5188,8 @@ struct RotBitmapLayer;
 struct PropertyAnimation;
 
 
-struct GBitmapSequence;
-
-
-struct GContext;
-
-
 struct SimpleMenuLayer;
 
-
-
-
-extern(C) bool grect_contains_point (const(GRect)* rect, const(GPoint)* point);
-extern(C) GPoint grect_center_point (const(GRect)* rect);
-extern(C) GRect grect_crop (GRect rect, const int crop_size_px);
-extern(C) ushort gbitmap_get_bytes_per_row (const(GBitmap)* bitmap);
-extern(C) GBitmapFormat gbitmap_get_format (const(GBitmap)* bitmap);
-extern(C) ubyte* gbitmap_get_data (const(GBitmap)* bitmap);
-extern(C) void gbitmap_set_data (GBitmap* bitmap, ubyte* data, GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy);
-extern(C) GRect gbitmap_get_bounds (const(GBitmap)* bitmap);
-extern(C) void gbitmap_set_bounds (GBitmap* bitmap, GRect bounds);
-extern(C) GColor* gbitmap_get_palette (const(GBitmap)* bitmap);
-extern(C) void gbitmap_set_palette (GBitmap* bitmap, GColor* palette, bool free_on_destroy);
-extern(C) GBitmap* gbitmap_create_with_resource (uint resource_id);
-extern(C) GBitmap* gbitmap_create_with_data (const(ubyte)* data);
-extern(C) GBitmap* gbitmap_create_as_sub_bitmap (const(GBitmap)* base_bitmap, GRect sub_rect);
-extern(C) GBitmap* gbitmap_create_from_png_data (const(ubyte)* png_data, size_t png_data_size);
-extern(C) GBitmap* gbitmap_create_blank (GSize size, GBitmapFormat format);
-extern(C) GBitmap* gbitmap_create_blank_with_palette (GSize size, GBitmapFormat format, GColor* palette, bool free_on_destroy);
-extern(C) void gbitmap_destroy (GBitmap* bitmap);
-extern(C) GBitmapSequence* gbitmap_sequence_create_with_resource (uint resource_id);
-extern(C) bool gbitmap_sequence_update_bitmap_next_frame (GBitmapSequence* bitmap_sequence, GBitmap* bitmap, uint* delay_ms);
-extern(C) void gbitmap_sequence_destroy (GBitmapSequence* bitmap_sequence);
-extern(C) bool gbitmap_sequence_restart (GBitmapSequence* bitmap_sequence);
-extern(C) int gbitmap_sequence_get_current_frame_idx (GBitmapSequence* bitmap_sequence);
-extern(C) int gbitmap_sequence_get_total_num_frames (GBitmapSequence* bitmap_sequence);
-extern(C) uint gbitmap_sequence_get_loop_count (GBitmapSequence* bitmap_sequence);
-extern(C) void gbitmap_sequence_set_loop_count (GBitmapSequence* bitmap_sequence, uint loop_count);
-extern(C) GSize gbitmap_sequence_get_bitmap_size (GBitmapSequence* bitmap_sequence);
-extern(C) void grect_align (GRect* rect, const(GRect)* inside_rect, const GAlign alignment, const bool clip);
-extern(C) void graphics_context_set_stroke_color (GContext* ctx, GColor color);
-extern(C) void graphics_context_set_fill_color (GContext* ctx, GColor color);
-extern(C) void graphics_context_set_text_color (GContext* ctx, GColor color);
-extern(C) void graphics_context_set_compositing_mode (GContext* ctx, GCompOp mode);
-extern(C) void graphics_context_set_antialiased (GContext* ctx, bool enable);
-extern(C) void graphics_context_set_stroke_width (GContext* ctx, ubyte stroke_width);
-extern(C) void graphics_draw_pixel (GContext* ctx, GPoint point);
-extern(C) void graphics_draw_line (GContext* ctx, GPoint p0, GPoint p1);
-extern(C) void graphics_draw_rect (GContext* ctx, GRect rect);
-extern(C) void graphics_fill_rect (GContext* ctx, GRect rect, ushort corner_radius, GCornerMask corner_mask);
-extern(C) void graphics_draw_circle (GContext* ctx, GPoint p, ushort radius);
-extern(C) void graphics_fill_circle (GContext* ctx, GPoint p, ushort radius);
-extern(C) void graphics_draw_round_rect (GContext* ctx, GRect rect, ushort radius);
-extern(C) void graphics_draw_bitmap_in_rect (GContext* ctx, const(GBitmap)* bitmap, GRect rect);
-extern(C) GBitmap* graphics_capture_frame_buffer (GContext* ctx);
-extern(C) GBitmap* graphics_capture_frame_buffer_format (GContext* ctx, GBitmapFormat format);
-extern(C) bool graphics_release_frame_buffer (GContext* ctx, GBitmap* buffer);
-extern(C) bool graphics_frame_buffer_is_captured (GContext* ctx);
-extern(C) GPath* gpath_create (const(GPathInfo)* init);
-extern(C) void gpath_destroy (GPath* gpath);
-extern(C) void gpath_draw_filled (GContext* ctx, GPath* path);
-extern(C) void gpath_draw_outline (GContext* ctx, GPath* path);
-extern(C) void gpath_rotate_to (GPath* path, int angle);
-extern(C) void gpath_move_to (GPath* path, GPoint point);
-extern(C) GFont fonts_get_system_font (const(char)* font_key);
-extern(C) GFont fonts_load_custom_font (ResHandle handle);
-extern(C) void fonts_unload_custom_font (GFont font);
-extern(C) void graphics_draw_text (GContext* ctx, const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment, const GTextLayoutCacheRef layout);
-extern(C) GSize graphics_text_layout_get_content_size (const(char)* text, const GFont font, const GRect box, const GTextOverflowMode overflow_mode, const GTextAlignment alignment);
-extern(C) ubyte click_number_of_clicks_counted (ClickRecognizerRef recognizer);
-extern(C) ButtonId click_recognizer_get_button_id (ClickRecognizerRef recognizer);
-extern(C) bool click_recognizer_is_repeating (ClickRecognizerRef recognizer);
-extern(C) Layer* layer_create (GRect frame);
-extern(C) Layer* layer_create_with_data (GRect frame, size_t data_size);
-extern(C) void layer_destroy (Layer* layer);
-extern(C) void layer_mark_dirty (Layer* layer);
-extern(C) void layer_set_update_proc (Layer* layer, LayerUpdateProc update_proc);
-extern(C) void layer_set_frame (Layer* layer, GRect frame);
-extern(C) GRect layer_get_frame (const(Layer)* layer);
-extern(C) void layer_set_bounds (Layer* layer, GRect bounds);
-extern(C) GRect layer_get_bounds (const(Layer)* layer);
-extern(C) Window* layer_get_window (const(Layer)* layer);
-extern(C) void layer_remove_from_parent (Layer* child);
-extern(C) void layer_remove_child_layers (Layer* parent);
-extern(C) void layer_add_child (Layer* parent, Layer* child);
-extern(C) void layer_insert_below_sibling (Layer* layer_to_insert, Layer* below_sibling_layer);
-extern(C) void layer_insert_above_sibling (Layer* layer_to_insert, Layer* above_sibling_layer);
-extern(C) void layer_set_hidden (Layer* layer, bool hidden);
-extern(C) bool layer_get_hidden (const(Layer)* layer);
-extern(C) void layer_set_clips (Layer* layer, bool clips);
-extern(C) bool layer_get_clips (const(Layer)* layer);
-extern(C) void* layer_get_data (const(Layer)* layer);
-extern(C) Window* window_create ();
-extern(C) void window_destroy (Window* window);
-extern(C) void window_set_click_config_provider (Window* window, ClickConfigProvider click_config_provider);
-extern(C) void window_set_click_config_provider_with_context (Window* window, ClickConfigProvider click_config_provider, void* context);
-extern(C) ClickConfigProvider window_get_click_config_provider (const(Window)* window);
-extern(C) void* window_get_click_config_context (Window* window);
-extern(C) void window_set_window_handlers (Window* window, WindowHandlers handlers);
-extern(C) Layer* window_get_root_layer (const(Window)* window);
-extern(C) void window_set_background_color (Window* window, GColor background_color);
-extern(C) void window_set_fullscreen (Window* window, bool enabled);
-extern(C) bool window_get_fullscreen (const(Window)* window);
-extern(C) void window_set_status_bar_icon (Window* window, const(GBitmap)* icon);
-extern(C) bool window_is_loaded (Window* window);
-extern(C) void window_set_user_data (Window* window, void* data);
-extern(C) void* window_get_user_data (const(Window)* window);
-extern(C) void window_single_click_subscribe (ButtonId button_id, ClickHandler handler);
-extern(C) void window_single_repeating_click_subscribe (ButtonId button_id, ushort repeat_interval_ms, ClickHandler handler);
-extern(C) void window_multi_click_subscribe (ButtonId button_id, ubyte min_clicks, ubyte max_clicks, ushort timeout, bool last_click_only, ClickHandler handler);
-extern(C) void window_long_click_subscribe (ButtonId button_id, ushort delay_ms, ClickHandler down_handler, ClickHandler up_handler);
-extern(C) void window_raw_click_subscribe (ButtonId button_id, ClickHandler down_handler, ClickHandler up_handler, void* context);
-extern(C) void window_set_click_context (ButtonId button_id, void* context);
-extern(C) void window_stack_push (Window* window, bool animated);
-extern(C) Window* window_stack_pop (bool animated);
-extern(C) void window_stack_pop_all (const bool animated);
-extern(C) bool window_stack_remove (Window* window, bool animated);
-extern(C) Window* window_stack_get_top_window ();
-extern(C) bool window_stack_contains_window (Window* window);
 extern(C) Animation* animation_create ();
 extern(C) bool animation_destroy (Animation* animation);
 extern(C) Animation* animation_clone (Animation* from);
@@ -3622,8 +5253,8 @@ extern(C) GPoint scroll_layer_get_content_offset (ScrollLayer* scroll_layer);
 extern(C) void scroll_layer_set_content_size (ScrollLayer* scroll_layer, GSize size);
 extern(C) GSize scroll_layer_get_content_size (const(ScrollLayer)* scroll_layer);
 extern(C) void scroll_layer_set_frame (ScrollLayer* scroll_layer, GRect frame);
-extern(C) void scroll_layer_scroll_up_click_handler (ClickRecognizerRef recognizer, void* context);
-extern(C) void scroll_layer_scroll_down_click_handler (ClickRecognizerRef recognizer, void* context);
+extern(C) void scroll_layer_scroll_up_click_handler (void* recognizer, void* context);
+extern(C) void scroll_layer_scroll_down_click_handler (void* recognizer, void* context);
 extern(C) void scroll_layer_set_shadow_hidden (ScrollLayer* scroll_layer, bool hidden);
 extern(C) bool scroll_layer_get_shadow_hidden (const(ScrollLayer)* scroll_layer);
 extern(C) InverterLayer* inverter_layer_create (GRect frame);
@@ -3696,3 +5327,4 @@ extern(C) tm* gmtime (const(time_t)* timep);
 extern(C) time_t mktime (tm* tb);
 extern(C) time_t time (time_t* tloc);
 extern(C) ushort time_ms (time_t* tloc, ushort* out_ms);
+
