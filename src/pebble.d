@@ -8,6 +8,8 @@ module pebble;
 // We should probably use that instead.
 import core.stdc.time;
 import core.stdc.config;
+import core.stdc.string : strlen;
+
 
 @nogc:
 nothrow:
@@ -309,7 +311,7 @@ extern(C) void clock_get_timezone(char *buf);
  * Params:
  * connected = true on bluetooth connection, false on disconnection.
  */
-alias void function(bool connected) BluetoothConnectionHandler;
+alias extern(C) void function(bool connected) BluetoothConnectionHandler;
 
 /**
  * Query the bluetooth connection service for the current connection status.
@@ -341,7 +343,7 @@ extern(C) void bluetooth_connection_service_unsubscribe();
  * Params:
  * in_focus = true if the app is in focus, false otherwise.
  */
-alias void function(bool in_focus) AppFocusHandler;
+alias extern(C) void function(bool in_focus) AppFocusHandler;
 
 /**
  * Subscribe to the focus event service. Once subscribed, the handler gets
@@ -379,7 +381,7 @@ extern(C) struct BatteryChargeState {
  * Params:
  * charge = The state of the battery.
  */
-alias void function(BatteryChargeState charge) BatteryStateHandler;
+alias extern(C) void function(BatteryChargeState charge) BatteryStateHandler;
 
 /**
  * Subscribe to the battery state event service. Once subscribed,
@@ -459,7 +461,8 @@ alias ACCEL_AXIS_Z = AccelAxisType.z;
  * data = Pointer to the collected accelerometer samples.
  * num_samples = the number of samples stored in data.
  */
-alias void function (AccelData* data, uint num_samples) AccelDataHandler;
+alias extern(C) void function
+(AccelData* data, uint num_samples) AccelDataHandler;
 
 /**
  * Callback type for accelerometer raw data events
@@ -469,7 +472,8 @@ alias void function (AccelData* data, uint num_samples) AccelDataHandler;
  * num_samples = The number of samples stored in data.
  * timestamp = The timestamp, in ms, of the first sample.
  */
-alias void function (AccelRawData* data, uint num_samples, c_ulong timestamp) AccelRawDataHandler;
+alias extern(C) void function
+(AccelRawData* data, uint num_samples, c_ulong timestamp) AccelRawDataHandler;
 
 /**
  * Callback type for accelerometer tap events.
@@ -478,7 +482,8 @@ alias void function (AccelRawData* data, uint num_samples, c_ulong timestamp) Ac
  * axis = the axis on which a tap was registered (x, y, or z)
  * direction = the direction (-1 or +1) of the tap
  */
-alias void function (AccelAxisType axis, int direction) AccelTapHandler;
+alias extern(C) void function
+(AccelAxisType axis, int direction) AccelTapHandler;
 
 /// Valid accelerometer sampling rates, in Hz.
 enum AccelSamplingRate {
@@ -615,7 +620,7 @@ enum CompassStatus {
 }
 
 ///
-alias CompassStatusDataInvalid = CompassStatus.data_invaild;
+alias CompassStatusDataInvalid = CompassStatus.data_invalid;
 ///
 alias CompassStatusCalibrating = CompassStatus.calibrating;
 ///
@@ -652,7 +657,8 @@ extern(C) struct CompassHeadingData {
  * Params:
  * heading = copy of last recorded heading
  */
-alias void function (CompassHeadingData heading) CompassHeadingHandler;
+alias extern(C) void function
+(CompassHeadingData heading) CompassHeadingHandler;
 
 /**
  * Set the minimum angular change required to generate new compass heading
@@ -742,7 +748,7 @@ alias YEAR_UNIT = TimeUnits.year;
  * tick_time = the time at which the tick event was triggered
  * units_changed = which unit change triggered this tick event
  */
-alias void function (tm* tick_time, TimeUnits units_changed) TickHandler;
+alias extern(C) void function (tm* tick_time, TimeUnits units_changed) TickHandler;
 
 /**
  * Subscribe to the tick timer event service. Once subscribed, the
@@ -1003,7 +1009,8 @@ alias APP_LOG_LEVEL_VERBOSE = AppLogLevel.verbose;
  *  fmt = A C formatting string
  *  ... = The arguments for the formatting string
  */
-extern(C) void app_log(AppLogLevel log_level, const(char)* src_filename, int src_line_number, const(char)* fmt, ...);
+extern(C) void app_log(AppLogLevel log_level, const(char)* src_filename,
+int src_line_number, const(char)* fmt, ...);
 
 // TODO: Implement more arguments than just the format string.
 /**
@@ -1015,7 +1022,7 @@ extern(C) void app_log(AppLogLevel log_level, const(char)* src_filename, int src
  * args = The arguments for the formatting string
  */
 void APP_LOG(AppLogLevel log_level, const(char)* fmt,
-int src_line_number = __LINE__, const(char)* src_filename = __FILE__) {
+int src_line_number = __LINE__, const(char)* src_filename = __FILE__.ptr) {
     app_log(log_level, src_filename, src_line_number, fmt);
 }
 
@@ -1069,7 +1076,6 @@ alias TUPLE_CSTRING = TupleType.cstring;
 alias TUPLE_UINT = TupleType._uint;
 ///
 alias TUPLE_INT = TupleType._int;
-
 
 /**
  * The value itself.
@@ -1159,7 +1165,7 @@ struct DictionaryIterator {
     Tuple* cursor;
 }
 
-/// TODO: Implement this in D.
+/// TODO: Implement this function in D.
 
 /**
  * Calculates the number of bytes that a dictionary will occupy, given
@@ -1180,7 +1186,7 @@ struct DictionaryIterator {
  * Returns: The total number of bytes of storage needed.
  */
 @trusted pure
-extern(C) uint dict_calc_buffer_size (const ubyte tuple_count, ...);
+extern(C) uint dict_calc_buffer_size(const ubyte tuple_count, ...);
 
 /**
  * Calculates the size of data that has been written to the dictionary.
@@ -1195,7 +1201,7 @@ extern(C) uint dict_calc_buffer_size (const ubyte tuple_count, ...);
  * to the dictionary.
  */
 @trusted pure
-extern(C) uint dict_size (const(DictionaryIterator)* iter);
+extern(C) uint dict_size(const(DictionaryIterator)* iter);
 
 /**
  * Initializes the dictionary iterator with a given buffer and size,
@@ -1244,7 +1250,8 @@ const uint key, const ubyte* data, const ushort size);
  *
  * Returns: DICT_OK, DICT_NOT_ENOUGH_STORAGE or DICT_INVALID_ARGS
  */
-extern(C) DictionaryResult dict_write_cstring (DictionaryIterator* iter, const uint key, const char* cstring);
+extern(C) DictionaryResult dict_write_cstring
+(DictionaryIterator* iter, const uint key, const char* cstring);
 
 /**
  * Adds a key with an integer value pair to the dictionary.
@@ -1314,6 +1321,8 @@ private void checkDictionaryResult(DictionaryResult result) {
         assert(false, "Not enough storage for a dictionary!");
     case DICT_INVALID_ARGS:
         assert(false, "Invalid arguments for dict_write!");
+    default:
+        assert(false, "This should never be reached.");
     }
 }
 
@@ -1482,6 +1491,109 @@ extern(C) struct Tuplet {
         /// Valid when `.type.` is TUPLE_INT or TUPLE_UINT
         TupletIntType integer;
     }
+
+    /**
+     * Create a Tuplet with a byte array value.
+     *
+     * Params:
+     * key = The key
+     * data = Pointer to the bytes
+     * length = Length of the buffer
+     */
+    @nogc @safe pure nothrow
+    this(uint key, const(ubyte)* data, const ushort length) {
+        this.type = TUPLE_BYTE_ARRAY;
+        this.key = key;
+        this.bytes = TupletBytesType(data, length);
+    }
+
+    /**
+     * Create a Tuplet with a byte array slice.
+     *
+     * Params:
+     * key = The key
+     * data = A slice of bytes.
+     */
+    @nogc @safe pure nothrow
+    this(uint key, const(ubyte)[] data) {
+        this(key, data.ptr, cast(ushort) data.length);
+    }
+
+    /**
+     * Create a Tuplet with a c-string value
+     *
+     * Params:
+     * key = The key
+     * cstring = The c-string value
+     */
+    @nogc @trusted pure nothrow
+    this(uint key, const (char)* cstring) {
+        this.type = TUPLE_CSTRING;
+        this.key = key;
+
+        if (cstring !is null) {
+            this.cstring = TupletCStringType(
+                cstring,
+                cast(ushort)(strlen(cstring) + 1)
+            );
+        } else {
+            this.cstring = TupletCStringType(null, 0);
+        }
+    }
+
+    /**
+     * Create a Tuplet with an integer value.
+     *
+     * Params:
+     * key = The key
+     * integer = The integer value
+     */
+    @nogc @trusted pure nothrow
+    this(uint key, ubyte integer) {
+        this.type = TUPLE_UINT;
+        this.key = key;
+        this.integer = TupletIntType(integer, ubyte.sizeof);
+    }
+
+    /// ditto
+    @nogc @trusted pure nothrow
+    this(uint key, byte integer) {
+        this.type = TUPLE_INT;
+        this.key = key;
+        this.integer = TupletIntType(integer, byte.sizeof);
+    }
+
+    /// ditto
+    @nogc @trusted pure nothrow
+    this(uint key, ushort integer) {
+        this.type = TUPLE_UINT;
+        this.key = key;
+        this.integer = TupletIntType(integer, ushort.sizeof);
+    }
+
+    /// ditto
+    @nogc @trusted pure nothrow
+    this(uint key, short integer) {
+        this.type = TUPLE_INT;
+        this.key = key;
+        this.integer = TupletIntType(integer, short.sizeof);
+    }
+
+    /// ditto
+    @nogc @trusted pure nothrow
+    this(uint key, uint integer) {
+        this.type = TUPLE_UINT;
+        this.key = key;
+        this.integer = TupletIntType(integer, uint.sizeof);
+    }
+
+    /// ditto
+    @nogc @trusted pure nothrow
+    this(uint key, int integer) {
+        this.type = TUPLE_INT;
+        this.key = key;
+        this.integer = TupletIntType(integer, int.sizeof);
+    }
 }
 
 
@@ -1494,15 +1606,10 @@ extern(C) struct Tuplet {
  * data = Pointer to the bytes
  * length = Length of the buffer
  */
+deprecated("Use the matching constructor for Tuplet instead.")
 @safe pure
 Tuplet TupletBytes(uint key, const (ubyte)* data, const ushort length) {
-    Tuplet tuplet = {
-        .type = TUPLE_BYTE_ARRAY,
-        .key = key,
-        .bytes = TupletBytesType(data, length)
-    };
-
-    return tuplet;
+    return Tuplet(key, data, length);
 }
 
 /**
@@ -1512,35 +1619,10 @@ Tuplet TupletBytes(uint key, const (ubyte)* data, const ushort length) {
  * key = The key
  * cstring = The c-string value
  */
-@safe pure
+@trusted pure
+deprecated("Use the matching constructor for Tuplet instead.")
 Tuplet TupletCString(uint key, const(char*) cstring) {
-    Tuplet tuplet = {
-        .type = TUPLE_CSTRING,
-        .key = key,
-        .bytes = TupleCStringType(
-            data,
-            data ? strlen(cstring) + 1 : 0
-        )
-    };
-
-    return tuplet;
-}
-
-@safe pure
-private Tuplet TupletIntegerImpl(Num)(uint key, Num integer) {
-    static if (is(Num == byte) || is(Num == short) || is(Num == int)) {
-        enum type = TUPLE_INT;
-    } else {
-        enum type = TUPLE_UINT;
-    }
-
-    Tuplet tuplet = {
-        .type = type,
-        .key = key,
-        .width = Num.sizeof
-    };
-
-    return tuplet;
+    return Tuplet(key, cstring);
 }
 
 /**
@@ -1551,38 +1633,39 @@ private Tuplet TupletIntegerImpl(Num)(uint key, Num integer) {
  * integer = The integer value
  */
 @safe pure
+deprecated("Use the matching constructor for Tuplet instead.")
 Tuplet TupletInteger(uint key, ubyte integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /// ditto
 @safe pure
 Tuplet TupletInteger(uint key, byte integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /// ditto
 @safe pure
 Tuplet TupletInteger(uint key, ushort integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /// ditto
 @safe pure
 Tuplet TupletInteger(uint key, short integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /// ditto
 @safe pure
 Tuplet TupletInteger(uint key, uint integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /// ditto
 @safe pure
 Tuplet TupletInteger(uint key, int integer) {
-    return TupletIntegerImpl(key, integer);
+    return Tuplet(key, integer);
 }
 
 /**
@@ -1595,7 +1678,7 @@ Tuplet TupletInteger(uint key, int integer) {
  *
  * See_Also: dict_serialize_tuplets
  */
-alias void function (const(ubyte)* data, ushort size, void* context)
+alias extern(C) void function (const(ubyte)* data, ushort size, void* context)
 DictionarySerializeCallback;
 
 /**
@@ -1703,7 +1786,7 @@ extern(C) uint dict_calc_buffer_size_from_tuplets
  *
  * See_Also: dict_merge
  */
-alias void function
+alias extern(C) void function
 (uint key, const(Tuple)* new_tuple, const(Tuple)* old_tuple, void* context)
 DictionaryKeyUpdatedCallback;
 
@@ -1744,7 +1827,7 @@ const DictionaryKeyUpdatedCallback key_callback, void* context);
  * Returns: Pointer to a found Tuple, or NULL if there was no Tuple with
  *     the specified key.
  */
-extern(C) Tuple* dict_find (const(DictionaryIterator)* iter, const uint key);
+extern(C) Tuple* dict_find(const(DictionaryIterator)* iter, const uint key);
 
 /// AppMessage result codes.
 enum AppMessageResult {
@@ -1849,7 +1932,7 @@ extern(C) void app_message_deregister_callbacks();
  * context = Pointer to application data as specified when registering the
  *     callback.
  */
-alias void function (DictionaryIterator* iterator, void* context)
+alias extern(C) void function (DictionaryIterator* iterator, void* context)
 AppMessageInboxReceived;
 
 /**
@@ -1865,7 +1948,7 @@ AppMessageInboxReceived;
  * prepare a new message. This will invalidate the previous dictionary
  * iterator; do not use it after calling app_message_outbox_begin().
  */
-alias void function(AppMessageResult reason, void* context)
+alias extern(C) void function(AppMessageResult reason, void* context)
 AppMessageInboxDropped;
 
 /**
@@ -1880,7 +1963,7 @@ AppMessageInboxDropped;
  * context = Pointer to application data as specified when registering the
  *     callback.
  */
-alias void function(DictionaryIterator* iterator, void* context)
+alias extern(C) void function(DictionaryIterator* iterator, void* context)
 AppMessageOutboxSent;
 
 /**
@@ -1902,8 +1985,8 @@ AppMessageOutboxSent;
  * context = Pointer to application data as specified when registering the
  *     callback.
  */
-alias void function(DictionaryIterator* iterator, AppMessageResult reason,
-void* context) AppMessageOutboxFailed;
+alias extern(C) void function(DictionaryIterator* iterator,
+AppMessageResult reason, void* context) AppMessageOutboxFailed;
 
 /**
  * Gets the context that will be passed to all AppMessage callbacks.
@@ -2094,7 +2177,7 @@ enum size_t APP_MESSAGE_OUTBOX_SIZE_MINIMUM = 636;
  *
  * See_Also: app_sync_init()
  */
-alias void function
+alias extern(C) void function
 (uint key, const(Tuple)* new_tuple, const(Tuple)* old_tuple, void* context)
 AppSyncTupleChangedCallback;
 
@@ -2111,7 +2194,7 @@ AppSyncTupleChangedCallback;
  *
  * See_Also: app_sync_init()
  */
-alias void function(DictionaryResult dict_error,
+alias extern(C) void function(DictionaryResult dict_error,
 AppMessageResult app_message_error, void* context) AppSyncErrorCallback;
 
 /// The callback type for an AppSync context.
@@ -2328,7 +2411,8 @@ alias APP_WORKER_RESULT_NOT_RUNNING = AppWorkerResult.notRunning;
 ///
 alias APP_WORKER_RESULT_ALREADY_RUNNING = AppWorkerResult.alreadyRunning;
 ///
-alias APP_WORKER_RESULT_ASKING_CONFIRMATION = AppWorkerResult.askingConfirmation;
+alias APP_WORKER_RESULT_ASKING_CONFIRMATION =
+    AppWorkerResult.askingConfirmation;
 
 /**
  * Generic structure of a worker message that can be sent between an app and
@@ -2374,7 +2458,7 @@ extern(C) AppWorkerResult app_worker_kill();
  * data = pointer to message data. The receiver must know the structure of
  * the data provided by the sender.
  */
-alias void function(ushort type, AppWorkerMessage* data)
+alias extern(C) void function(ushort type, AppWorkerMessage* data)
 AppWorkerMessageHandler;
 
 /**
@@ -2457,7 +2541,7 @@ extern(C) SniffInterval app_comm_get_sniff_interval();
  */
 extern(C) void psleep(int millis);
 
-struct AppTimer;
+struct AppTimer {}
 
 /**
  * The type of function which can be called when a timer fires.
@@ -2465,7 +2549,7 @@ struct AppTimer;
  * Params:
  * data = The callback data passed to app_timer_register().
  */
-alias void function (void* data) AppTimerCallback;
+alias extern(C) void function (void* data) AppTimerCallback;
 
 /**
  * Registers a timer that ends up in callback being called some
@@ -2566,7 +2650,7 @@ alias S_SUCCESS = StatusCode.success;
 ///
 alias E_ERROR = StatusCode.error;
 ///
-alias E_UNKNOWN = StatusCode.uknown;
+alias E_UNKNOWN = StatusCode.unknownError;
 ///
 alias E_INTERNAL = StatusCode.internalError;
 ///
@@ -2702,7 +2786,8 @@ extern(C) status_t persist_write_bool(const uint key, const bool value);
 extern(C) status_t persist_write_int(const uint key, const int value);
 
 /**
- * Writes a blob of data of a specified size in bytes for a given key into persistent storage.
+ * Writes a blob of data of a specified size in bytes for a given key into
+ * persistent storage.
  *
  * The maximum size is PERSIST_DATA_MAX_LENGTH
  *
@@ -2748,7 +2833,7 @@ alias int WakeupId;
  * wakeup_id = The id of the wakeup event that occurred.
  * cookie = The scheduled cookie provided to wakeup_schedule.
  */
-extern(C) alias void function(WakeupId wakeup_id, int cookie) WakeupHandler;
+alias extern(C) void function(WakeupId wakeup_id, int cookie) WakeupHandler;
 
 /**
  * Registers a WakeupHandler to be called when wakeup events occur.
@@ -2900,7 +2985,7 @@ struct GColor8 {
     in {
         assert(value >= 0 && value <= 3);
     } body {
-        argb = (argb & 0b00_11_11_11) | (value << 6);
+        argb &= 0b00_11_11_11 | value << 6;
     }
 
     /// Green
@@ -2918,7 +3003,7 @@ struct GColor8 {
     in {
         assert(value >= 0 && value <= 3);
     } body {
-        argb = (argb & 0b11_00_11_11) | (value << 4);
+        argb &= 0b11_00_11_11 | value << 4;
     }
 
     /// Red
@@ -2936,7 +3021,7 @@ struct GColor8 {
     in {
         assert(value >= 0 && value <= 3);
     } body {
-        argb = (argb & 0b11_11_00_11) | (value << 2);
+        argb &= 0b11_11_00_11 | value << 2;
     }
 
     /**
@@ -2961,7 +3046,7 @@ struct GColor8 {
     in {
         assert(value >= 0 && value <= 3);
     } body {
-        argb = (argb & 0b11_11_11_00) | value;
+        argb &= 0b11_11_11_00 | value;
     }
 }
 
@@ -3038,7 +3123,7 @@ enum GSizeZero = GSize.init;
 deprecated("Use x == y instead of gsize_equal(&x, &y)")
 @safe pure
 bool gsize_equal(const(GSize)* size_a, const(GSize)* size_b) {
-    return *size_z == *size_b;
+    return *size_a == *size_b;
 }
 
 /**
@@ -3050,7 +3135,7 @@ struct GRect {
     GSize size;
 
     /// Create a rectangle with an origin and a size.
-    @safe pure
+    @nogc @safe pure nothrow
     this(GPoint origin, GSize size) {
         this.origin = origin;
         this.size = size;
@@ -3060,7 +3145,7 @@ struct GRect {
         "Use GRect(GPoint(x, y), GSize(w, h)) "
         "instead of GRect(x, y, w, h)"
     )
-    @safe pure
+    @nogc @safe pure nothrow
     this(short x, short y, short w, short h) {
         this(GPoint(x, y), GSize(w, h));
     }
@@ -3074,9 +3159,9 @@ struct GRect {
      *
      * Returns: `true` if the rectangle its size is (0, 0), or `false` if not.
     */
-    @safe pure
+    @nogc @safe pure nothrow
     @property bool is_empty() const {
-        return cast(int) size == 0;
+        return size.w == 0 && size.h == 0;
     }
 
     /**
@@ -3089,15 +3174,15 @@ struct GRect {
      * For example, a GRect with size (-10, -5) and origin (20, 20),
      * will be standardized to size (10, 5) and origin (10, 15).
      */
-    @safe pure
+    @nogc @safe pure nothrow
     void standardize() {
         if (size.w < 0) {
-            origin.x + size.w;
+            origin.x += size.w;
             size.w = -size.w;
         }
 
         if (size.h < 0) {
-            origin.y + size.h;
+            origin.y += size.h;
             size.h = -size.h;
         }
     }
@@ -3197,10 +3282,10 @@ alias GBitmapFormat2BitPalette = GBitmapFormat._2bitPalette;
 alias GBitmapFormat4BitPalette = GBitmapFormat._4bitPalette;
 
 /// A opaque struct for a bitmap.
-struct GBitmap;
+struct GBitmap {}
 
 /// A opaque struct for a sequence of bitmaps.
-struct GBitmapSequence;
+struct GBitmapSequence {}
 
 /**
  * Get the number of bytes per row in the bitmap data for the given GBitmap.
@@ -3617,7 +3702,7 @@ enum GCompOp {
 ///
 alias GCompOpAssign = GCompOp.assign;
 ///
-alias GCompOpAssignInverted = GCompOpAssign.inverted;
+alias GCompOpAssignInverted = GCompOp.inverted;
 ///
 alias GCompOpOr = GCompOp.or;
 ///
@@ -3627,7 +3712,7 @@ alias GCompOpClear = GCompOp.clear;
 ///
 alias GCompOpSet = GCompOp.set;
 
-struct GContext;
+struct GContext {}
 
 /**
  * Sets the current stroke color of the graphics context.
@@ -3731,23 +3816,23 @@ enum GCornerMask {
 }
 
 ///
-alias GCornerNone = GCorner.none;
+alias GCornerNone = GCornerMask.none;
 ///
-alias GCornerTopLeft = GCorner.topLeft;
+alias GCornerTopLeft = GCornerMask.topLeft;
 ///
-alias GCornerTopRight = GCorner.topRight;
+alias GCornerTopRight = GCornerMask.topRight;
 ///
-alias GCornerBottomRight = GCorner.bottomRight;
+alias GCornerBottomRight = GCornerMask.bottomRight;
 ///
-alias GCornersAll = GCorner.all;
+alias GCornersAll = GCornerMask.all;
 ///
-alias GCornersTop = GCorner.top;
+alias GCornersTop = GCornerMask.top;
 ///
-alias GCornersBottom = GCorner.bottom;
+alias GCornersBottom = GCornerMask.bottom;
 ///
-alias GCornersLeft = GCorner.left;
+alias GCornersLeft = GCornerMask.left;
 ///
-alias GCornersRight = GCorner.right;
+alias GCornersRight = GCornerMask.right;
 
 /**
  * Draws a pixel at given point in the current stroke color
@@ -4183,7 +4268,7 @@ const GTextOverflowMode overflow_mode, const GTextAlignment alignment);
  *
  * See_Also: ClickConfigProvider
  */
-alias void function(void*, void*) ClickHandler;
+alias extern(C) void function(void* recognizer, void* context) ClickHandler;
 
 /**
  * This callback is called every time the window becomes visible
@@ -4202,7 +4287,7 @@ alias void function(void*, void*) ClickHandler;
  * See_Also: window_long_click_subscribe()
  * See_Also: window_raw_click_subscribe()
  */
-alias void function(void*) ClickConfigProvider;
+alias extern(C) void function(void* context) ClickConfigProvider;
 
 /**
  * Gets the click count.
@@ -4221,7 +4306,8 @@ extern(C) ubyte click_number_of_clicks_counted(void* recognizer);
 /**
  * Gets the button identifier.
  *
- * You can use this inside a click handler implementation to get the button id for the click event.
+ * You can use this inside a click handler implementation to get the button id
+ * for the click event.
  *
  * Params:
  * recognizer = The click recognizer for which to get the button id that
@@ -4264,7 +4350,7 @@ struct Layer {}
  * See_Also: Graphics
  * See_Also: layer_set_update_proc()
  */
-alias void function (Layer*, GContext*) LayerUpdateProc;
+alias extern(C) void function(Layer* layer, GContext* ctx) LayerUpdateProc;
 
 /**
  * Creates a layer on the heap and sets its frame and bounds.
@@ -4548,10 +4634,13 @@ struct Window {}
  * Function signature for a handler that deals with transition events of a
  * window.
  *
+ * Params:
+ * window = The window.
+ *
  * See_Also: WindowHandlers
  * See_Also: window_set_window_handlers()
  */
-alias void function(Window*) WindowHandler;
+alias extern(C) void function(Window* window) WindowHandler;
 
 /**
  * WindowHandlers
@@ -4973,39 +5062,1474 @@ extern(C) bool window_stack_contains_window(Window* window);
 
 // TODO: Write a wrapper for the window pointers here.
 
-alias _Anonymous_30 AnimationCurve;
-alias uint function (uint) AnimationCurveFunction;
-alias void function (Animation*, void*) AnimationStartedHandler;
-alias void function (Animation*, bool, void*) AnimationStoppedHandler;
-alias void function (Animation*) AnimationSetupImplementation;
-alias void function (Animation*, uint) AnimationUpdateImplementation;
-alias void function (Animation*) AnimationTeardownImplementation;
-alias GPoint GPointReturn;
-alias GRect GRectReturn;
-alias void function (void*, short) Int16Setter;
-alias short function (void*) Int16Getter;
-alias void function (void*, GPoint) GPointSetter;
-alias GPoint function (void*) GPointGetter;
-alias void function (void*, GRect) GRectSetter;
-alias GRect function (void*) GRectGetter;
-alias void function (void*, GColor8) GColor8Setter;
-alias GColor8 function (void*) GColor8Getter;
-alias void function (ScrollLayer*, void*) ScrollLayerCallback;
-alias ushort function (MenuLayer*, void*) MenuLayerGetNumberOfSectionsCallback;
-alias ushort function (MenuLayer*, ushort, void*) MenuLayerGetNumberOfRowsInSectionsCallback;
-alias short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetCellHeightCallback;
-alias short function (MenuLayer*, ushort, void*) MenuLayerGetHeaderHeightCallback;
-alias short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetSeparatorHeightCallback;
-alias void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawRowCallback;
-alias void function (GContext*, const(Layer)*, ushort, void*) MenuLayerDrawHeaderCallback;
-alias void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawSeparatorCallback;
-alias void function (MenuLayer*, MenuIndex*, void*) MenuLayerSelectCallback;
-alias void function (MenuLayer*, MenuIndex, MenuIndex, void*) MenuLayerSelectionChangedCallback;
+struct Animation {}
+
+/// Values that are used to indicate the different animation curves,
+/// which determine the speed at which the animated value(s) change(s).
+enum AnimationCurve {
+    /// Linear curve: the velocity is constant.
+    linear = 0,
+    /// Bicubic ease-in: accelerate from zero velocity.
+    easeIn = 1,
+    /// Bicubic ease-in: decelerate to zero velocity.
+    easeOut = 2,
+    /// Bicubic ease-in-out: accelerate from zero velocity,
+    /// decelerate to zero velocity
+    easeInOut = 3,
+    /// The default animation. (easeInOut)
+    _default = easeInOut,
+    /// Custom (user-provided) animation curve
+    custom = 4,
+    reserved1 = 5,
+    reserved2 = 6,
+    reserved3 = 7
+}
+
+///
+alias AnimationCurveLinear = AnimationCurve.linear;
+///
+alias AnimationCurveEaseIn = AnimationCurve.easeIn;
+///
+alias AnimationCurveEaseOut = AnimationCurve.easeOut;
+///
+alias AnimationCurveEaseInOut = AnimationCurve.easeInOut;
+///
+alias AnimationCurveDefault = AnimationCurve._default;
+///
+alias AnimationCurveCustomFunction = AnimationCurve.custom;
+
+/**
+ * Creates a new Animation on the heap and initalizes it with the default
+ * values.
+ *
+ * * Duration: 250ms,
+ * * Curve: \ref AnimationCurveEaseInOut (ease-in-out),
+ * * Delay: 0ms,
+ * * Handlers: `{NULL, NULL}` (none),
+ * * Context: `NULL` (none),
+ * * Implementation: `NULL` (no implementation),
+ * * Scheduled: no
+ *
+ * Returns: A pointer to the animation. `NULL` if the animation could not
+ *     be created.
+ */
+extern(C) Animation* animation_create();
+
+/**
+ * Destroys an Animation previously created by animation_create.
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_destroy(Animation* animation);
+
+/**
+ * Constant to indicate "infinite" duration.
+ *
+ * This can be used with \ref animation_set_duration() to indicate that the
+ * animation should run indefinitely. This is useful when implementing for
+ * example a frame-by-frame simulation that does not have a clear ending
+ * (e.g. a game).
+ *
+ * Note: Note that `distance_normalized` parameter that is passed
+ * into the `.update` implementation is meaningless in when an infinite
+ * duration is used.
+ *
+ * Note: This can be returned by animation_get_duration (if the play count is
+ * infinite)
+ */
+enum uint ANIMATION_DURATION_INFINITE = uint.max;
+
+/// The normalized distance at the start of the animation.
+enum uint ANIMATION_NORMALIZED_MIN = 0;
+
+/// The normalized distance at the end of the animation.
+enum uint ANIMATION_NORMALIZED_MAX = 65535;
+
+/**
+ * Copy an animation.
+ *
+ * Params:
+ * from = The animation to copy.
+ *
+ * Returns: New animation.
+ */
+extern(C) Animation* animation_clone(Animation* from);
+
+/**
+ * Create a new sequence animation from a list of 2 or more other animations.
+ * The returned animation owns the animations that were provided as arguments
+ * and no further write operations on those handles are allowed. The variable
+ * length argument list must be terminated with a null pointer.
+ *
+ * Note: The maximum number of animations that can be supplied to this method
+ * is 20.
+ *
+ * Params:
+ * animation_a = The first required component animation.
+ * animation_b = The second required component animation.
+ * animation_c = Either the third component, or null if only adding 2
+ *     components.
+ *
+ * Returns: The newly created sequence animation.
+ */
+extern(C) Animation* animation_sequence_create
+(Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
+
+/**
+ * An alternate form of animation_sequence_create() that accepts an array of
+ * other animations.
+ *
+ * Note: The maximum number of elements allowed in animation_array is 256.
+ *
+ * Params:
+ * animation_array = An array of component animations to include.
+ * array_len = The number of elements in the animation_array.
+ *
+ * Returns: The newly created sequence animation.
+ */
+extern(C) Animation* animation_sequence_create_from_array
+(Animation** animation_array, uint array_len);
+
+/**
+ * Create a new spawn animation from a list of 2 or more other animations.
+ * The returned animation owns the animations that were provided as arguments
+ * and no further write operations on those handles are allowed. The variable
+ * length argument list must be terminated with a null pointer.
+ *
+ * Note: The maximum number of animations that can be supplied to this method
+ * is 20.
+ *
+ * Params:
+ * animation_a = The first required component animation.
+ * animation_b = The second required component animation.
+ * animation_c = Either the third component, or null if only adding 2
+ *     components.
+ *
+ * Returns: The newly created spawn animation or NULL on failure.
+ */
+extern(C) Animation* animation_spawn_create
+(Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
+
+/**
+ * An alternate form of animation_spawn_create() that accepts an array of other
+ * animations.
+ *
+ * Note: The maximum number of elements allowed in animation_array is 256
+ *
+ * Params:
+ * animation_array = An array of component animations to include.
+ * array_len = The number of elements in the animation_array.
+ *
+ * Returns: The newly created spawn animation or NULL on failure.
+ */
+extern(C) Animation* animation_spawn_create_from_array
+(Animation** animation_array, uint array_len);
+
+/**
+ * Seek to a specific location in the animation. Only forward seeking is
+ * allowed. Returns true if successful, false if the passed in seek location
+ * is invalid.
+ *
+ * Params:
+ * animation = The animation for which to set the position.
+ * milliseconds = The new location.
+ *
+ * Returns: true if successful, false if the requested position is invalid.
+ */
+extern(C) bool animation_set_position(Animation* animation, uint milliseconds);
+
+/**
+ * Get the current location in the animation.
+ *
+ * Note: The animation must be scheduled to get the position. If it is not
+ * schedule, this method will return false.
+ *
+ * Params:
+ * animation = The animation for which to fetch the position.
+ * position = Pointer to variable that will contain the position.
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_get_position(Animation* animation, int* position);
+
+/**
+ * Set an animation to run in reverse (or forward).
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation to operate on.
+ * reverse = Set to true to run in reverse, false to run forward.
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_set_reverse(Animation* animation, bool reverse);
+
+/**
+ * Get the reverse setting of an animation.
+ *
+ * Params:
+ * animation = The animation for which to get the setting.
+ *
+ * Returns: the reverse setting.
+ */
+extern(C) bool animation_get_reverse(Animation* animation);
+
+/**
+ * Set an animation to play N times. The default is 1.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation to set the play count of.
+ * play_count = Number of times to play this animation.
+ *     Set to ANIMATION_PLAY_COUNT_INFINITE to make an animation repeat
+ *     indefinitely.
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_set_play_count(Animation* animation, uint play_count);
+
+/**
+ * Get the play count of an animation
+ *
+ * Params:
+ * animation = The animation for which to get the setting.
+ *
+ * Returns: The play count.
+ */
+extern(C) uint animation_get_play_count (Animation* animation);
+
+/**
+ * Sets the time in milliseconds that an animation takes from start to finish.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set the duration.
+ * duration_ms = The duration in milliseconds of the animation. This excludes
+ *     any optional delay as set using animation_set_delay().
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_set_duration
+(Animation* animation, uint duration_ms);
+
+/**
+ * Get the static duration of an animation from start to end (ignoring how
+ * much has already played, if any).
+ *
+ * animation = The animation for which to get the duration.
+ * include_delay = If true, include the delay time.
+ * include_play_count = If true, incorporate the play_count.
+ *
+ * Returns: The duration, in milliseconds. This includes any optional delay a
+ * set using animation_set_delay.
+ */
+extern(C) uint animation_get_duration
+(Animation* animation, bool include_delay, bool include_play_count);
+
+/**
+ * Sets an optional delay for the animation.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set the delay.
+ * delay_ms = The delay in milliseconds that the animation system should
+ *     wait from the moment the animation is scheduled to starting the
+ *     animation.
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_set_delay(Animation* animation, uint delay_ms);
+
+/**
+ * Get the delay of an animation in milliseconds.
+ *
+ * Params:
+ * animation = The animation for which to get the setting.
+ *
+ * Returns: The delay in milliseconds.
+ */
+extern(C) uint animation_get_delay (Animation* animation);
+
+/**
+ * Sets the animation curve for the animation.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set the curve.
+ * curve = The type of curve.
+ *
+ * Returns: true if successful, false on failure.
+ * See_Also: AnimationCurve
+ */
+extern(C) bool animation_set_curve(Animation* animation, AnimationCurve curve);
+
+/**
+ * Gets the animation curve for the animation.
+ *
+ * Params:
+ * animation = The animation for which to get the curve.
+ *
+ * Returns: The type of curve.
+ */
+extern(C) AnimationCurve animation_get_curve(Animation* animation);
+
+/**
+ * The function pointer type of a custom animation curve.
+ *
+ * Params:
+ * linear_distance = The linear normalized animation distance to be curved.
+ *
+ * See_Also: animation_set_custom_curve
+ */
+alias extern(C) uint function(uint linear_distance) AnimationCurveFunction;
+
+/**
+ * Sets a custom animation curve function.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set the curve.
+ * curve_function = The custom animation curve function.
+ *
+ * Returns: true if successful, false on failure.
+ * See_Also: AnimationCurveFunction
+ */
+extern(C) bool animation_set_custom_curve
+(Animation* animation, AnimationCurveFunction curve_function);
+
+/**
+ * Gets the custom animation curve function for the animation.
+ *
+ * Params:
+ * animation = The animation for which to get the curve.
+ *
+ * Returns: The custom animation curve function for the given animation.
+ *     null if not set.
+ */
+extern(C) AnimationCurveFunction animation_get_custom_curve
+(Animation* animation);
+
+/**
+ * The function pointer type of the handler that will be called when an
+ * animation is started, just before updating the first frame of the animation.
+ *
+ * Note: This is called after any optional delay as set by
+ *     animation_set_delay() has expired.
+ *
+ * Params:
+ * animation = The animation that was started.
+ * context = The pointer to custom, application specific data, as set using
+ *     animation_set_handlers()
+ *
+ * See_Also: animation_set_handlers
+ */
+alias extern(C) void function
+(Animation* animation, void* context)
+AnimationStartedHandler;
+
+/**
+ * The function pointer type of the handler that will be called when the
+ * animation is stopped.
+ *
+ * Params:
+ * animation = The animation that was stopped.
+ * finished = true if the animation was stopped because it was finished
+ *     normally, or false if the animation was stopped prematurely, because it
+ *     was unscheduled before finishing.
+ * context = The pointer to custom, application specific data, as set using
+ *     animation_set_handlers()
+ *
+ * See_Also: animation_set_handlers
+ */
+alias extern(C) void function
+(Animation* animation, bool finished, void* context)
+AnimationStoppedHandler;
+
+/**
+ * The handlers that will get called when an animation starts and stops.
+ * See documentation with the function pointer types for more information.
+ *
+ * See_Also: animation_set_handlers
+ */
+struct AnimationHandlers {
+    /// The handler that will be called when an animation is started.
+    AnimationStartedHandler started;
+    /// The handler that will be called when an animation is stopped.
+    AnimationStoppedHandler stopped;
+}
+
+/**
+ * Sets the callbacks for the animation.
+ *
+ * Often an application needs to run code at the start or at the end of an
+ * animation. Using this function is possible to register callback functions
+ * with an animation, that will get called at the start and end of the
+ * animation.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will
+ * return false (failure). An animation is immutable once it has been added to
+ * a sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set up the callbacks.
+ * callbacks = The callbacks.
+ * context = A pointer to application specific data, that will be passed as an
+ *     argument by the animation subsystem when a callback is called.
+ *
+ * Returns: true if successful, false on failure
+ */
+extern(C) bool animation_set_handlers
+(Animation* animation, AnimationHandlers callbacks, void* context);
+
+/**
+ * Gets the application-specific callback context of the animation.
+ *
+ * This `void` pointer is passed as an argument when the animation system
+ * calls AnimationHandlers callbacks. The context pointer can be set to point
+ * to any application specific data using animation_set_handlers().
+ *
+ * Params: animation The animation.
+ *
+ * See_Also: animation_set_handlers
+ */
+extern(C) void* animation_get_context(Animation* animation);
+
+/**
+ * Schedules the animation. Call this once after configuring an animation to
+ * get it to start running.
+ *
+ *
+ * If the animation's implementation has a `.setup` callback it will get
+ * called before this function returns.
+ *
+ * Note: If the animation was already scheduled, it will first unschedule it
+ * and then re-schedule it again.
+ *
+ * Note that in that case, the animation's `.stopped` handler, the
+ * implementation's `.teardown` and `.setup` will get called, due to the
+ * unscheduling and scheduling.
+ *
+ * Params:
+ * animation = The animation to schedule.
+ *
+ * Returns: true if successful, false on failure
+ *
+ * See_Also: animation_unschedule()
+ */
+extern(C) bool animation_schedule(Animation* animation);
+
+/**
+ * Unschedules the animation, which in effect stops the animation.
+ *
+ * Note: If the animation was not yet finished, unscheduling it will
+ * cause its `.stopped` handler to get called, with the "finished" argument
+ * set to false.
+ *
+ * Note: If the animation is not scheduled or null, calling this routine is
+ * effectively a no-op.
+ *
+ * Params:
+ * animation = The animation to unschedule.
+ *
+ * See_Also: animation_schedule()
+ *
+ * Returns: true if successful, false on failure.
+ */
+extern(C) bool animation_unschedule(Animation* animation);
+
+/**
+ * Unschedules all animations of the application.
+ *
+ * See_Also: animation_unschedule
+ */
+extern(C) void animation_unschedule_all();
+
+/**
+ * Note: An animation will be scheduled when it is running and not finished
+ * yet. An animation that has finished is automatically unscheduled.
+ * For convenience, passing in a NULL animation argument will simply return
+ * false.
+ *
+ * Params:
+ * animation = The animation for which to get its scheduled state.
+ *
+ * Returns: true if the animation was scheduled, or false if it was not.
+ *
+ * See_Also: animation_schedule
+ * See_Also: animation_unschedule
+ */
+extern(C) bool animation_is_scheduled(Animation* animation);
+
+/**
+ * Pointer to function that (optionally) prepares the animation for running.
+ * This callback is called when the animation is added to the scheduler.
+ *
+ * Params:
+ * animation = The animation that needs to be set up.
+ *
+ * See_Also: animation_schedule
+ * See_Also: AnimationTeardownImplementation
+ */
+alias extern(C) void function
+(Animation* animation)
+AnimationSetupImplementation;
+
+/**
+ * Pointer to function that updates the animation according to the given
+ * normalized distance.
+ *
+ * This callback will be called repeatedly by the animation scheduler
+ * whenever the animation needs to be updated.
+ *
+ * This is a value between ANIMATION_NORMALIZED_MIN and
+ * ANIMATION_NORMALIZED_MAX.
+ *
+ * At the start of the animation, the value will be ANIMATION_NORMALIZED_MIN.
+ * At the end of the animation, the value will be ANIMATION_NORMALIZED_MAX.
+ *
+ * For each frame during the animation, the value will be the distance along
+ * the animation path, mapped between ANIMATION_NORMALIZED_MIN and
+ * ANIMATION_NORMALIZED_MAX based on the animation duration and the
+ * AnimationCurve set.
+ *
+ * For example, say an animation was scheduled at t = 1.0s, has a delay of
+ * 1.0s, a duration of 2.0s and a curve of AnimationCurveLinear.
+ *
+ * Then the .update callback will get called on t = 2.0s with
+ * distance_normalized = ANIMATION_NORMALIZED_MIN. For each frame
+ * thereafter until t = 4.0s, the update callback will get called where
+ * distance_normalized is
+ * (ANIMATION_NORMALIZED_MIN +
+ * (((ANIMATION_NORMALIZED_MAX - ANIMATION_NORMALIZED_MIN) * t) / duration)).
+ *
+ * Other animation curves will result in a non-linear relation between
+ * distance_normalized and time.
+ *
+ * Params:
+ * animation = The animation that needs to update; gets passed in by the
+ *     animation framework.
+ * distance_normalized = The current normalized distance; gets passed in
+ *     by the animation framework for each animation frame.
+ */
+alias extern(C) void function
+(Animation* animation, uint distance_normalized)
+AnimationUpdateImplementation;
+
+/**
+ * Pointer to function that (optionally) cleans up the animation.
+ * This callback is called when the animation is removed from the scheduler.
+ * In case the `.setup` implementation allocated any memory, this is a good
+ * place to release that memory again.
+ *
+ * Params:
+ * animation = The animation that needs to be teared down.
+ *
+ * See_Also: animation_unschedule
+ * See_Also: AnimationSetupImplementation
+ */
+alias extern(C) void function(Animation*) AnimationTeardownImplementation;
+
+
+/**
+ * The 3 callbacks that implement a custom animation.
+ *
+ * Only the `.update` callback is mandatory, `.setup` and `.teardown` are
+ * optional. See the documentation with the function pointer typedefs for more
+ * information.
+ *
+ * Note: The `.setup` callback is called immediately after scheduling the
+ * animation, regardless if there is a delay set for that animation using
+ * animation_set_delay().
+ *
+ * The diagram below illustrates the order in which callbacks can be expected
+ * to get called over the life cycle of an animation. It also illustrates where
+ * the implementation of different animation callbacks are intended to be
+ * “living”.  ![](animations.png)
+ *
+ * See_Also: AnimationSetupImplementation
+ * See_Also: AnimationUpdateImplementation
+ * See_Also: AnimationTeardownImplementation
+ */
+struct AnimationImplementation {
+    /**
+     * Called by the animation system when an animation is scheduled, to
+     * prepare it for running. This callback is optional and can be left
+     * null when not needed.
+     */
+    AnimationSetupImplementation setup;
+    /**
+     * Called by the animation system when the animation needs to calculate
+     * the next animation frame. This callback is mandatory and should not be
+     * left null.
+     */
+    AnimationUpdateImplementation update;
+    /**
+     * Called by the animation system when an animation is unscheduled, to
+     * clean up after it has run. This callback is optional and can be left
+     * null when not needed.
+     */
+    AnimationTeardownImplementation teardown;
+}
+
+/**
+ * Sets the implementation of the custom animation.
+ *
+ * When implementing custom animations, use this function to specify what
+ * functions need to be called to for the setup, frame update and teardown of
+ * the animation.
+ *
+ * Note: Trying to set an attribute when an animation is immutable will return
+ * false (failure). An animation is immutable once it has been added to a
+ * sequence or spawn animation or has been scheduled.
+ *
+ * Params:
+ * animation = The animation for which to set the implementation.
+ * implementation = The structure with function pointers to the implementation
+ *     of the setup, update and teardown functions.
+ *
+ * Returns: true if successful, false on failure.
+ *
+ * See_Also: AnimationImplementation
+ */
+extern(C) bool animation_set_implementation
+(Animation* animation, const(AnimationImplementation)* implementation);
+
+/**
+ * Gets the implementation of the custom animation.
+ *
+ * Params:
+ * animation = The animation for which to get the implementation.
+ *
+ * See_Also: AnimationImplementation
+ *
+ * Returns: null if animation implementation has not been setup.
+ */
+extern(C) const(AnimationImplementation)*
+animation_get_implementation(Animation* animation);
+
+/**
+ * Function signature of a getter function to get the current property of type
+ * short of the subject.
+ *
+ * See_Also: property_animation_create()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) short function(void*) Int16Getter;
+
+/**
+ * Function signature of a setter function to set a property of type
+ * short onto the subject.
+ *
+ * See_Also: property_animation_update_int16()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) void function(void* subject, short int16) Int16Setter;
+
+/**
+ * Function signature of a setter function to set a property of type GPoint
+ * onto the subject.
+ *
+ * See_Also: property_animation_update_gpoint()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) void function(void* subject, GPoint gpoint) GPointSetter;
+
+/**
+ * Function signature of a getter function to get the current property of type
+ * GPoint of the subject.
+ *
+ * See_Also: property_animation_create()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) GPoint function(void* subject) GPointGetter;
+
+/**
+ * Function signature of a setter function to set a property of type
+ * GRect onto the subject.
+ *
+ * See_Also: property_animation_update_grect()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) void function(void* subject, GRect grect) GRectSetter;
+
+/**
+ * Function signature of a getter function to get the current property of type
+ * GRect of the subject.
+ *
+ * See_Also: property_animation_create()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) GRect function(void* subject) GRectGetter;
+
+/**
+ * Function signature of a setter function to set a property of type GColor8
+ * onto the subject.
+ *
+ * See_Also: property_animation_update_gcolor8()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) void function(void* subject, GColor8 gcolor) GColor8Setter;
+
+/**
+ * Function signature of a getter function to get the current property of type
+ * GColor8 of the subject.
+ *
+ * See_Also: property_animation_create()
+ * See_Also: PropertyAnimationAccessors
+ */
+alias extern(C) GColor8 function(void* subject) GColor8Getter;
+
+/// The setter types for setting a animation properties.
+union PropertyAnimationSetters {
+    /// Use if the property to animate is a short.
+    Int16Setter int16;
+    /// Use if the property to animate is a GPoint.
+    GPointSetter gpoint;
+    /// Use if the property to animate is a GRect.
+    GRectSetter grect;
+    /// Use if the property to animate is a GColor8.
+    GColor8Setter gcolor8;
+}
+
+/// The getter types for getting animation properties.
+union PropertyAnimationGetters {
+    /// Use if the property to animate is a short.
+    Int16Getter int16;
+    /// Use if the property to animate is a GPoint.
+    GPointGetter gpoint;
+    /// Use if the property to animate is a GRect.
+    GRectGetter grect;
+    /// Use if the property to animate is a GColor8.
+    GColor8Getter gcolor8;
+}
+
+/**
+ * Data structure containing the setter and getter function pointers that the
+ * property animation should use.
+ *
+ * The specified setter function will be used by the animation's update
+ * callback.
+ *
+ * Based on the type of the property (int16_t, GPoint or GRect), the
+ * accompanying update callback should be used.
+ *
+ * The getter function is used when the animation is initialized, to assign
+ * the current value of the subject's property as "from" or "to" value.
+ *
+ * See_Also: property_animation_update_int16(),
+ * See_Also: property_animation_update_gpoint()
+ * See_Also: property_animation_update_grect()
+ * See_Also: property_animation_create().
+ */
+struct PropertyAnimationAccessors {
+    PropertyAnimationSetters setter;
+    PropertyAnimationGetters getter;
+}
+
+/**
+ * Data structure containing a collection of function pointers that form the
+ * implementation of the property animation.
+ */
+struct PropertyAnimationImplementation {
+    /// The "inherited" fields from the Animation "base class".
+    AnimationImplementation base;
+    /// The accessors to set/get the property to be animated.
+    PropertyAnimationAccessors accessors;
+}
+
+struct PropertyAnimation {}
+
+/**
+ * Convenience function to create and initialize a property animation that
+ * animates the frame of a Layer. It sets up the PropertyAnimation to use
+ * layer_set_frame() and layer_get_frame() as accessors and uses the `layer`
+ * parameter as the subject for the animation.
+ *
+ * The same defaults are used as with animation_create().
+ *
+ * Note: Pass in null as one of the frame arguments to have it set
+ * automatically to the layer's current frame. This will result in a call to
+ * layer_get_frame() to get the current frame of the layer.
+ *
+ * Params:
+ * layer = The layer that will be animated.
+ * from_frame = The frame that the layer should animate from.
+ * to_frame = The frame that the layer should animate to.
+ *
+ * Returns: A handle to the property animation.
+ *     null if animation could not be created
+ */
+extern(C) PropertyAnimation* property_animation_create_layer_frame
+(Layer* layer, GRect* from_frame, GRect* to_frame);
+
+/**
+ * Creates a new PropertyAnimation on the heap and and initializes it with the
+ * specified values.
+ *
+ * The same defaults are used as with animation_create().
+ *
+ * If the from_value or the to_value is null, the getter accessor will be
+ * called to get the current value of the property and be used instead.
+ *
+ * Params:
+ * implementation = Pointer to the implementation of the animation. In most
+ *     cases, it makes sense to pass in a `static const` struct pointer.
+ * subject = Pointer to the "subject" being animated. This will be passed in
+ *     when the getter/setter accessors are called,
+ *     The value of this pointer will be copied into the `.subject` field of
+ *     the PropertyAnimation struct.
+ * from_value = Pointer to the value that the subject should animate from.
+ * to_value = Pointer to the value that the subject should animate to.
+ *
+ * Note: Pass in null as one of the value arguments to have it set
+ * automatically to the subject's current property value, as returned by the
+ * getter function. Also note that passing in null for both from_value and
+ * to_value, will result in the animation having the same from- and to- values,
+ * effectively not doing anything.
+ *
+ * Returns: A handle to the property animation. null if animation could not be
+ *     created.
+ *
+ * See_Also: PropertyAnimationAccessors
+ * See_Also: GPointSetter
+ */
+extern(C) PropertyAnimation* property_animation_create
+(const(PropertyAnimationImplementation)* implementation,
+void* subject, void* from_value, void* to_value);
+
+/**
+ * Destroy a property animation allocated by property_animation_create() or
+ * relatives.
+ *
+ * Params:
+ * property_animation = The return value from property_animation_create.
+ */
+extern(C) void property_animation_destroy
+(PropertyAnimation* property_animation);
+
+/**
+ * Default update callback for a property animations to update a property of
+ * type int16_t.
+ *
+ * Assign this function to the `.base.update` callback field of your
+ * PropertyAnimationImplementation, in combination with a `.getter` and
+ * `.setter` accessors of types Int16Getter and Int16Setter.
+ *
+ * The implementation of this function will calculate the next value of the
+ * animation and call the setter to set the new value upon the subject.
+ *
+ * Note: This function is not supposed to be called "manually", but will be
+ * called automatically when the animation is being run.
+ *
+ * Params:
+ * property_animation = The property animation for which the update is
+ *     requested.
+ * distance_normalized = The current normalized distance. See
+ *     AnimationUpdateImplementation
+ */
+extern(C) void property_animation_update_int16
+(PropertyAnimation* property_animation, const uint distance_normalized);
+
+/**
+ * Default update callback for a property animations to update a property of
+ * type GPoint.
+ *
+ * Assign this function to the `.base.update` callback field of your
+ * PropertyAnimationImplementation, in combination with a `.getter` and
+ * `.setter` accessors of types GPointGetter and GPointSetter.
+ *
+ * The implementation of this function will calculate the next point of the
+ * animation and call the setter to set the new point upon the subject.
+ *
+ * Note: This function is not supposed to be called "manually", but will be
+ * called automatically when the animation is being run.
+ *
+ * Params:
+ * property_animation = The property animation for which the update is
+ *     requested.
+ * distance_normalized = The current normalized distance. See
+ *     AnimationUpdateImplementation.
+ */
+extern(C) void property_animation_update_gpoint
+(PropertyAnimation* property_animation, const uint distance_normalized);
+
+/**
+ * Default update callback for a property animations to update a property of
+ * type GRect.
+ *
+ * Assign this function to the `.base.update` callback field of your
+ * PropertyAnimationImplementation, in combination with a `.getter` and
+ * `.setter` accessors of types GRectGetter and GRectSetter. The implementation
+ * of this function will calculate the next rectangle of the animation and
+ * call the setter to set the new rectangle upon the subject.
+ *
+ * Note: This function is not supposed to be called "manually", but will be
+ * called automatically when the animation is being run.
+ *
+ * Params:
+ * property_animation = The property animation for which the update is
+ *     requested.
+ * distance_normalized = The current normalized distance. See
+ *     AnimationUpdateImplementation
+ */
+extern(C) void property_animation_update_grect
+(PropertyAnimation* property_animation, const uint distance_normalized);
+
+/**
+ * Convenience function to retrieve an animation instance from a property
+ * animation instance.
+ *
+ * Params:
+ * property_animation = The property animation.
+ *
+ * Returns: The Animation within this PropertyAnimation.
+ */
+extern(C) Animation* property_animation_get_animation
+(PropertyAnimation* property_animation);
+
+
+/**
+ * Convenience function to clone a property animation instance
+ *
+ * Params:
+ * from = The property animation
+ *
+ * Returns: A clone of the original Animation.
+ */
+PropertyAnimation* property_animation_clone(PropertyAnimation* from) {
+    return cast(PropertyAnimation*) animation_clone(cast(Animation*) from);
+}
+
+/**
+ * Helper function used by the property_animation_get|set_subject macros.
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * subject = The subject to get or set.
+ * set = true to set new subject, false to retrieve existing value.
+ *
+ * Returns: true if successful, false on failure (usually a bad animation_h)
+ */
+pure
+extern(C) bool property_animation_subject
+(PropertyAnimation* property_animation, void** subject, bool set);
+
+/**
+ * Helper function used by the property_animation_get|set_from_.* macros.
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * from = Pointer to the value.
+ * size = Size of the from value.
+ * set = true to set new value, false to retrieve existing one.
+ *
+ * Returns: true if successful, false on failure (usually a bad animation_h)
+ */
+pure
+extern(C) bool property_animation_from
+(PropertyAnimation* property_animation, void* from, size_t size, bool set);
+
+
+/**
+ * Helper function used by the property_animation_get|set_to_.* macros
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * to = Pointer to the value.
+ * size = Size of the to value.
+ * set = true to set new value, false to retrieve existing one.
+ *
+ * Returns: true if successful, false on failure (usually a bad animation_h)
+ */
+pure
+extern(C) bool property_animation_to
+(PropertyAnimation* property_animation, void* to, size_t size, bool set);
+
+/**
+ * Convenience function to retrieve the 'from' GRect value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+deprecated("Use animation.from_grect instead of this function")
+pure
+bool property_animation_get_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GRect.sizeof, false);
+}
+
+/// Get a 'from' GRect in a safe way.
+/// An AssertionError will be thrown if getting the rect fails.
+@trusted pure
+@property GRect from_grect(const(PropertyAnimation)* property_animation) {
+    GRect rect;
+
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &rect,
+        GRect.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a GRect failed!");
+
+    return rect;
+}
+
+/**
+ * Convenience function to set the 'from' GRect value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.from = rect; instead of this function")
+pure
+bool property_animation_set_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GRect.sizeof, true);
+}
+
+/// Set a 'from' GRect in a safe way.
+/// An AssertionError will be thrown if setting the rect fails.
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, GRect rect) {
+    auto returnValue = property_animation_from(
+        property_animation, &rect, GRect.sizeof, true);
+
+    assert(returnValue, "Setting a GRect failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'from' GPoint value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+deprecated("Use animation.from_gpoint instead of this function")
+pure
+bool property_animation_get_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GPoint.sizeof, false);
+}
+
+/// Get a 'from' GPoint in a safe way.
+/// An AssertionError will be thrown if getting the point fails.
+@trusted pure
+@property GPoint from_gpoint(const(PropertyAnimation)* property_animation) {
+    GPoint point;
+
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &point,
+        GPoint.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a GPoint failed!");
+
+    return point;
+}
+
+/**
+ * Convenience function to set the 'from' GPoint value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure
+ */
+deprecated("Use animation.from = point; instead of this function")
+pure
+bool property_animation_set_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GPoint.sizeof, true);
+}
+
+/// Set a 'from' GPoint in a safe way.
+/// An AssertionError will be thrown if setting the point fails.
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, GPoint point) {
+    auto returnValue = property_animation_from(
+        property_animation, &point, GPoint.sizeof, true);
+
+    assert(returnValue, "Setting a GPoint failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'from' int16_t value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.from_int16; instead of this function")
+pure
+bool property_animation_get_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, short.sizeof, false);
+}
+
+/// Get a 'from' short in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+@trusted pure
+@property short from_int16(const(PropertyAnimation)* property_animation) {
+    short value;
+
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &value,
+        short.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a GPoint failed!");
+
+    return value;
+}
+
+/**
+ * Convenience function to set the 'from' int16_t value of property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure
+ */
+deprecated("Use animation.from = value; instead of this function")
+pure
+bool property_animation_set_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, short.sizeof, true);
+}
+
+/// Set a 'from' short in a safe way.
+/// An AssertionError will be thrown if setting the short fails.
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, short value) {
+    auto returnValue = property_animation_from(
+        property_animation, &value, short.sizeof, true);
+
+    assert(returnValue, "Setting a short failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'to' GRect value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.to_grect instead of this function")
+pure
+bool property_animation_get_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GRect.sizeof, false);
+}
+
+/// Get a 'to' GRect in a safe way.
+/// An AssertionError will be thrown if getting the rect fails.
+@trusted pure
+@property GRect to_grect(const(PropertyAnimation)* property_animation) {
+    GRect rect;
+
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &rect,
+        GRect.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a GRect failed!");
+
+    return rect;
+}
+
+/**
+ * Convenience function to set the 'to' GRect value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.to = rect; instead of this function")
+pure
+bool property_animation_set_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GRect.sizeof, true);
+}
+
+/// Set a 'to' GRect in a safe way.
+/// An AssertionError will be thrown if setting the rect fails.
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, GRect rect) {
+    auto returnValue = property_animation_to(
+        property_animation, &rect, GRect.sizeof, true);
+
+    assert(returnValue, "Setting a GRect failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'to' GPoint value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+deprecated("Use animation.to_gpoint instead of this function")
+pure
+bool property_animation_get_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GPoint.sizeof, false);
+}
+
+/// Get a 'to' GPoint in a safe way.
+/// An AssertionError will be thrown if getting the point fails.
+@trusted pure
+@property GPoint to_gpoint(const(PropertyAnimation)* property_animation) {
+    GPoint point;
+
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &point,
+        GPoint.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a GPoint failed!");
+
+    return point;
+}
+
+/**
+ * Convenience function to set the 'to' GPoint value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.to = point; instead of this function")
+pure
+bool property_animation_set_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, GPoint.sizeof, true);
+}
+
+/// Set a 'to' GPoint in a safe way.
+/// An AssertionError will be thrown if setting the point fails.
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, GPoint point) {
+    auto returnValue = property_animation_to(
+        property_animation, &point, GPoint.sizeof, true);
+
+    assert(returnValue, "Setting a GPoint failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'to' int16_t value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.to_int16 instead of this function")
+pure
+bool property_animation_get_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, short.sizeof, false);
+}
+
+/// Get a 'to' short in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+@trusted pure
+@property short to_int16(const(PropertyAnimation)* property_animation) {
+    short value;
+
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &value,
+        short.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a short failed!");
+
+    return value;
+}
+
+/**
+ * Convenience function to set the 'to' int16_t value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+deprecated("Use animation.to = value; instead of this function")
+pure
+bool property_animation_set_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, short.sizeof, true);
+}
+
+/// Set a 'to' short in a safe way.
+/// An AssertionError will be thrown if setting the short fails.
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, short value) {
+    auto returnValue = property_animation_to(
+        property_animation, &value, short.sizeof, true);
+
+    assert(returnValue, "Setting a short failed!");
+}
+
+/**
+ * Retrieve the subject of a property animation
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer used to store the subject of this property animation.
+ *
+ * Returns: The subject of this PropertyAnimation.
+ */
+deprecated("Use animation.subject instead of this function")
+pure
+bool property_animation_get_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    return property_animation_subject(property_animation, value_ptr, false);
+}
+
+/// Get a 'subject' in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+@trusted pure
+@property void* subject(const(PropertyAnimation)* property_animation) {
+    void* subject;
+
+    auto returnValue = property_animation_subject(
+        cast(PropertyAnimation*) property_animation,
+        &subject,
+        false
+    );
+
+    assert(returnValue, "Getting the subject failed!");
+
+    return subject;
+}
+
+/**
+ * Set the subject of a property animation.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new subject value.
+ */
+deprecated("Use animation.subject = subject; instead of this function")
+pure
+bool property_animation_set_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    return property_animation_subject(property_animation, value_ptr, true);
+}
+
+/// Get a 'subject' in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+@trusted pure
+@property void subject(PropertyAnimation* property_animation, void* subject) {
+    auto returnValue = property_animation_subject(
+        property_animation, &subject, true);
+
+    assert(returnValue, "Getting the subject failed!");
+}
+
+struct TextLayer {}
+
+// TODO: We got here last in our journey through the header.
+
+alias extern(C) void function (ScrollLayer*, void*) ScrollLayerCallback;
+alias extern(C) ushort function (MenuLayer*, void*) MenuLayerGetNumberOfSectionsCallback;
+alias extern(C) ushort function (MenuLayer*, ushort, void*) MenuLayerGetNumberOfRowsInSectionsCallback;
+alias extern(C) short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetCellHeightCallback;
+alias extern(C) short function (MenuLayer*, ushort, void*) MenuLayerGetHeaderHeightCallback;
+alias extern(C) short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetSeparatorHeightCallback;
+alias extern(C) void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawRowCallback;
+alias extern(C) void function (GContext*, const(Layer)*, ushort, void*) MenuLayerDrawHeaderCallback;
+alias extern(C) void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawSeparatorCallback;
+alias extern(C) void function (MenuLayer*, MenuIndex*, void*) MenuLayerSelectCallback;
+alias extern(C) void function (MenuLayer*, MenuIndex, MenuIndex, void*) MenuLayerSelectionChangedCallback;
 alias _Anonymous_31 MenuRowAlign;
-alias void function (int, void*) SimpleMenuLayerSelectCallback;
+alias extern(C) void function (int, void*) SimpleMenuLayerSelectCallback;
 alias _Anonymous_32 SimpleMenuItem;
 alias _Anonymous_33 SimpleMenuSection;
-alias void function (NumberWindow*, void*) NumberWindowCallback;
+alias extern(C) void function (NumberWindow*, void*) NumberWindowCallback;
 alias _Anonymous_34 NumberWindowCallbacks;
 alias _Anonymous_35 VibePattern;
 
@@ -5037,20 +6561,6 @@ enum _Anonymous_12
 }
 
 
-
-enum _Anonymous_30
-{
-    AnimationCurveLinear = 0,
-    AnimationCurveEaseIn = 1,
-    AnimationCurveEaseOut = 2,
-    AnimationCurveEaseInOut = 3,
-    AnimationCurveDefault = 3,
-    AnimationCurveCustomFunction = 4,
-    AnimationCurve_Reserved1 = 5,
-    AnimationCurve_Reserved2 = 6,
-    AnimationCurve_Reserved3 = 7
-}
-
 enum _Anonymous_31
 {
     MenuRowAlignNone = 0,
@@ -5059,37 +6569,6 @@ enum _Anonymous_31
     MenuRowAlignBottom = 3
 }
 
-
-
-struct AnimationHandlers
-{
-    AnimationStartedHandler started;
-    AnimationStoppedHandler stopped;
-}
-
-struct AnimationImplementation
-{
-    AnimationSetupImplementation setup;
-    AnimationUpdateImplementation update;
-    AnimationTeardownImplementation teardown;
-}
-
-struct PropertyAnimationAccessors
-{
-    union
-    {
-        Int16Getter int16;
-        GPointGetter gpoint;
-        GRectGetter grect;
-        GColor8Getter gcolor8;
-    }
-}
-
-struct PropertyAnimationImplementation
-{
-    AnimationImplementation base;
-    PropertyAnimationAccessors accessors;
-}
 
 struct ScrollLayerCallbacks
 {
@@ -5163,72 +6642,22 @@ struct InverterLayer;
 struct NumberWindow;
 
 
-struct Animation;
-
-
 struct BitmapLayer;
 
 
-struct TextLayer;
 
 
 struct ActionBarLayer;
 
 
-
-
 struct ScrollLayer;
-
-
 
 
 struct RotBitmapLayer;
 
 
-struct PropertyAnimation;
-
-
 struct SimpleMenuLayer;
 
-extern(C) Animation* animation_create ();
-extern(C) bool animation_destroy (Animation* animation);
-extern(C) Animation* animation_clone (Animation* from);
-extern(C) Animation* animation_sequence_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
-extern(C) Animation* animation_sequence_create_from_array (Animation** animation_array, uint array_len);
-extern(C) Animation* animation_spawn_create (Animation* animation_a, Animation* animation_b, Animation* animation_c, ...);
-extern(C) Animation* animation_spawn_create_from_array (Animation** animation_array, uint array_len);
-extern(C) bool animation_set_position (Animation* animation, uint milliseconds);
-extern(C) bool animation_get_position (Animation* animation, int* position);
-extern(C) bool animation_set_reverse (Animation* animation, bool reverse);
-extern(C) bool animation_get_reverse (Animation* animation);
-extern(C) bool animation_set_play_count (Animation* animation, uint play_count);
-extern(C) uint animation_get_play_count (Animation* animation);
-extern(C) bool animation_set_duration (Animation* animation, uint duration_ms);
-extern(C) uint animation_get_duration (Animation* animation, bool include_delay, bool include_play_count);
-extern(C) bool animation_set_delay (Animation* animation, uint delay_ms);
-extern(C) uint animation_get_delay (Animation* animation);
-extern(C) bool animation_set_curve (Animation* animation, AnimationCurve curve);
-extern(C) AnimationCurve animation_get_curve (Animation* animation);
-extern(C) bool animation_set_custom_curve (Animation* animation, AnimationCurveFunction curve_function);
-extern(C) AnimationCurveFunction animation_get_custom_curve (Animation* animation);
-extern(C) bool animation_set_handlers (Animation* animation, AnimationHandlers callbacks, void* context);
-extern(C) void* animation_get_context (Animation* animation);
-extern(C) bool animation_schedule (Animation* animation);
-extern(C) bool animation_unschedule (Animation* animation);
-extern(C) void animation_unschedule_all ();
-extern(C) bool animation_is_scheduled (Animation* animation);
-extern(C) bool animation_set_implementation (Animation* animation, const(AnimationImplementation)* implementation);
-extern(C) const(AnimationImplementation)* animation_get_implementation (Animation* animation);
-extern(C) PropertyAnimation* property_animation_create_layer_frame (Layer* layer, GRect* from_frame, GRect* to_frame);
-extern(C) PropertyAnimation* property_animation_create (const(PropertyAnimationImplementation)* implementation, void* subject, void* from_value, void* to_value);
-extern(C) void property_animation_destroy (PropertyAnimation* property_animation);
-extern(C) void property_animation_update_int16 (PropertyAnimation* property_animation, const uint distance_normalized);
-extern(C) void property_animation_update_gpoint (PropertyAnimation* property_animation, const uint distance_normalized);
-extern(C) void property_animation_update_grect (PropertyAnimation* property_animation, const uint distance_normalized);
-extern(C) Animation* property_animation_get_animation (PropertyAnimation* property_animation);
-extern(C) bool property_animation_subject (PropertyAnimation* property_animation, void** subject, bool set);
-extern(C) bool property_animation_from (PropertyAnimation* property_animation, void* from, size_t size, bool set);
-extern(C) bool property_animation_to (PropertyAnimation* property_animation, void* to, size_t size, bool set);
 extern(C) TextLayer* text_layer_create (GRect frame);
 extern(C) void text_layer_destroy (TextLayer* text_layer);
 extern(C) Layer* text_layer_get_layer (TextLayer* text_layer);
@@ -5327,4 +6756,3 @@ extern(C) tm* gmtime (const(time_t)* timep);
 extern(C) time_t mktime (tm* tb);
 extern(C) time_t time (time_t* tloc);
 extern(C) ushort time_ms (time_t* tloc, ushort* out_ms);
-
