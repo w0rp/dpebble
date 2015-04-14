@@ -6470,7 +6470,7 @@ bool property_animation_get_subject
 }
 
 /// Get a 'subject' in a safe way.
-/// An AssertionError will be thrown if getting the short fails.
+/// An AssertionError will be thrown if getting the subject fails.
 @trusted pure
 @property void* subject(const(PropertyAnimation)* property_animation) {
     void* subject;
@@ -6512,39 +6512,1306 @@ bool property_animation_set_subject
 
 struct TextLayer {}
 
-// TODO: We got here last in our journey through the header.
+/**
+ * Creates a new TextLayer on the heap and initializes it with the default
+ * values.
+ *
+ * Font: Raster Gothic 14-point Boldface (system font)
+ * Text Alignment: GTextAlignmentLeft
+ * Text color: GColorBlack
+ * Background color: GColorWhite
+ * Clips: `true`
+ * Hidden: `false`
+ * Caching: `false`
+ *
+ * The text layer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * frame = The frame with which to initialze the TextLayer.
+ *
+ * Returns: A pointer to the TextLayer. null if the TextLayer could not be
+ * created.
+ */
+extern(C) TextLayer* text_layer_create(GRect frame);
 
-alias extern(C) void function (ScrollLayer*, void*) ScrollLayerCallback;
-alias extern(C) ushort function (MenuLayer*, void*) MenuLayerGetNumberOfSectionsCallback;
-alias extern(C) ushort function (MenuLayer*, ushort, void*) MenuLayerGetNumberOfRowsInSectionsCallback;
-alias extern(C) short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetCellHeightCallback;
-alias extern(C) short function (MenuLayer*, ushort, void*) MenuLayerGetHeaderHeightCallback;
-alias extern(C) short function (MenuLayer*, MenuIndex*, void*) MenuLayerGetSeparatorHeightCallback;
-alias extern(C) void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawRowCallback;
-alias extern(C) void function (GContext*, const(Layer)*, ushort, void*) MenuLayerDrawHeaderCallback;
-alias extern(C) void function (GContext*, const(Layer)*, MenuIndex*, void*) MenuLayerDrawSeparatorCallback;
-alias extern(C) void function (MenuLayer*, MenuIndex*, void*) MenuLayerSelectCallback;
-alias extern(C) void function (MenuLayer*, MenuIndex, MenuIndex, void*) MenuLayerSelectionChangedCallback;
-alias _Anonymous_31 MenuRowAlign;
-alias extern(C) void function (int, void*) SimpleMenuLayerSelectCallback;
-alias _Anonymous_32 SimpleMenuItem;
-alias _Anonymous_33 SimpleMenuSection;
+/// Destroys a TextLayer previously created by text_layer_create.
+extern(C) void text_layer_destroy(TextLayer* text_layer);
+
+/**
+ * Gets the "root" Layer of the text layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * text_layer = Pointer to the TextLayer for which to get the "root" Layer.
+ *
+ * Returns: The "root" Layer of the text layer.
+ */
+extern(C) Layer* text_layer_get_layer(TextLayer* text_layer);
+
+/**
+ * Sets the pointer to the string where the TextLayer is supposed to find
+ * the text at a later point in time, when it needs to draw itself.
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the text.
+ * text = The new text to set onto the TextLayer. This must be
+ *     a null-terminated and valid UTF-8 string!
+ *
+ * Note: The string is not copied, so its buffer most likely cannot be stack
+ * allocated, but is recommended to be a buffer that is long-lived, at least
+ * as long as the TextLayer is part of a visible Layer hierarchy.
+ *
+ * See_Also: text_layer_get_text
+ */
+extern(C) void text_layer_set_text(TextLayer* text_layer, const(char)* text);
+
+/**
+ * Gets the pointer to the string that the TextLayer is using.
+ *
+ * Params:
+ * text_layer = The TextLayer for which to get the text.
+ *
+ * See_Also: text_layer_set_text
+ */
+extern(C) const(char)* text_layer_get_text(TextLayer* text_layer);
+
+/**
+ * Sets the background color of bounding box that will be drawn behind the
+ * text.
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the background color.
+ * color = The new \ref GColor to set the background to.
+ *
+ * See_Also: text_layer_set_text_color
+ */
+extern(C) void text_layer_set_background_color
+(TextLayer* text_layer, GColor color);
+
+/**
+ * Sets the color of text that will be drawn
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the text color.
+ * color = The new GColor to set the text color to.
+ *
+ * See_Also: text_layer_set_background_color
+ */
+extern(C) void text_layer_set_text_color
+(TextLayer* text_layer, GColor color);
+
+/**
+ * Sets the line break mode of the TextLayer
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the overflow mode.
+ * line_mode = The new GTextOverflowMode to set.
+ */
+extern(C) void text_layer_set_overflow_mode
+(TextLayer* text_layer, GTextOverflowMode line_mode);
+
+/**
+ * Sets the font of the TextLayer
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the font.
+ * font = The new GFont for the TextLayer.
+ *
+ * See_Also: fonts_get_system_font
+ * See_Also: fonts_load_custom_font
+ */
+extern(C) void text_layer_set_font(TextLayer* text_layer, GFont font);
+
+/**
+ * Sets the alignment of the TextLayer
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the alignment.
+ * text_alignment = The new text alignment for the TextLayer.
+ *
+ * See_Also: GTextAlignment
+ */
+extern(C) void text_layer_set_text_alignment
+(TextLayer* text_layer, GTextAlignment text_alignment);
+
+/**
+ * Calculates the size occupied by the current text of the TextLayer.
+ *
+ * Params:
+ * text_layer = The TextLayer for which to calculate the text's size.
+ *
+ * Returns: The size occupied by the current text of the TextLayer.
+ */
+extern(C) GSize text_layer_get_content_size(TextLayer* text_layer);
+
+/**
+ * Update the size of the text layer.
+ * This is a convenience function to update the frame of the TextLayer.
+ *
+ * Params:
+ * text_layer = The TextLayer of which to set the size.
+ * max_size = The new size for the TextLayer.
+ */
+extern(C) void text_layer_set_size
+(TextLayer* text_layer, const GSize max_size);
+
+
+
+/// Function signature for the `.content_offset_changed_handler` callback.
+alias extern(C) void function
+(ScrollLayer* scroll_layer, void* context) ScrollLayerCallback;
+
+/**
+ * All the callbacks that the ScrollLayer exposes for use by applications.
+ *
+ * Note: The context parameter can be set using scroll_layer_set_context() and
+ * gets passed in as context with all of these callbacks.
+ */
+struct ScrollLayerCallbacks {
+    /**
+     * Provider function to set up the SELECT button handlers. This will be
+     * called after the scroll layer has configured the click configurations
+     * for the up/down buttons, so it can also be used to modify the default
+     * up/down scrolling behavior.
+     */
+    ClickConfigProvider click_config_provider;
+
+    /**
+     * Called every time the the content offset changes. During a scrolling
+     * animation, it will be called for each intermediary offset as well.
+     */
+    ScrollLayerCallback content_offset_changed_handler;
+}
+
+/**
+ * Creates a new ScrollLayer on the heap and initalizes it with the default
+ * values:
+ *
+ * Clips: `true`
+ * Hidden: `false`
+ * Content size: `frame.size`
+ * Content offset: GPointZero
+ * Callbacks: None (null for each one)
+ * Callback context: null
+ *
+ * Returns: A pointer to the ScrollLayer. null if the ScrollLayer could not
+ * be created.
+ */
+extern(C) ScrollLayer* scroll_layer_create(GRect frame);
+
+/// Destroys a ScrollLayer previously created by scroll_layer_create.
+extern(C) void scroll_layer_destroy(ScrollLayer* scroll_layer);
+
+/**
+ * Gets the "root" Layer of the scroll layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * scroll_layer = Pointer to the ScrollLayer for which to get the "root" Layer.
+ *
+ * Returns: The "root" Layer of the scroll layer.
+ */
+extern(C) Layer* scroll_layer_get_layer(const(ScrollLayer)* scroll_layer);
+
+/**
+ * Adds the child layer to the content sub-layer of the ScrollLayer.
+ * This will make the child layer part of the scrollable contents.
+ * The content sub-layer of the ScrollLayer will become the parent of the
+ * child layer.
+ *
+ * Note: You may need to update the size of the scrollable contents using
+ * scroll_layer_set_content_size().
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer to which to add the child layer.
+ * child = The Layer to add to the content sub-layer of the ScrollLayer.
+ */
+extern(C) void scroll_layer_add_child(ScrollLayer* scroll_layer, Layer* child);
+
+/**
+ * Convenience function to set the ClickConfigProvider callback on the
+ * given window to scroll layer's internal click config provider.
+ * This internal click configuration provider, will set up the default
+ * UP & DOWN scrolling behavior.
+ *
+ * This function calls \ref window_set_click_config_provider_with_context to
+ * accomplish this.
+ *
+ * If you application has set a `.click_config_provider` callback using
+ * scroll_layer_set_callbacks(), this will be called by the internal click
+ * config provider, after configuring the UP & DOWN buttons. This allows your
+ * application to configure the SELECT button behavior and optionally override
+ * the UP & DOWN button behavior. The callback context for the SELECT click
+ * recognizer is automatically set to the scroll layer's context (see
+ * scroll_layer_set_context() ). This context is passed into ClickHandler
+ * callbacks. For the UP and DOWN buttons, the scroll layer itself is passed
+ * in by default as the callback context in order to deal with those buttons
+ * presses to scroll up and down automatically.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer that needs to receive click events.
+ * window = The window for which to set the click configuration.
+ *
+ * See_Also: Clicks
+ * See_Also: window_set_click_config_provider_with_context
+ */
+extern(C) void scroll_layer_set_click_config_onto_window
+(ScrollLayer* scroll_layer, Window* window);
+
+/**
+ * Sets the callbacks that the scroll layer exposes.
+ * The `context` as set by scroll_layer_set_context() is passed into each
+ * of the callbacks. See ScrollLayerCallbacks for the different callbacks.
+ *
+ * Note: If the `context` is NULL, a pointer to scroll_layer is used as context
+ * parameter instead when calling callbacks.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to assign new callbacks.
+ * callbacks = The new callbacks.
+ */
+extern(C) void scroll_layer_set_callbacks
+(ScrollLayer* scroll_layer, ScrollLayerCallbacks callbacks);
+
+/**
+ * Sets a new callback context. This context is passed into the scroll layer's
+ * callbacks and also the ClickHandler for the SELECT button.
+ *
+ * If null or not set, the context defaults to a pointer to the ScrollLayer
+ * itself.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to assign the new callback context.
+ * context = The new callback context.
+ *
+ * See_Also: scroll_layer_set_click_config_onto_window
+ * See_Also: scroll_layer_set_callbacks
+ */
+extern(C) void scroll_layer_set_context
+(ScrollLayer* scroll_layer, void* context);
+
+/**
+ * Scrolls to the given offset, optionally animated.
+ *
+ * Note: When scrolling down, the offset's `.y` decrements. When scrolling up,
+ * the offset's `.y` increments. If scrolled completely to the top, the offset
+ * is GPointZero.
+ *
+ * Note: The `.x` field must be `0`. Horizontal scrolling is not supported.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to set the content offset.
+ * offset = The final content offset.
+ * animated = Pass in `true` to animate to the new content offset, or
+ *     false to set the new content offset without animating.
+ *
+ * See_Also: scroll_layer_get_content_offset
+ */
+extern(C) void scroll_layer_set_content_offset
+(ScrollLayer* scroll_layer, GPoint offset, bool animated);
+
+/**
+ * Gets the point by which the contents are offset.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to get the content offset.
+ *
+ * See_Also: scroll_layer_set_content_offset
+ */
+extern(C) GPoint scroll_layer_get_content_offset(ScrollLayer* scroll_layer);
+
+/**
+ * Sets the size of the contents layer. This determines the area that is
+ * scrollable. At the moment, this needs to be set "manually" and is not
+ * derived from the geometry of the contents layers.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to set the content size.
+ * size = The new content size.
+ *
+ * See_Also: scroll_layer_get_content_size
+ */
+extern(C) void scroll_layer_set_content_size
+(ScrollLayer* scroll_layer, GSize size);
+
+/**
+ * Gets the size of the contents layer.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to get the content size.
+ *
+ * See_Also: scroll_layer_set_content_size
+ */
+extern(C) GSize scroll_layer_get_content_size
+(const(ScrollLayer)* scroll_layer);
+
+/**
+ * Set the frame of the scroll layer and adjusts the internal layers' geometry
+ * accordingly. The scroll layer is marked dirty automatically.
+ *
+ * Params:
+ * scroll_layer = The ScrollLayer for which to set the frame.
+ * frame = The new frame.
+ */
+extern(C) void scroll_layer_set_frame(ScrollLayer* scroll_layer, GRect frame);
+
+/**
+ * The click handlers for the UP button that the scroll layer will install as
+ * part of scroll_layer_set_click_config_onto_window().
+ *
+ * Note: This handler is exposed, in case one wants to implement an alternative
+ * handler for the UP button, as a way to invoke the default behavior.
+ *
+ * Params:
+ * recognizer = The click recognizer for which the handler is called.
+ * context = A void pointer to the ScrollLayer that is the context of the
+ *     click event.
+ */
+extern(C) void scroll_layer_scroll_up_click_handler
+(void* recognizer, void* context);
+
+/**
+ * The click handlers for the DOWN button that the scroll layer will install as
+ * part of scroll_layer_set_click_config_onto_window().
+ *
+ * Note: This handler is exposed, in case one wants to implement an alternative
+ * handler for the DOWN button, as a way to invoke the default behavior.
+ *
+ * Params:
+ * recognizer = The click recognizer for which the handler is called.
+ * context = A void pointer to the ScrollLayer that is the context of the
+ *     click event.
+ */
+extern(C) void scroll_layer_scroll_down_click_handler
+(void* recognizer, void* context);
+
+/**
+ * Sets the visibility of the scroll layer shadow.
+ * If the visibility has changed, layer_mark_dirty() will be called
+ * automatically on the scroll layer.
+ *
+ * Params:
+ * scroll_layer = The scroll layer for which to set the shadow visibility.
+ * hidden = Supply true to make the shadow hidden, or false to make it
+ *     non-hidden.
+ */
+extern(C) void scroll_layer_set_shadow_hidden
+(ScrollLayer* scroll_layer, bool hidden);
+
+/**
+ * Gets the visibility of the scroll layer shadow.
+ *
+ * Params:
+ * scroll_layer = The scroll layer for which to get the visibility.
+ *
+ * Returns: true if the shadow is hidden, false if it is not hidden.
+ */
+extern(C) bool scroll_layer_get_shadow_hidden
+(const(ScrollLayer)* scroll_layer);
+
+/// Layer that inverts anything "below it".
+struct InverterLayer {}
+
+/**
+ * Creates a new InverterLayer on the heap and initializes it with the
+ * default values.
+ *
+ * Clips: `true`
+ * Hidden: `false`
+ *
+ * Returns: A pointer to the InverterLayer. null if the InverterLayer could
+ * not be created.
+ */
+extern(C) InverterLayer* inverter_layer_create(GRect frame);
+
+/// Destroys an InverterLayer previously created by inverter_layer_create.
+extern(C) void inverter_layer_destroy(InverterLayer* inverter_layer);
+
+/**
+ * Gets the "root" Layer of the inverter layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * inverter_layer = Pointer to the InverterLayer for which to get the "root"
+ *     Layer.
+ *
+ * Returns: The "root" Layer of the inverter layer.
+ */
+extern(C) Layer* inverter_layer_get_layer(InverterLayer* inverter_layer);
+
+/**
+ * Section drawing function to draw a basic section cell with the title,
+ * subtitle, and icon of the section.
+ *
+ * Call this function inside the `.draw_row` callback implementation, see
+ * MenuLayerCallbacks.
+ *
+ * Params:
+ * ctx = The destination graphics context.
+ * cell_layer = The layer of the cell to draw.
+ * title = If non-null, draws a title in larger text (24 points, bold
+ *     Raster Gothic system font).
+ * subtitle = If non-null, draws a subtitle in smaller text (18 points,
+ *     Raster Gothic system font). If null, the title will be centered
+ *     vertically inside the menu cell.
+ * icon = If non-null, draws an icon to the left of the text. If null,
+ *     the icon will be omitted and the leftover space is used for the title
+ *     and subtitle.
+ */
+extern(C) void menu_cell_basic_draw(GContext* ctx, const(Layer)* cell_layer,
+const(char)* title, const(char)* subtitle, GBitmap* icon);
+
+/**
+ * Cell drawing function to draw a basic menu cell layout with title, subtitle.
+ * Cell drawing function to draw a menu cell layout with only one big title.
+ *
+ * Call this function inside the `.draw_row` callback implementation, see
+ * MenuLayerCallbacks.
+ *
+ * Params:
+ * ctx = The destination graphics context.
+ * cell_layer = The layer of the cell to draw.
+ * title = If non-null, draws a title in larger text (28 points, bold
+ *     Raster Gothic system font).
+ */
+extern(C) void menu_cell_title_draw
+(GContext* ctx, const(Layer)* cell_layer, const(char)* title);
+
+/**
+ * Section header drawing function to draw a basic section header cell layout
+ * with the title of the section.
+ *
+ * Call this function inside the `.draw_header` callback implementation, see
+ * MenuLayerCallbacks.
+ *
+ * Params:
+ * ctx = The destination graphics context.
+ * cell_layer = The layer of the cell to draw.
+ * title = If non-null, draws the title in small text (14 points, bold
+ *     Raster Gothic system font).
+ */
+extern(C) void menu_cell_basic_header_draw
+(GContext* ctx, const(Layer)* cell_layer, const(char)* title);
+
+/// Default section header height in pixels.
+enum short MENU_CELL_BASIC_HEADER_HEIGHT = 16;
+
+///
+enum short MENU_INDEX_NOT_FOUND = short.min;
+
+/**
+ * Data structure to represent an menu item's position in a menu, by
+ * specifying the section index and the row index within that section.
+ */
+struct MenuIndex {
+    /// The index of the section.
+    ushort section;
+    /// The index of the row within the section with index `.section`
+    ushort row;
+
+    /// Compare two MenuIndex objects, first by section, then by row.
+    @nogc @safe pure nothrow
+    int opCmp(MenuIndex other) const {
+        if (section < other.section) {
+            return -1;
+        }
+
+        if (section > other.section) {
+            return 1;
+        }
+
+        if (row < other.row) {
+            return -1;
+        }
+
+        if (row > other.row) {
+            return 1;
+        }
+
+        return 0;
+    }
+}
+
+/**
+ * Comparator function to determine the order of two MenuIndex values.
+ *
+ * Params:
+ * a = Pointer to the menu index of the first item.
+ * b = Pointer to the menu index of the second item.
+ *
+ * Returns: 0 if A and B are equal, 1 if A has a higher section & row
+ *     combination than B or else -1.
+ */
+deprecated("Use a < b instead of menu_index_compare(&a, &b) == -1, etc.")
+short menu_index_compare(MenuIndex* a, MenuIndex* b) {
+    return cast(short) a.opCmp(*b);
+}
+
+///
+struct MenuCellSpan {
+    ///
+    short y;
+    ///
+    short h;
+    ///
+    short sep;
+    ///
+    MenuIndex index;
+}
+
+struct MenuLayer {}
+
+/**
+ * Function signature for the callback to get the number of sections in a menu.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the data is requested.
+ * callback_context = The callback context.
+ *
+ * Returns: The number of sections in the menu.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) ushort function
+(MenuLayer* menu_layer, void* callback_context)
+MenuLayerGetNumberOfSectionsCallback;
+
+/**
+ * Function signature for the callback to get the number of rows in a
+ * given section in a menu.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the data is requested.
+ * section_index = The index of the section of the menu for which the
+ *     number of items it contains is requested
+ * callback_context = The callback context.
+ *
+ * Returns: The number of rows in the given section in the menu.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) ushort function
+(MenuLayer* menu_layer, ushort section_index, void* callback_context)
+MenuLayerGetNumberOfRowsInSectionsCallback;
+
+/**
+ * Function signature for the callback to get the height of the menu cell
+ * at a given index.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the data is requested.
+ * cell_index = The MenuIndex for which the cell height is requested.
+ * callback_context = The callback context.
+ *
+ * Returns: The height of the cell at the given MenuIndex.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) short function
+(MenuLayer* menu_layer, MenuIndex* cell_index, void* callback_context)
+MenuLayerGetCellHeightCallback;
+
+/**
+ * Function signature for the callback to get the height of the section header
+ * at a given section index.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the data is requested.
+ * section_index = The index of the section for which the header height is
+ *     requested.
+ * callback_context = The callback context.
+ *
+ * Returns: The height of the section header at the given section index.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) short function
+(MenuLayer* menu_layer, ushort section_index, void* callback_context)
+MenuLayerGetHeaderHeightCallback;
+
+/**
+ * Function signature for the callback to get the height of the separator
+ * at a given index.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the data is requested.
+ * cell_index = The MenuIndex for which the cell height is requested.
+ * callback_context = The callback context.
+ *
+ * Returns: The height of the separator at the given MenuIndex.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) short function
+(MenuLayer* menu_layer, MenuIndex* cell_index, void* callback_context)
+MenuLayerGetSeparatorHeightCallback;
+
+/**
+ * Function signature for the callback to render the menu cell at a given
+ * MenuIndex.
+ *
+ * Note: The `cell_layer` argument is provided to make it easy to re-use an
+ * `.update_proc` implementation in this callback. Only the bounds and frame
+ * of the `cell_layer` are actually valid and other properties should be
+ * ignored.
+ *
+ * Params:
+ * ctx = The destination graphics context to draw into.
+ * cell_layer = The cell's layer, containing the geometry of the cell.
+ * cell_index = The MenuIndex of the cell that needs to be drawn.
+ * callback_context = The callback context.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) void function(GContext* ctx, const(Layer)* cell_layer,
+MenuIndex* cell_index, void* callback_context)
+MenuLayerDrawRowCallback;
+
+/**
+ * Function signature for the callback to render the section header at a given
+ * section index.
+ *
+ * Note: The `cell_layer` argument is provided to make it easy to re-use an
+ * `.update_proc` implementation in this callback. Only the bounds and frame
+ * of the `cell_layer` are actually valid and other properties should be
+ * ignored.
+ *
+ * Params:
+ * ctx = The destination graphics context to draw into
+ * cell_layer = The header cell's layer, containing the geometry of the
+ *     header cell
+ * section_index = The section index of the section header that needs to
+ *     be drawn
+ * callback_context = The callback context
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) void function (GContext* ctx, const(Layer)* cell_layer,
+ushort section_index, void* callback_context)
+MenuLayerDrawHeaderCallback;
+
+/**
+ * Function signature for the callback to render the separator at a given
+ * MenuIndex.
+ *
+ * Note: The `cell_layer` argument is provided to make it easy to re-use an
+ * `.update_proc` implementation in this callback. Only the bounds and frame
+ * of the `cell_layer` are actually valid and other properties should be
+ * ignored.
+ *
+ * Params:
+ * ctx = The destination graphics context to draw into.
+ * cell_layer = The cell's layer, containing the geometry of the cell.
+ * cell_index = The MenuIndex of the separator that needs to be drawn.
+ * callback_context = The callback context.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) void function(GContext* ctx, const(Layer)* cell_layer,
+MenuIndex* cell_index, void* callback_context) MenuLayerDrawSeparatorCallback;
+
+/**
+ * Function signature for the callback to handle the event that a user hits
+ * the SELECT button.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the selection event occurred.
+ * cell_index = The MenuIndex of the cell that is selected.
+ * callback_context = The callback context.
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) void function
+(MenuLayer* menu_layer, MenuIndex* cell_index, void* callback_context)
+MenuLayerSelectCallback;
+
+/**
+ * Function signature for the callback to handle a change in the current
+ * selected item in the menu.
+ *
+ * Params:
+ * menu_layer = The menu layer for which the selection event occurred.
+ * new_index = The MenuIndex of the new item that is selected now.
+ * old_index = The MenuIndex of the old item that was selected before.
+ * callback_context = The callback context
+ *
+ * See_Also: menu_layer_set_callbacks()
+ * See_Also: MenuLayerCallbacks
+ */
+alias extern(C) void function(MenuLayer* menu_layer,
+MenuIndex new_index, MenuIndex old_index, void* callback_context)
+MenuLayerSelectionChangedCallback;
+
+/// Data structure containing all the callbacks of a MenuLayer.
+struct MenuLayerCallbacks {
+    /**
+     * Callback that gets called to get the number of sections in the menu.
+     * This can get called at various moments throughout the life of a menu.
+     *
+     * Note: When null, the number of sections defaults to 1.
+     */
+    MenuLayerGetNumberOfSectionsCallback get_num_sections;
+
+    /**
+     * Callback that gets called to get the number of rows in a section. This
+     * can get called at various moments throughout the life of a menu.
+     *
+     * Note: Must be set to a valid callback; null causes undefined behavior.
+     */
+    MenuLayerGetNumberOfRowsInSectionsCallback get_num_rows;
+
+    /**
+     * Callback that gets called to get the height of a cell.
+     * This can get called at various moments throughout the life of a menu.
+     *
+     * Note: When null, the default height of 44 pixels is used.
+     */
+    MenuLayerGetCellHeightCallback get_cell_height;
+
+    /**
+     * Callback that gets called to get the height of a section header.
+     * This can get called at various moments throughout the life of a menu.
+     *
+     * Note: When null, the defaults height of 0 pixels is used. This disables
+     * section headers.
+     */
+    MenuLayerGetHeaderHeightCallback get_header_height;
+
+    /**
+     * Callback that gets called to render a menu item.
+     *
+     * This gets called for each menu item, every time it needs to be
+     * re-rendered.
+     *
+     * Note: Must be set to a valid callback; `NULL` causes undefined behavior.
+     */
+    MenuLayerDrawRowCallback draw_row;
+
+    /**
+     * Callback that gets called to render a section header.
+     * This gets called for each section header, every time it needs to be
+     * re-rendered.
+     *
+     * Note: Must be set to a valid callback, unless `.get_header_height` is
+     * null. Causes undefined behavior otherwise.
+     */
+    MenuLayerDrawHeaderCallback draw_header;
+
+    /**
+     * Callback that gets called when the user triggers a click with the
+     * SELECT button.
+     *
+     * Note: When null, click events for the SELECT button are ignored.
+     */
+    MenuLayerSelectCallback select_click;
+
+    /**
+     * Callback that gets called when the user triggers a long click with the
+     * SELECT button.
+     *
+     * Note: When null, long click events for the SELECT button are ignored.
+     */
+    MenuLayerSelectCallback select_long_click;
+
+    /**
+     * Callback that gets called whenever the selection changes.
+     *
+     * Note: When null, selection change events are ignored.
+     */
+    MenuLayerSelectionChangedCallback selection_changed;
+
+    /**
+     * Callback that gets called to get the height of a separator.
+     * This can get called at various moments throughout the life of a menu.
+     *
+     * Note: When null, the default height of 1 is used.
+     */
+    MenuLayerGetSeparatorHeightCallback get_separator_height;
+
+    /**
+     * Callback that gets called to render a separator.
+     *
+     * This gets called for each separator, every time it needs to be
+     * re-rendered.
+     *
+     * Note: Must be set to a valid callback, unless `.get_separator_height` is
+     * null. Causes undefined behavior otherwise.
+     */
+    MenuLayerDrawSeparatorCallback draw_separator;
+}
+
+/**
+ * Creates a new MenuLayer on the heap and initalizes it with the default
+ * values.
+ *
+ * Clips: `true`
+ * Hidden: `false`
+ * Content size: `frame.size`
+ * Content offset: GPointZero
+ * Callbacks: None (null for each one)
+ * Callback context: null
+ *
+ * After the relevant callbacks are called to populate the menu, the item at
+ * MenuIndex(0, 0) will be selected initially.
+ *
+ * Returns: A pointer to the MenuLayer. null if the MenuLayer could not
+ *     be created.
+ */
+extern(C) MenuLayer* menu_layer_create(GRect frame);
+
+/// Destroys a MenuLayer previously created by menu_layer_create.
+extern(C) void menu_layer_destroy(MenuLayer* menu_layer);
+
+/**
+ * Gets the "root" Layer of the menu layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * menu_layer = Pointer to the MenuLayer for which to get the "root" Layer.
+ *
+ * Returns: The "root" Layer of the menu layer.
+ */
+extern(C) Layer* menu_layer_get_layer(const(MenuLayer)* menu_layer);
+
+/**
+ * Gets the ScrollLayer of the menu layer, which is the layer responsible for
+ * the scrolling of the menu layer.
+ *
+ * Params:
+ * menu_layer = Pointer to the MenuLayer for which to get the ScrollLayer.
+ *
+ * Returns: The ScrollLayer of the menu layer.
+ */
+extern(C) ScrollLayer* menu_layer_get_scroll_layer
+(const(MenuLayer)* menu_layer);
+
+/**
+ * Sets the callbacks for the MenuLayer.
+ *
+ * Params:
+ * menu_layer = Pointer to the MenuLayer for which to set the callbacks
+ *     and callback context.
+ * callback_context = The new callback context. This is passed into each
+ *     of the callbacks and can be set to point to application provided data.
+ * callbacks = The new callbacks for the MenuLayer. The storage for this
+ *     data structure must be long lived. Therefore, it cannot be
+ *     stack-allocated.
+ *
+ * See_Also: MenuLayerCallbacks
+ */
+extern(C) void menu_layer_set_callbacks
+(MenuLayer* menu_layer, void* callback_context, MenuLayerCallbacks callbacks);
+
+/**
+ * Convenience function to set the ClickConfigProvider callback on the
+ * given window to menu layer's internal click config provider. This internal
+ * click configuration provider, will set up the default UP & DOWN
+ * scrolling / menu item selection behavior.
+ *
+ * This function calls scroll_layer_set_click_config_onto_window to
+ * accomplish this.
+ *
+ * Click and long click events for the SELECT button can be handled by
+ * installing the appropriate callbacks using menu_layer_set_callbacks().
+ * This is a deviation from the usual click configuration provider pattern.
+ *
+ * Params:
+ * menu_layer = The MenuLayer that needs to receive click events.
+ * window = The window for which to set the click configuration.
+ *
+ * See_Also: Clicks
+ * See_Also: window_set_click_config_provider_with_context()
+ * See_Also: scroll_layer_set_click_config_onto_window()
+ */
+extern(C) void menu_layer_set_click_config_onto_window
+(MenuLayer* menu_layer, Window* window);
+
+/**
+ * Values to specify how a (selected) row should be aligned relative to the
+ * visible area of the MenuLayer.
+ */
+enum MenuRowAlign {
+    /// Don't align or update the scroll offset of the MenuLayer.
+    none = 0,
+    /// Scroll the contents of the MenuLayer in such way that the selected row
+    /// is centered relative to the visible area.
+    center = 1,
+    /// Scroll the contents of the MenuLayer in such way that the selected row
+    /// is at the top of the visible area.
+    top = 2,
+    /// Scroll the contents of the MenuLayer in such way that the selected row
+    /// is at the bottom of the visible area.
+    bottom = 3
+}
+
+///
+enum MenuRowAlignNone = MenuRowAlign.none;
+///
+enum MenuRowAlignCenter = MenuRowAlign.center;
+///
+enum MenuRowAlignTop = MenuRowAlign.top;
+///
+enum MenuRowAlignBottom = MenuRowAlign.bottom;
+
+/**
+ * Selects the next or previous item, relative to the current selection.
+ *
+ * Note: If there is no next/previous item, this function is a no-op.
+ *
+ * Params:
+ * menu_layer = The MenuLayer for which to select the next item.
+ * up = Supply `false` to select the next item in the list (downwards),
+ *     or `true` to select the previous item in the list (upwards).
+ * scroll_align = The alignment of the new selection.
+ * animated = Supply `true` to animate changing the selection, or `false`
+ *     to change the selection instantly.
+ */
+extern(C) void menu_layer_set_selected_next
+(MenuLayer* menu_layer, bool up, MenuRowAlign scroll_align, bool animated);
+
+/**
+ * Selects the item with given MenuIndex.
+ *
+ * Note: If the section and/or row index exceeds the avaible number of sections
+ * or resp. rows, the exceeding index/indices will be capped, effectively
+ * selecting the last section and/or row, resp.
+ *
+ * Params:
+ * menu_layer = The MenuLayer for which to change the selection.
+ * index = The index of the item to select.
+ * scroll_align = The alignment of the new selection.
+ * animated = Supply `true` to animate changing the selection, or `false`
+ *     to change the selection instantly.
+ */
+extern(C) void menu_layer_set_selected_index(MenuLayer* menu_layer,
+MenuIndex index, MenuRowAlign scroll_align, bool animated);
+
+/**
+ * Gets the MenuIndex of the currently selection menu item.
+ *
+ * Params:
+ * menu_layer = The MenuLayer for which to get the current selected index.
+ */
+extern(C) MenuIndex menu_layer_get_selected_index
+(const(MenuLayer)* menu_layer);
+
+/**
+ * Reloads the data of the menu. This causes the menu to re-request the menu
+ * item data, by calling the relevant callbacks.
+ *
+ * The current selection and scroll position will not be changed. See the
+ * note with menu_layer_set_selected_index() for the behavior if the
+ * old selection is no longer valid.
+ *
+ * Params:
+ * menu_layer = The MenuLayer for which to reload the data.
+ */
+extern(C) void menu_layer_reload_data(MenuLayer* menu_layer);
+
+/**
+ * By default, there are no 2.x style shadows on MenuLayers.
+ * This allows for the shadows to be toggled on the given MenuLayer.
+ */
+extern(C) void menu_layer_shadow_enable(MenuLayer* menu_layer, bool enable);
+
+/// Wrapper around MenuLayer, that uses static data to display a list menu.
+struct SimpleMenuLayer {}
+
+/**
+ * Function signature for the callback to handle the event that a user hits
+ * the SELECT button.
+ *
+ * Params:
+ * index = The row index of the item.
+ * context = The callback context.
+ */
+alias extern(C) void function(int index, void* context)
+SimpleMenuLayerSelectCallback;
+
+/// Data structure containing the information of a menu item.
+struct SimpleMenuItem {
+    /// The title of the menu item. Required.
+    const(char)* title;
+    /// The subtitle of the menu item. Optional, leave null if unused.
+    const(char)* subtitle;
+    /// The icon of the menu item. Optional, leave null if unused.
+    GBitmap* icon;
+    /// The callback that needs to be called upon a click on the SELECT button.
+    /// Optional, leave null if unused.
+    SimpleMenuLayerSelectCallback callback;
+}
+
+/// Data structure containing the information of a menu section.
+struct SimpleMenuSection {
+    /// Title of the section. Optional, leave null if unused.
+    const(char)* title;
+    /// Array of items in the section.
+    const(SimpleMenuItem)* items;
+    /// Number of items in the `.items` array.
+    uint num_items;
+}
+
+/**
+ * Creates a new SimpleMenuLayer on the heap and initializes it.
+ *
+ * It also sets the internal click configuration provider onto given window.
+ *
+ * Note: The `sections` array is not deep-copied and can therefore not be
+ * stack allocated, but needs to be backed by long-lived storage.
+ *
+ * Note: This function does not add the menu's layer to the window.
+ *
+ * Params:
+ * frame = The frame at which to initialize the menu.
+ * window = The window onto which to set the click configuration provider.
+ * sections = Array with sections that need to be displayed in the menu.
+ * num_sections = The number of sections in the `sections` array.
+ * callback_context = Pointer to application specific data, that is passed
+ *     into the callbacks.
+ *
+ * Returns: A pointer to the SimpleMenuLayer. null if the SimpleMenuLayer
+ * could not be created.
+ */
+extern(C) SimpleMenuLayer* simple_menu_layer_create
+(GRect frame, Window* window, const(SimpleMenuSection)* sections,
+int num_sections, void* callback_context);
+
+// Destroys a SimpleMenuLayer previously created by simple_menu_layer_create.
+extern(C) void simple_menu_layer_destroy(SimpleMenuLayer* menu_layer);
+
+/**
+ * Gets the "root" Layer of the simple menu layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * simple_menu = Pointer to the SimpleMenuLayer for which to get the "root"
+ *     Layer.
+ *
+ * Returns: The "root" Layer of the menu layer.
+ */
+extern(C) Layer* simple_menu_layer_get_layer
+(const(SimpleMenuLayer)* simple_menu);
+
+/**
+ * Gets the row index of the currently selection menu item.
+ *
+ * Params:
+ * simple_menu = The SimpleMenuLayer for which to get the current selected
+ *     row index.
+ */
+extern(C) int simple_menu_layer_get_selected_index
+(const(SimpleMenuLayer)* simple_menu);
+
+/**
+ * Selects the item in the first section at given row index.
+ *
+ * Params:
+ * simple_menu = The SimpleMenuLayer for which to change the selection.
+ * index = The row index of the item to select.
+ * animated = Supply `true` to animate changing the selection, or `false`
+ *     to change the selection instantly.
+ */
+extern(C) void simple_menu_layer_set_selected_index
+(SimpleMenuLayer* simple_menu, int index, bool animated);
+
+/**
+ * Params:
+ * simple_menu = The SimpleMenuLayer to get the MenuLayer from.
+ *
+ * Returns: The MenuLayer.
+ */
+extern(C) MenuLayer* simple_menu_layer_get_menu_layer
+(SimpleMenuLayer* simple_menu);
+
+/// The width of the action bar in pixels.
+enum ACTION_BAR_WIDTH = 20;
+
+/// The maximum number of action bar items.
+enum NUM_ACTION_BAR_ITEMS = 3;
+
+struct ActionBarLayer {}
+
+/**
+ * Creates a new ActionBarLayer on the heap and initalizes it with the
+ * default values.
+ *
+ * Background color: GColorBlack
+ * No click configuration provider (`NULL`)
+ * No icons
+ * Not added to / associated with any window, thus not catching any button
+ * input yet.
+ *
+ * Returns: A pointer to the ActionBarLayer. null if the ActionBarLayer could
+ * not be created.
+ */
+extern(C) ActionBarLayer* action_bar_layer_create();
+
+/// Destroys a ActionBarLayer previously created by action_bar_layer_create.
+extern(C) void action_bar_layer_destroy(ActionBarLayer* action_bar_layer);
+
+/**
+ * Gets the "root" Layer of the action bar layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * action_bar_layer = Pointer to the ActionBarLayer for which to get the
+ *     "root" Layer.
+ *
+ * Returns: The "root" Layer of the action bar layer.
+ */
+extern(C) Layer* action_bar_layer_get_layer(ActionBarLayer* action_bar_layer);
+
+/**
+ * Sets the context parameter, which will be passed in to ClickHandler
+ * callbacks and the ClickConfigProvider callback of the action bar.
+ *
+ * Note: By default, a pointer to the action bar itself is passed in, if the
+ * context has not been set or if it has been set to null.
+ *
+ * Params:
+ * action_bar = The action bar for which to assign the new context.
+ * context = The new context.
+ *
+ * See_Also: action_bar_layer_set_click_config_provider()
+ * See_Also: Clicks
+ */
+extern(C) void action_bar_layer_set_context
+(ActionBarLayer* action_bar, void* context);
+
+/**
+ * Sets the click configuration provider callback of the action bar.
+ * In this callback your application can associate handlers to the different
+ * types of click events for each of the buttons, see Clicks.
+ *
+ * Note: If the action bar had already been added to a window and the window
+ * is currently on-screen, the click configuration provider will be called
+ * before this function returns. Otherwise, it will be called by the system
+ * when the window becomes on-screen.
+ *
+ * Note: The `.raw` handlers cannot be used without breaking the automatic
+ * highlighting of the segment of the action bar that for which a button is.
+ *
+ * See_Also: action_bar_layer_set_icon()
+ *
+ * Params:
+ * action_bar = The action bar for which to assign a new click configuration
+ *     provider.
+ * click_config_provider = The new click configuration provider.
+ */
+extern(C) void action_bar_layer_set_click_config_provider
+(ActionBarLayer* action_bar, ClickConfigProvider click_config_provider);
+
+/**
+ * Sets an action bar icon onto one of the 3 slots as identified by `button_id`.
+ * Only BUTTON_ID_UP, BUTTON_ID_SELECT and BUTTON_ID_DOWN can be used.
+ * Whenever an icon is set, the click configuration provider will be called,
+ * to give the application the opportunity to reconfigure the button
+ * interaction.
+ *
+ * Params:
+ * action_bar = The action bar for which to set the new icon.
+ * button_id = The identifier of the button for which to set the icon.
+ * icon = Pointer to the GBitmap icon
+ *
+ * See_Also: action_bar_layer_set_click_config_provider()
+ */
+extern(C) void action_bar_layer_set_icon
+(ActionBarLayer* action_bar, ButtonId button_id, const(GBitmap)* icon);
+
+/**
+ * Convenience function to clear out an existing icon.
+ * All it does is call `action_bar_layer_set_icon(action_bar, button_id, NULL)`
+ *
+ * Params:
+ * action_bar = The action bar for which to clear an icon.
+ * button_id = The identifier of the button for which to clear the icon.
+ *
+ * See_Also: action_bar_layer_set_icon()
+ */
+extern(C) void action_bar_layer_clear_icon
+(ActionBarLayer* action_bar, ButtonId button_id);
+
+/**
+ * Adds the action bar's layer on top of the window's root layer. It also
+ * adjusts the layout of the action bar to match the geometry of the window it
+ * gets added to.
+ *
+ * Lastly, it calls window_set_click_config_provider_with_context() on
+ * the window to set it up to work with the internal callback and raw click
+ * handlers of the action bar, to enable the highlighting of the section of the
+ * action bar when the user presses a button.
+ *
+ * Note: After this call, do not use
+ * window_set_click_config_provider_with_context() with the window that
+ * the action bar has been added to (this would de-associate the action bar's
+ * click config provider and context). Instead use
+ * action_bar_layer_set_click_config_provider() and
+ * action_bar_layer_set_context() to register the click configuration
+ * provider to configure the buttons actions.
+ *
+ * Note: It is advised to call this is in the window's `.load` or `.appear`
+ * handler. Make sure to call \ref action_bar_layer_remove_from_window() in the
+ * window's `.unload` or `.disappear` handler.
+ *
+ * Note: Adding additional layers to the window's root layer after this call
+ * can occlude the action bar.
+ *
+ * Params:
+ * action_bar = The action bar to associate with the window.
+ * window = The window with which the action bar is to be associated.
+ */
+extern(C) void action_bar_layer_add_to_window
+(ActionBarLayer* action_bar, Window* window);
+
+/**
+ * Removes the action bar from the window and unconfigures the window's
+ * click configuration provider. null is set as the window's new click config
+ * provider and also as its callback context. If it has not been added to a
+ * window before, this function is a no-op.
+ *
+ * Params:
+ * action_bar = The action bar to de-associate from its current window.
+ */
+extern(C) void action_bar_layer_remove_from_window(ActionBarLayer* action_bar);
+
+/**
+ * Sets the background color of the action bar. Defaults to GColorBlack.
+ *
+ * The action bar's layer is automatically marked dirty.
+ *
+ * Params:
+ * action_bar = The action bar of which to set the background color.
+ * background_color = The new background color.
+ */
+extern(C) void action_bar_layer_set_background_color
+(ActionBarLayer* action_bar, GColor background_color);
+
+struct BitmapLayer {}
+
+// TODO: We got here last in our journey through the headers.
+
 alias extern(C) void function (NumberWindow*, void*) NumberWindowCallback;
 alias _Anonymous_34 NumberWindowCallbacks;
 alias _Anonymous_35 VibePattern;
 
 
-
-enum _Anonymous_8
-{
+enum _Anonymous_8 {
     ACCEL_SAMPLING_10HZ = 10,
     ACCEL_SAMPLING_25HZ = 25,
     ACCEL_SAMPLING_50HZ = 50,
     ACCEL_SAMPLING_100HZ = 100
 }
 
-enum _Anonymous_10
-{
+enum _Anonymous_10 {
     CompassStatusDataInvalid = 0,
     CompassStatusCalibrating = 1,
     CompassStatusCalibrated = 2
@@ -6561,64 +7828,8 @@ enum _Anonymous_12
 }
 
 
-enum _Anonymous_31
-{
-    MenuRowAlignNone = 0,
-    MenuRowAlignCenter = 1,
-    MenuRowAlignTop = 2,
-    MenuRowAlignBottom = 3
-}
 
 
-struct ScrollLayerCallbacks
-{
-    ClickConfigProvider click_config_provider;
-    ScrollLayerCallback content_offset_changed_handler;
-}
-
-struct MenuIndex
-{
-    ushort section;
-    ushort row;
-}
-
-struct MenuCellSpan
-{
-    short y;
-    short h;
-    short sep;
-    MenuIndex index;
-}
-
-struct MenuLayerCallbacks
-{
-    MenuLayerGetNumberOfSectionsCallback get_num_sections;
-    MenuLayerGetNumberOfRowsInSectionsCallback get_num_rows;
-    MenuLayerGetCellHeightCallback get_cell_height;
-    MenuLayerGetHeaderHeightCallback get_header_height;
-    MenuLayerDrawRowCallback draw_row;
-    MenuLayerDrawHeaderCallback draw_header;
-    MenuLayerSelectCallback select_click;
-    MenuLayerSelectCallback select_long_click;
-    MenuLayerSelectionChangedCallback selection_changed;
-    MenuLayerGetSeparatorHeightCallback get_separator_height;
-    MenuLayerDrawSeparatorCallback draw_separator;
-}
-
-struct _Anonymous_32
-{
-    const(char)* title;
-    const(char)* subtitle;
-    GBitmap* icon;
-    SimpleMenuLayerSelectCallback callback;
-}
-
-struct _Anonymous_33
-{
-    const(char)* title;
-    const(SimpleMenuItem)* items;
-    uint num_items;
-}
 
 struct _Anonymous_34
 {
@@ -6633,21 +7844,12 @@ struct _Anonymous_35
     uint num_segments;
 }
 
-struct MenuLayer;
-
-
-struct InverterLayer;
 
 
 struct NumberWindow;
 
 
-struct BitmapLayer;
 
-
-
-
-struct ActionBarLayer;
 
 
 struct ScrollLayer;
@@ -6656,70 +7858,7 @@ struct ScrollLayer;
 struct RotBitmapLayer;
 
 
-struct SimpleMenuLayer;
 
-extern(C) TextLayer* text_layer_create (GRect frame);
-extern(C) void text_layer_destroy (TextLayer* text_layer);
-extern(C) Layer* text_layer_get_layer (TextLayer* text_layer);
-extern(C) void text_layer_set_text (TextLayer* text_layer, const(char)* text);
-extern(C) const(char)* text_layer_get_text (TextLayer* text_layer);
-extern(C) void text_layer_set_background_color (TextLayer* text_layer, GColor color);
-extern(C) void text_layer_set_text_color (TextLayer* text_layer, GColor color);
-extern(C) void text_layer_set_overflow_mode (TextLayer* text_layer, GTextOverflowMode line_mode);
-extern(C) void text_layer_set_font (TextLayer* text_layer, GFont font);
-extern(C) void text_layer_set_text_alignment (TextLayer* text_layer, GTextAlignment text_alignment);
-extern(C) GSize text_layer_get_content_size (TextLayer* text_layer);
-extern(C) void text_layer_set_size (TextLayer* text_layer, const GSize max_size);
-extern(C) ScrollLayer* scroll_layer_create (GRect frame);
-extern(C) void scroll_layer_destroy (ScrollLayer* scroll_layer);
-extern(C) Layer* scroll_layer_get_layer (const(ScrollLayer)* scroll_layer);
-extern(C) void scroll_layer_add_child (ScrollLayer* scroll_layer, Layer* child);
-extern(C) void scroll_layer_set_click_config_onto_window (ScrollLayer* scroll_layer, Window* window);
-extern(C) void scroll_layer_set_callbacks (ScrollLayer* scroll_layer, ScrollLayerCallbacks callbacks);
-extern(C) void scroll_layer_set_context (ScrollLayer* scroll_layer, void* context);
-extern(C) void scroll_layer_set_content_offset (ScrollLayer* scroll_layer, GPoint offset, bool animated);
-extern(C) GPoint scroll_layer_get_content_offset (ScrollLayer* scroll_layer);
-extern(C) void scroll_layer_set_content_size (ScrollLayer* scroll_layer, GSize size);
-extern(C) GSize scroll_layer_get_content_size (const(ScrollLayer)* scroll_layer);
-extern(C) void scroll_layer_set_frame (ScrollLayer* scroll_layer, GRect frame);
-extern(C) void scroll_layer_scroll_up_click_handler (void* recognizer, void* context);
-extern(C) void scroll_layer_scroll_down_click_handler (void* recognizer, void* context);
-extern(C) void scroll_layer_set_shadow_hidden (ScrollLayer* scroll_layer, bool hidden);
-extern(C) bool scroll_layer_get_shadow_hidden (const(ScrollLayer)* scroll_layer);
-extern(C) InverterLayer* inverter_layer_create (GRect frame);
-extern(C) void inverter_layer_destroy (InverterLayer* inverter_layer);
-extern(C) Layer* inverter_layer_get_layer (InverterLayer* inverter_layer);
-extern(C) void menu_cell_basic_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title, const(char)* subtitle, GBitmap* icon);
-extern(C) void menu_cell_title_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
-extern(C) void menu_cell_basic_header_draw (GContext* ctx, const(Layer)* cell_layer, const(char)* title);
-extern(C) short menu_index_compare (MenuIndex* a, MenuIndex* b);
-extern(C) MenuLayer* menu_layer_create (GRect frame);
-extern(C) void menu_layer_destroy (MenuLayer* menu_layer);
-extern(C) Layer* menu_layer_get_layer (const(MenuLayer)* menu_layer);
-extern(C) ScrollLayer* menu_layer_get_scroll_layer (const(MenuLayer)* menu_layer);
-extern(C) void menu_layer_set_callbacks (MenuLayer* menu_layer, void* callback_context, MenuLayerCallbacks callbacks);
-extern(C) void menu_layer_set_click_config_onto_window (MenuLayer* menu_layer, Window* window);
-extern(C) void menu_layer_set_selected_next (MenuLayer* menu_layer, bool up, MenuRowAlign scroll_align, bool animated);
-extern(C) void menu_layer_set_selected_index (MenuLayer* menu_layer, MenuIndex index, MenuRowAlign scroll_align, bool animated);
-extern(C) MenuIndex menu_layer_get_selected_index (const(MenuLayer)* menu_layer);
-extern(C) void menu_layer_reload_data (MenuLayer* menu_layer);
-extern(C) void menu_layer_shadow_enable (MenuLayer* menu_layer, bool enable);
-extern(C) SimpleMenuLayer* simple_menu_layer_create (GRect frame, Window* window, const(SimpleMenuSection)* sections, int num_sections, void* callback_context);
-extern(C) void simple_menu_layer_destroy (SimpleMenuLayer* menu_layer);
-extern(C) Layer* simple_menu_layer_get_layer (const(SimpleMenuLayer)* simple_menu);
-extern(C) int simple_menu_layer_get_selected_index (const(SimpleMenuLayer)* simple_menu);
-extern(C) void simple_menu_layer_set_selected_index (SimpleMenuLayer* simple_menu, int index, bool animated);
-extern(C) MenuLayer* simple_menu_layer_get_menu_layer (SimpleMenuLayer* simple_menu);
-extern(C) ActionBarLayer* action_bar_layer_create ();
-extern(C) void action_bar_layer_destroy (ActionBarLayer* action_bar_layer);
-extern(C) Layer* action_bar_layer_get_layer (ActionBarLayer* action_bar_layer);
-extern(C) void action_bar_layer_set_context (ActionBarLayer* action_bar, void* context);
-extern(C) void action_bar_layer_set_click_config_provider (ActionBarLayer* action_bar, ClickConfigProvider click_config_provider);
-extern(C) void action_bar_layer_set_icon (ActionBarLayer* action_bar, ButtonId button_id, const(GBitmap)* icon);
-extern(C) void action_bar_layer_clear_icon (ActionBarLayer* action_bar, ButtonId button_id);
-extern(C) void action_bar_layer_add_to_window (ActionBarLayer* action_bar, Window* window);
-extern(C) void action_bar_layer_remove_from_window (ActionBarLayer* action_bar);
-extern(C) void action_bar_layer_set_background_color (ActionBarLayer* action_bar, GColor background_color);
 extern(C) BitmapLayer* bitmap_layer_create (GRect frame);
 extern(C) void bitmap_layer_destroy (BitmapLayer* bitmap_layer);
 extern(C) Layer* bitmap_layer_get_layer (const(BitmapLayer)* bitmap_layer);
