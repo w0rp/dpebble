@@ -6655,7 +6655,7 @@ extern(C) GSize text_layer_get_content_size(TextLayer* text_layer);
 extern(C) void text_layer_set_size
 (TextLayer* text_layer, const GSize max_size);
 
-
+struct ScrollLayer {}
 
 /// Function signature for the `.content_offset_changed_handler` callback.
 alias extern(C) void function
@@ -7797,101 +7797,509 @@ extern(C) void action_bar_layer_set_background_color
 
 struct BitmapLayer {}
 
-// TODO: We got here last in our journey through the headers.
+/**
+ * Creates a new bitmap layer on the heap and initalizes it the default values.
+ *
+ * Bitmap: null (none)
+ * Background color: GColorClear
+ * Compositing mode: GCompOpAssign
+ * Clips: true
+ *
+ * Returns: A pointer to the BitmapLayer. null if the BitmapLayer could not
+ *     be created.
+ */
+extern(C) BitmapLayer* bitmap_layer_create(GRect frame);
 
-alias extern(C) void function (NumberWindow*, void*) NumberWindowCallback;
-alias _Anonymous_34 NumberWindowCallbacks;
-alias _Anonymous_35 VibePattern;
+/// Destroys a window previously created by bitmap_layer_create.
+extern(C) void bitmap_layer_destroy(BitmapLayer* bitmap_layer);
 
+/**
+ * Gets the "root" Layer of the bitmap layer, which is the parent for the
+ * sub-layers used for its implementation.
+ *
+ * Params:
+ * bitmap_layer = Pointer to the BitmapLayer for which to get the "root" Layer.
+ *
+ * Returns: The "root" Layer of the bitmap layer.
+ */
+extern(C) Layer* bitmap_layer_get_layer(const(BitmapLayer)* bitmap_layer);
 
-enum _Anonymous_8 {
-    ACCEL_SAMPLING_10HZ = 10,
-    ACCEL_SAMPLING_25HZ = 25,
-    ACCEL_SAMPLING_50HZ = 50,
-    ACCEL_SAMPLING_100HZ = 100
-}
+/**
+ * Gets the pointer to the bitmap image that the BitmapLayer is using.
+ *
+ * Params:
+ * bitmap_layer = The BitmapLayer for which to get the bitmap image.
+ *
+ * Returns: A pointer to the bitmap image that the BitmapLayer is using.
+ */
+extern(C) const(GBitmap)* bitmap_layer_get_bitmap(BitmapLayer* bitmap_layer);
 
-enum _Anonymous_10 {
-    CompassStatusDataInvalid = 0,
-    CompassStatusCalibrating = 1,
-    CompassStatusCalibrated = 2
-}
+/**
+ * Sets the bitmap onto the BitmapLayer. The bitmap is set by reference
+ * (no deep copy), thus the caller of this function has to make sure the
+ * bitmap is kept in memory.
+ *
+ * The bitmap layer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * bitmap_layer = The BitmapLayer for which to set the bitmap image.
+ * bitmap = The new GBitmap to set onto the BitmapLayer.
+ */
+extern(C) void bitmap_layer_set_bitmap
+(BitmapLayer* bitmap_layer, const(GBitmap)* bitmap);
 
-enum _Anonymous_12
-{
-    SECOND_UNIT = 1,
-    MINUTE_UNIT = 2,
-    HOUR_UNIT = 4,
-    DAY_UNIT = 8,
-    MONTH_UNIT = 16,
-    YEAR_UNIT = 32
-}
+/**
+ * Sets the alignment of the image to draw with in frame of the BitmapLayer.
+ * The aligment parameter specifies which edges of the bitmap should overlap
+ * with the frame of the BitmapLayer.
+ *
+ * If the bitmap is smaller than the frame of the BitmapLayer, the background
+ * is filled with the background color.
+ *
+ * The bitmap layer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * bitmap_layer = The BitmapLayer for which to set the alignment.
+ * alignment = The new alignment for the image inside the BitmapLayer.
+ */
+extern(C) void bitmap_layer_set_alignment
+(BitmapLayer* bitmap_layer, GAlign alignment);
 
+/**
+ * Sets the background color of bounding box that will be drawn behind the
+ * image of the BitmapLayer.
+ *
+ * The bitmap layer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * bitmap_layer = The BitmapLayer for which to set the background color.
+ * color = The new GColor to set the background to.
+ */
+extern(C) void bitmap_layer_set_background_color
+(BitmapLayer* bitmap_layer, GColor color);
 
+/**
+ * Sets the compositing mode of how the bitmap image is composited onto the
+ * BitmapLayer's background plane, or how it is composited onto what has been
+ * drawn beneath the BitmapLayer in case the background color is set to
+ * GColorClear.
+ *
+ * The compositing mode only affects the drawing of the bitmap and not the
+ * drawing of the background color.
+ *
+ * When drawing color PNGs, GCompOpSet will be required to apply any
+ * transparency.
+ *
+ * The bitmap layer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * bitmap_layer = The BitmapLayer for which to set the compositing mode.
+ * mode = The compositing mode to set.
+ *
+ * See_Also: See GCompOp for visual examples of the different compositing
+ * modes.
+ */
+extern(C) void bitmap_layer_set_compositing_mode
+(BitmapLayer* bitmap_layer, GCompOp mode);
 
+/**
+ * Layer that displays a rotated bitmap image.
+ *
+ * A RotBitmapLayer is like a BitmapLayer but has the ability to be
+ * rotated (by default, around its center). The amount of rotation
+ * is specified using rot_bitmap_layer_set_angle() or
+ * rot_bitmap_layer_increment_angle(). The rotation argument to those
+ * functions is specified as an amount of clockwise rotation, where the value
+ * 0x10000 represents a full 360 degree rotation and 0 represent no rotation,
+ * and it scales linearly between those values, just like sin_lookup.
+ *
+ * The center of rotation in the source bitmap is always placed at the
+ * center of the RotBitmapLayer and the size of the RotBitmapLayer is
+ * automatically calculated so that the entire Bitmap can fit in at all
+ * rotation angles.
+ *
+ * For example, if the image is 10px wide and high, the RotBitmapLayer will be
+ * 14px wide ( sqrt(10^2+10^2) ).
+ *
+ * By default, the center of rotation in the source bitmap is the center of
+ * the bitmap but you can call \ref rot_bitmap_set_src_ic() to change the
+ * center of rotation.
+ */
+struct RotBitmapLayer {}
 
+/**
+ * Creates a new RotBitmapLayer on the heap and initializes it with the
+ * default values:
+ *
+ * Angle: 0
+ * Compositing mode: GCompOpAssign
+ * Corner clip color: GColorClear
+ *
+ * Params:
+ * bitmap = The bitmap to display in this RotBitmapLayer.
+ *
+ * Returns: A pointer to the RotBitmapLayer. null if the RotBitmapLayer could
+ *     not be created.
+ */
+extern(C) RotBitmapLayer* rot_bitmap_layer_create(GBitmap* bitmap);
 
-struct _Anonymous_34
-{
+/**
+ * Destroys a RotBitmapLayer and frees all associated memory.
+ *
+ * Note: It is the developer responsibility to free the GBitmap.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer to destroy.
+ */
+extern(C) void rot_bitmap_layer_destroy(RotBitmapLayer* bitmap);
+
+/**
+ * Defines what color to use in areas that are not covered by the source
+ * bitmap.
+ *
+ * By default this is GColorClear.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer on which to change the corner clip color.
+ * color = The corner clip color.
+ */
+extern(C) void rot_bitmap_layer_set_corner_clip_color
+(RotBitmapLayer* bitmap, GColor color);
+
+/**
+ * Sets the rotation angle of this RotBitmapLayer.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer on which to change the rotation.
+ * angle = Rotation is an integer between 0 (no rotation) and 0x10000
+ *     (360 degree rotation).
+ *
+ * See_Also: sin_lookup()
+ */
+extern(C) void rot_bitmap_layer_set_angle(RotBitmapLayer* bitmap, int angle);
+
+/**
+ * Change the rotation angle of this RotBitmapLayer.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer on which to change the rotation.
+ * angle_change = The rotation angle change.
+ */
+extern(C) void rot_bitmap_layer_increment_angle
+(RotBitmapLayer* bitmap, int angle_change);
+
+/**
+ * Defines the only point that will not be affected by the rotation in the
+ * source bitmap.
+ *
+ * For example, if you pass GPoint(0, 0), the image will rotate around the
+ * top-left corner.
+ *
+ * This point is always projected at the center of the RotBitmapLayer.
+ * Calling this function automatically adjusts the width and height of the
+ * RotBitmapLayer so that the entire bitmap can fit inside the layer at all
+ * rotation angles.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer on which to change the rotation.
+ * ic = The only point in the original image that will not be affected by the
+ * rotation.
+ */
+extern(C) void rot_bitmap_set_src_ic(RotBitmapLayer* bitmap, GPoint ic);
+
+/**
+ * Sets the compositing mode of how the bitmap image is composited onto
+ * what has been drawn beneath the RotBitmapLayer.
+ *
+ * By default this is GCompOpAssign.
+ *
+ * The RotBitmapLayer is automatically marked dirty after this operation.
+ *
+ * Params:
+ * bitmap = The RotBitmapLayer on which to change the rotation.
+ * mode = The compositing mode to set.
+ *
+ * See_Also: GCompOp for visual examples of the different compositing modes.
+ */
+extern(C) void rot_bitmap_set_compositing_mode
+(RotBitmapLayer* bitmap, GCompOp mode);
+
+/// A ready-made Window prompting the user to pick a number.
+struct NumberWindow {}
+
+/// Function signature for NumberWindow callbacks.
+alias extern(C) void function(NumberWindow* number_window, void* context)
+NumberWindowCallback;
+
+/// Data structure containing all the callbacks for a NumberWindow.
+struct NumberWindowCallbacks {
+    /// Callback that gets called as the value is incremented.
+    /// Optional, leave null if unused.
     NumberWindowCallback incremented;
+    /// Callback that gets called as the value is decremented.
+    /// Optional, leave null if unused.
     NumberWindowCallback decremented;
+    /// Callback that gets called as the value is confirmed, in other words the
+    /// SELECT button is clicked.
+    /// Optional, leave null if unused.
     NumberWindowCallback selected;
 }
 
-struct _Anonymous_35
-{
+/**
+ * Creates a new NumberWindow on the heap and initalizes it with the default
+ * values.
+ *
+ * Note: The number window is not pushed to the window stack. Use
+ * window_stack_push() to do this.
+ *
+ * Params:
+ * label = The title or prompt to display in the NumberWindow. Must be
+ *     long-lived and cannot be stack-allocated.
+ * callbacks = The callbacks.
+ * callback_context = Pointer to application specific data that is passed.
+ *
+ * Returns: A pointer to the NumberWindow. null if the NumberWindow could not
+ *     be created.
+ */
+extern(C) NumberWindow* number_window_create
+(const(char)* label, NumberWindowCallbacks callbacks, void* callback_context);
+
+/// Destroys a NumberWindow previously created by number_window_create.
+extern(C) void number_window_destroy(NumberWindow* number_window);
+
+/**
+ * Sets the text of the title or prompt label.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to set the label text.
+ * label = The new label text. Must be long-lived and cannot be
+ *     stack-allocated.
+ */
+extern(C) void number_window_set_label
+(NumberWindow* numberwindow, const(char)* label);
+
+/**
+ * Sets the maximum value this field can hold
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to set the maximum
+ *     value
+ * max = The maximum value.
+ */
+extern(C) void number_window_set_max
+(NumberWindow* numberwindow, int max);
+
+/**
+ * Sets the minimum value this field can hold.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to set the minimum
+ *     value.
+ * min = The minimum value.
+ */
+extern(C) void number_window_set_min
+(NumberWindow* numberwindow, int min);
+
+/**
+ * Sets the current value of the field.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to set the current
+ *     value.
+ * value = The new current value.
+ */
+extern(C) void number_window_set_value(NumberWindow* numberwindow, int value);
+
+/**
+ * Sets the amount by which to increment/decrement by on a button click.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to set the step
+ *     increment.
+ * step = The new step increment.
+ */
+extern(C) void number_window_set_step_size
+(NumberWindow* numberwindow, int step);
+
+/**
+ * Gets the current value.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to get the current
+ *     value.
+ *
+ * Returns: The current value.
+ */
+extern(C) int number_window_get_value(const(NumberWindow)* numberwindow);
+
+/**
+ * Gets the "root" Window of the number window.
+ *
+ * Params:
+ * numberwindow = Pointer to the NumberWindow for which to get the "root"
+ *     Window.
+ *
+ * Returns: The "root" Window of the number window.
+ */
+extern(C) Window* number_window_get_window(NumberWindow* numberwindow);
+
+/**
+ * Data structure describing a vibration pattern.
+ * A pattern consists of at least 1 vibe-on duration, optionally followed by
+ * alternating vibe-off + vibe-on durations. Each segment may have a different
+ * duration.
+ */
+struct VibePattern {
+    /**
+     * Pointer to an array of segment durations, measured in milli-seconds.
+     * The maximum allowed duration is 10000ms.
+     */
     const(uint)* durations;
+    /// The length of the array of durations.
     uint num_segments;
 }
 
+/**
+ * Cancel any in-flight vibe patterns; this is a no-op if there is no
+ * on-going vibe.
+ */
+extern(C) void vibes_cancel();
 
+/// Makes the watch emit one short vibration.
+extern(C) void vibes_short_pulse();
 
-struct NumberWindow;
+/// Makes the watch emit one long vibration.
+extern(C) void vibes_long_pulse();
 
+/// Makes the watch emit two brief vibrations.
+extern(C) void vibes_double_pulse();
 
+/**
+ * Makes the watch emit a ‘custom’ vibration pattern.
+ *
+ * Params:
+ * pattern = An arbitrary vibration pattern.
+ *
+ * See_Also: VibePattern
+ */
+extern(C) void vibes_enqueue_custom_pattern(VibePattern pattern);
 
+/**
+ * Trigger the backlight and schedule a timer to automatically disable the
+ * backlight after a short delay. This is the preferred method of interacting
+ * with the backlight.
+ */
+extern(C) void light_enable_interaction();
 
-
-struct ScrollLayer;
-
-
-struct RotBitmapLayer;
-
-
-
-extern(C) BitmapLayer* bitmap_layer_create (GRect frame);
-extern(C) void bitmap_layer_destroy (BitmapLayer* bitmap_layer);
-extern(C) Layer* bitmap_layer_get_layer (const(BitmapLayer)* bitmap_layer);
-extern(C) const(GBitmap)* bitmap_layer_get_bitmap (BitmapLayer* bitmap_layer);
-extern(C) void bitmap_layer_set_bitmap (BitmapLayer* bitmap_layer, const(GBitmap)* bitmap);
-extern(C) void bitmap_layer_set_alignment (BitmapLayer* bitmap_layer, GAlign alignment);
-extern(C) void bitmap_layer_set_background_color (BitmapLayer* bitmap_layer, GColor color);
-extern(C) void bitmap_layer_set_compositing_mode (BitmapLayer* bitmap_layer, GCompOp mode);
-extern(C) RotBitmapLayer* rot_bitmap_layer_create (GBitmap* bitmap);
-extern(C) void rot_bitmap_layer_destroy (RotBitmapLayer* bitmap);
-extern(C) void rot_bitmap_layer_set_corner_clip_color (RotBitmapLayer* bitmap, GColor color);
-extern(C) void rot_bitmap_layer_set_angle (RotBitmapLayer* bitmap, int angle);
-extern(C) void rot_bitmap_layer_increment_angle (RotBitmapLayer* bitmap, int angle_change);
-extern(C) void rot_bitmap_set_src_ic (RotBitmapLayer* bitmap, GPoint ic);
-extern(C) void rot_bitmap_set_compositing_mode (RotBitmapLayer* bitmap, GCompOp mode);
-extern(C) NumberWindow* number_window_create (const(char)* label, NumberWindowCallbacks callbacks, void* callback_context);
-extern(C) void number_window_destroy (NumberWindow* number_window);
-extern(C) void number_window_set_label (NumberWindow* numberwindow, const(char)* label);
-extern(C) void number_window_set_max (NumberWindow* numberwindow, int max);
-extern(C) void number_window_set_min (NumberWindow* numberwindow, int min);
-extern(C) void number_window_set_value (NumberWindow* numberwindow, int value);
-extern(C) void number_window_set_step_size (NumberWindow* numberwindow, int step);
-extern(C) int number_window_get_value (const(NumberWindow)* numberwindow);
-extern(C) Window* number_window_get_window (NumberWindow* numberwindow);
-extern(C) void vibes_cancel ();
-extern(C) void vibes_short_pulse ();
-extern(C) void vibes_long_pulse ();
-extern(C) void vibes_double_pulse ();
-extern(C) void vibes_enqueue_custom_pattern (VibePattern pattern);
-extern(C) void light_enable_interaction ();
+/**
+ * Turn the watch's backlight on or put it back into automatic control.
+ *
+ * Developers should take care when calling this function, keeping Pebble's
+ * backlight on for long periods of time will rapidly deplete the battery.
+ *
+ * Params:
+ * enable = Turn the backlight on if `true`, otherwise `false` to put it back
+ *     into automatic control.
+ */
 extern(C) void light_enable (bool enable);
-extern(C) tm* localtime (const(time_t)* timep);
-extern(C) tm* gmtime (const(time_t)* timep);
-extern(C) time_t mktime (tm* tb);
-extern(C) time_t time (time_t* tloc);
-extern(C) ushort time_ms (time_t* tloc, ushort* out_ms);
+
+///
+enum TZ_LEN = 6;
+
+// TODO: Use property to makre sure these values stay valid.
+
+// The type for the time, with a timezone.
+struct tm {
+  /// Seconds. [0-60] (1 leap second)
+  int tm_sec;
+  /// Minutes. [0-59]
+  int tm_min;
+  /// Hours.  [0-23]
+  int tm_hour;
+  // Day. [1-31]
+  int tm_mday = 1;
+  /// Month. [0-11]
+  int tm_mon;
+  /// Years since 1900
+  int tm_year;
+  /// Day of week. [0-6]
+  int tm_wday;
+  /// Days in year.[0-365]
+  int tm_yday;
+  /// DST. [-1/0/1]
+  int tm_isdst;
+  /// Seconds east of UTC.
+  int tm_gmtoff;
+  /// Timezone abbreviation.
+  char* tm_zone;
+};
+
+/**
+ * convert the time value pointed at by clock to a struct tm which contains
+ * the time adjusted for the local timezone
+ *
+ * Params:
+ * timep = A pointer to an object of type time_t that contains a time value.
+ *
+ * Returns: A pointer to a struct tm containing the broken out time value
+ * adjusted for the local timezone.
+ */
+extern(C) tm* localtime(const(time_t)* timep);
+
+/**
+ * convert the time value pointed at by clock to a struct tm which contains
+ * the time expressed in Coordinated Universal Time (UTC).
+ *
+ * Params:
+ * timep = A pointer to an object of type time_t that contains a time value.
+ *
+ * Returns: A pointer to a struct tm containing Coordinated Universal Time.
+ *     (UTC)
+ */
+extern(C) tm* gmtime(const(time_t)* timep);
+
+/**
+ * Convert the broken-down time structure to a timestamp expressed in
+ * Coordinated Universal Time (UTC).
+ *
+ * Params:
+ * tb = A pointer to an object of type tm that contains broken-down time.
+ *
+ * Returns: The number of seconds since epoch, January 1st 1970.
+ */
+extern(C) time_t mktime(tm* tb);
+
+/**
+ * Obtain the number of seconds since epoch.
+ *
+ * Note that the epoch is adjusted for Timezones and Daylight Savings.
+ *
+ * Params:
+ * tloc = Optionally points to an address of a time_t variable to store the
+ *     time in.
+ *
+ * If you only want to use the return value, you may pass null into tloc
+ * instead.
+ *
+ * Returns: The number of seconds since epoch, January 1st 1970.
+ */
+extern(C) time_t time(time_t* tloc);
+
+/**
+ * Obtain the number of seconds and milliseconds part since the epoch.
+ *
+ * This is a non-standard C function provided for convenience.
+ *
+ * Params:
+ * tloc = Optionally points to an address of a time_t variable to store the
+ *     time in. You may pass null into tloc if you don't need a time_t
+ *     variable to be set with the seconds since the epoch
+ *
+ * Params:
+ * out_ms = Optionally points to an address of a uint16_t variable to store
+ *     the number of milliseconds since the last second in. If you only want
+ *     to use the return value, you may pass null into out_ms instead.
+ *
+ * Returns: The number of milliseconds since the last second.
+ */
+extern(C) ushort time_ms(time_t* tloc, ushort* out_ms);
