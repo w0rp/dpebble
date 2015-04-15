@@ -3,94 +3,97 @@
  */
 module pebble.clock;
 
-import core.stdc.time;
+public import core.stdc.time;
 
 import pebble.versions;
 
 @nogc:
 nothrow:
 
-///
-enum TZ_LEN = 6;
+// basalt redefines C standard library time functions to support a GMT offset
+// and a timezone in the time structures.
+version(PEBBLE_BASALT) {
+    ///
+    enum TZ_LEN = 6;
 
-// TODO: Use properties to make sure these values stay valid.
+    // The type for the time, with a timezone.
+    struct tm {
+      /// Seconds. [0-60] (1 leap second)
+      int tm_sec;
+      /// Minutes. [0-59]
+      int tm_min;
+      /// Hours.  [0-23]
+      int tm_hour;
+      // Day. [1-31]
+      int tm_mday = 1;
+      /// Month. [0-11]
+      int tm_mon;
+      /// Years since 1900
+      int tm_year;
+      /// Day of week. [0-6]
+      int tm_wday;
+      /// Days in year.[0-365]
+      int tm_yday;
+      /// DST. [-1/0/1]
+      int tm_isdst;
+      /// Seconds east of UTC.
+      int tm_gmtoff;
+      /// Timezone abbreviation.
+      char* tm_zone;
+    };
 
-// The type for the time, with a timezone.
-struct tm {
-  /// Seconds. [0-60] (1 leap second)
-  int tm_sec;
-  /// Minutes. [0-59]
-  int tm_min;
-  /// Hours.  [0-23]
-  int tm_hour;
-  // Day. [1-31]
-  int tm_mday = 1;
-  /// Month. [0-11]
-  int tm_mon;
-  /// Years since 1900
-  int tm_year;
-  /// Day of week. [0-6]
-  int tm_wday;
-  /// Days in year.[0-365]
-  int tm_yday;
-  /// DST. [-1/0/1]
-  int tm_isdst;
-  /// Seconds east of UTC.
-  int tm_gmtoff;
-  /// Timezone abbreviation.
-  char* tm_zone;
-};
+    /**
+     * convert the time value pointed at by clock to a struct tm which
+     * contains the time adjusted for the local timezone
+     *
+     * Params:
+     * timep = A pointer to an object of type time_t that contains a time value.
+     *
+     * Returns: A pointer to a struct tm containing the broken out time value
+     * adjusted for the local timezone.
+     */
+    extern(C) tm* localtime(const(time_t)* timep);
 
-/**
- * convert the time value pointed at by clock to a struct tm which contains
- * the time adjusted for the local timezone
- *
- * Params:
- * timep = A pointer to an object of type time_t that contains a time value.
- *
- * Returns: A pointer to a struct tm containing the broken out time value
- * adjusted for the local timezone.
- */
-extern(C) tm* localtime(const(time_t)* timep);
+    /**
+     * convert the time value pointed at by clock to a struct tm which contains
+     * the time expressed in Coordinated Universal Time (UTC).
+     *
+     * Params:
+     * timep = A pointer to an object of type time_t that contains a time value.
+     *
+     * Returns: A pointer to a struct tm containing Coordinated Universal Time.
+     *     (UTC)
+     */
+    extern(C) tm* gmtime(const(time_t)* timep);
 
-/**
- * convert the time value pointed at by clock to a struct tm which contains
- * the time expressed in Coordinated Universal Time (UTC).
- *
- * Params:
- * timep = A pointer to an object of type time_t that contains a time value.
- *
- * Returns: A pointer to a struct tm containing Coordinated Universal Time.
- *     (UTC)
- */
-extern(C) tm* gmtime(const(time_t)* timep);
+    /**
+     * Convert the broken-down time structure to a timestamp expressed in
+     * Coordinated Universal Time (UTC).
+     *
+     * Params:
+     * tb = A pointer to an object of type tm that contains broken-down time.
+     *
+     * Returns: The number of seconds since epoch, January 1st 1970.
+     */
+    extern(C) time_t mktime(tm* tb);
 
-/**
- * Convert the broken-down time structure to a timestamp expressed in
- * Coordinated Universal Time (UTC).
- *
- * Params:
- * tb = A pointer to an object of type tm that contains broken-down time.
- *
- * Returns: The number of seconds since epoch, January 1st 1970.
- */
-extern(C) time_t mktime(tm* tb);
+    /**
+     * Obtain the number of seconds since epoch.
+     *
+     * Note that the epoch is adjusted for Timezones and Daylight Savings.
+     *
+     * Params:
+     * tloc = Optionally points to an address of a time_t variable to store the
+     *     time in.
+     *
+     * If you only want to use the return value, you may pass null into tloc
+     * instead.
+     *
+     * Returns: The number of seconds since epoch, January 1st 1970.
+     */
+    extern(C) time_t time(time_t* tloc);
+}
 
-/**
- * Obtain the number of seconds since epoch.
- *
- * Note that the epoch is adjusted for Timezones and Daylight Savings.
- *
- * Params:
- * tloc = Optionally points to an address of a time_t variable to store the
- *     time in.
- *
- * If you only want to use the return value, you may pass null into tloc
- * instead.
- *
- * Returns: The number of seconds since epoch, January 1st 1970.
- */
-extern(C) time_t time(time_t* tloc);
 
 /**
  * Obtain the number of seconds and milliseconds part since the epoch.
@@ -110,7 +113,6 @@ extern(C) time_t time(time_t* tloc);
  * Returns: The number of milliseconds since the last second.
  */
 extern(C) ushort time_ms(time_t* tloc, ushort* out_ms);
-
 
 /**
  * Get the ISO locale name for the language currently set on the watch.
@@ -356,16 +358,3 @@ extern(C) bool wakeup_get_launch_event(WakeupId* wakeup_id, int* cookie);
  *     has already occurred
  */
 extern(C) bool wakeup_query(WakeupId wakeup_id, time_t* timestamp);
-
-/**
- * Returns the current time in Unix Timestamp Format with Milliseconds.
- *
- * Params:
- * tloc = If provided receives current Unix Time seconds portion.
- * out_ms = if provided receives current Unix Time milliseconds portion.
- *
- * Returns: Current Unix Time milliseconds portion.
- */
-version(PEBBLE_APLITE)
-ushort time_ms(time_t* tloc, ushort* out_ms);
-

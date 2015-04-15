@@ -33,7 +33,7 @@ alias CompassStatusCalibrated = CompassStatus.calibrated;
 alias int CompassHeading;
 
 /// Structure containing a single heading towards magnetic and true north.
-extern(C) struct CompassHeadingData {
+struct CompassHeadingData {
     /// measured angle relative to magnetic north
     CompassHeading magnetic_heading;
     /// measured angle relative to true north
@@ -69,7 +69,6 @@ alias extern(C) void function
  * See_Also: compass_service_subscribe
  */
 extern(C) int compass_service_set_heading_filter(CompassHeading filter);
-
 
 /**
  * Subscribe to the compass heading event service. Once subscribed, the

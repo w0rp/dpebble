@@ -3,10 +3,33 @@
  */
 module pebble.gcolor;
 
+import pebble.versions;
+
 @nogc:
 nothrow:
 
-/// A 8-bit colour value with an alpha channel.
+/// A color for aplite Pebble watches, which have only 2 colors.
+enum GColorMonoChrome {
+  /// Represents "clear" or transparent.
+  clear = ~0,
+  /// Represents black.
+  black = 0,
+  /// Represents white.
+  white = 1,
+}
+
+///
+alias GColorClear = GColorMonoChrome.clear;
+///
+alias GColorBlack = GColorMonoChrome.black;
+///
+alias GColorWhite = GColorMonoChrome.white;
+
+/**
+ * A 8-bit colour value with an alpha channel.
+ *
+ * These colors are only available on the basalt pebble watches.
+ */
 struct GColor8 {
     ubyte argb;
 
@@ -104,8 +127,24 @@ bool GColorEq(GColor8 x, GColor8 y) {
     return x == y;
 }
 
-// TODO: This macro was defined for swapping out color and black and white.
-// We should perhaps handle this somehow.
-
-// #define COLOR_FALLBACK(color, bw) (color)
+/**
+ * This function simply returns one of the two arguments given to it, depending
+ * on the platform, for falling back from a more complex color
+ * to a black and white color on watches with less colours.
+ *
+ * This is to replicate the effects of a macro defined in the official Pebble
+ * SDK headers.
+ *
+ * Because this function simply returns one of its arguments, a good D
+ * compiler should able to inline this function and reduce it to just one
+ * of the arguments itself with no runtime cost.
+ */
+@safe pure
+auto COLOR_FALLBACK(GColor color, GColorMonoChrome bw) {
+    version(PEBBLE_APLITE) {
+        return bw;
+    } else {
+        return color;
+    }
+}
 

@@ -9,6 +9,8 @@ import pebble.gsize;
 import pebble.grect;
 import pebble.gcolor;
 
+// TODO: Add properties for bitmaps and so on, appropriately versioned.
+
 /// The format of a GBitmap can either be 1-bit or 8-bit.
 enum GBitmapFormat {
     /// 1-bit black and white. 0 = black, 1 = white.
@@ -31,8 +33,67 @@ alias GBitmapFormat2BitPalette = GBitmapFormat._2bitPalette;
 ///
 alias GBitmapFormat4BitPalette = GBitmapFormat._4bitPalette;
 
-/// A opaque struct for a bitmap.
-struct GBitmap {}
+version(PEBBLE_APLITE) {
+    /**
+     * Structure containing the metadata of a bitmap image.
+     *
+     * Note that this structure does NOT contain any pixel data; it only has
+     * a pointer to a buffer containing the pixels (the `addr` field).
+     *
+     * The metadata describes how long each row of pixels is in the buffer
+     * (the stride).
+     *
+     * Each row must be a multiple of 32 pixels (4 bytes).
+     * Using the `bounds` field, the area that is actually relevant can be
+     * specified.
+     *
+     * For example, when the image is 29 by 5 pixels (width by height)
+     * and the first bit of image data is the pixel at (0, 0), then the
+     * bounds.size would be `GSize(29, 5)` and bounds.origin would be
+     * `GPoint(0, 0)`.
+     *
+     * See_Also: BitmapLayer
+     * See_Also: graphics_draw_bitmap_in_rect
+     * See_Also: Resources
+     */
+    struct GBitmap {
+    align(1):
+        /// Pointer to the address where the image data lives.
+        ubyte* addr;
+        /**
+         * Note: The number of bytes per row should be a multiple of 4.
+         *
+         * Also, the following should (naturally) be true:
+         * `(row_size_bytes * 8 >= bounds.w)`
+         */
+        ushort row_size_bytes;
+
+        ushort info_flags;
+
+        /**
+         * The box of bits that the `addr` field is pointing to, that contains
+         * the actual image data to use. Note that this may be a subsection
+         * of the data with padding on all sides.
+         */
+        GRect bounds;
+
+        /// Is .addr heap allocated? Do we need to free .addr in
+        /// gbitmap_deinit?
+        @nogc @safe pure nothrow
+        @property bool is_heap_allocated() const {
+            return info_flags >> 16;
+        }
+
+        /// Version of bitmap structure and image data.
+        @nogc @safe pure nothrow
+        @property ushort _version() const {
+            return info_flags & 0b1111;
+        }
+    }
+} else {
+    /// A opaque struct for a bitmap.
+    struct GBitmap {}
+}
 
 /// A opaque struct for a sequence of bitmaps.
 struct GBitmapSequence {}
@@ -43,7 +104,15 @@ struct GBitmapSequence {}
  * since bytes per row should be set according to format.
  */
 version(PEBBLE_BASALT)
+@safe pure
 extern(C) ushort gbitmap_get_bytes_per_row(const(GBitmap)* bitmap);
+
+/// ditto
+version(PEBBLE_APLITE)
+@safe pure
+ushort gbitmap_get_bytes_per_row(const(GBitmap)* bitmap) {
+    return bitmap.row_size_bytes;
+}
 
 /**
  * Returns: The format of the given GBitmap.
@@ -57,7 +126,14 @@ extern(C) GBitmapFormat gbitmap_get_format(const(GBitmap)* bitmap);
  * See_Also: gbitmap_get_bytes_per_row
  */
 version(PEBBLE_BASALT)
+@safe pure
 extern(C) ubyte* gbitmap_get_data(const(GBitmap)* bitmap);
+
+version(PEBBLE_APLITE)
+@safe pure
+ubyte* gbitmap_get_data(const(GBitmap)* bitmap) {
+    return bitmap.addr;
+}
 
 /**
  * Set the bitmap data for the given GBitmap.
@@ -79,9 +155,25 @@ version(PEBBLE_BASALT)
 extern(C) void gbitmap_set_data(GBitmap* bitmap, ubyte* data,
 GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy);
 
+/// ditto
+version(PEBBLE_APLITE)
+@safe pure
+extern(C) void gbitmap_set_data(GBitmap* bitmap, ubyte* data,
+GBitmapFormat format, ushort row_size_bytes, bool free_on_destroy) {
+    bitmap.addr = data;
+}
+
 /// See_Also: gbitmap_set_bounds
 version(PEBBLE_BASALT)
+@safe pure
 extern(C) GRect gbitmap_get_bounds(const(GBitmap)* bitmap);
+
+/// ditto
+version(PEBBLE_APLITE)
+@safe pure
+ref GRect gbitmap_get_bounds(const(GBitmap)* bitmap) {
+    return bitmap.bounds;
+}
 
 /**
  * Set the bounds of the given GBitmap.
@@ -89,7 +181,15 @@ extern(C) GRect gbitmap_get_bounds(const(GBitmap)* bitmap);
  * See_Also: gbitmap_get_bounds
  */
 version(PEBBLE_BASALT)
+@safe pure
 extern(C) void gbitmap_set_bounds(GBitmap* bitmap, GRect bounds);
+
+/// ditto
+version(PEBBLE_APLITE)
+@safe pure
+void gbitmap_set_bounds(GBitmap* bitmap, GRect bounds) {
+    bitmap.bounds = bounds;
+}
 
 /// See_Also: gbitmap_set_palette
 version(PEBBLE_BASALT)
@@ -373,3 +473,4 @@ extern(C) void gbitmap_sequence_set_loop_count
 version(PEBBLE_BASALT)
 extern(C) GSize gbitmap_sequence_get_bitmap_size
 (GBitmapSequence* bitmap_sequence);
+

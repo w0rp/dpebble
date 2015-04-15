@@ -17,7 +17,7 @@ import pebble.layer;
 @nogc:
 nothrow:
 
-struct Animation {}
+// TODO: Replicate the macros for animation types in this module.
 
 /// Values that are used to indicate the different animation curves,
 /// which determine the speed at which the animated value(s) change(s).
@@ -52,6 +52,54 @@ alias AnimationCurveEaseInOut = AnimationCurve.easeInOut;
 alias AnimationCurveDefault = AnimationCurve._default;
 ///
 alias AnimationCurveCustomFunction = AnimationCurve.custom;
+
+version(PEBBLE_APLITE) {
+    /**
+     * An animation type for aplite watches.
+     */
+    struct Animation {
+        ListNode list_node;
+        const(AnimationImplementation)* implementation;
+        const(AnimationHandlers) handlers;
+        void *context;
+        /// Absolute time when the animation got scheduled, in
+        /// ms since system start.
+        uint abs_start_time_ms;
+        uint delay_ms;
+        uint duration_ms;
+
+        private uint _remaining_fields;
+
+        @nogc @trusted pure nothrow
+        @property AnimationCurve curve() const {
+            return cast(AnimationCurve)
+                ((_remaining_fields >> (32 - 3)) & 0b111);
+        }
+
+        @nogc @safe pure nothrow
+        @property bool is_completed() const {
+            return (_remaining_fields >> (32 - 4)) & 1;
+        }
+
+        /**
+         * Pointer to a custom curve. Unfortunately, due to
+         * backward-compatibility constraints, it must fit into 28 bits.
+         *
+         * It is only valid when curve == AnimationCurveCustomFunction.
+         * The mapping from 28-bit field to pointer is unpublished. Call
+         * animation_set_custom_curve() to ensure your app continues to run
+         * after future Pebble updates.
+         */
+        @nogc @trusted pure nothrow
+        @property uint custom_curve_function() const {
+            // Get the remaining 28 bits for this field.
+            return _remaining_fields & ((1 << 28) - 1);
+        }
+    }
+} else {
+    /// An opaque animation structure.
+    struct Animation {}
+}
 
 /**
  * Creates a new Animation on the heap and initalizes it with the default
@@ -826,6 +874,7 @@ struct PropertyAnimationImplementation {
     PropertyAnimationAccessors accessors;
 }
 
+// TODO: Add aplite type for this here.
 struct PropertyAnimation {}
 
 /**
@@ -1496,4 +1545,3 @@ version(PEBBLE_BASALT) {
         assert(returnValue, "Getting the subject failed!");
     }
 }
-

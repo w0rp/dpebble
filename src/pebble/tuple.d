@@ -94,7 +94,7 @@ align(1):
     /// The length of `.value` in bytes.
     ushort length;
     /// The value itself.
-    TupleValue value;
+    TupleValue* value;
 }
 
 ///
