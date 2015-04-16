@@ -1,8 +1,7 @@
 /**
  * This module defines battery information functions.
  */
-
-module pebble.accelerometer;
+module pebble.battery;
 
 @nogc:
 nothrow:
