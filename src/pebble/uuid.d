@@ -1,7 +1,7 @@
 /**
  * This module defines UUID types for Pebble watches.
  */
-module pebble.logging;
+module pebble.uuid;
 
 @nogc:
 nothrow:
