@@ -874,8 +874,95 @@ struct PropertyAnimationImplementation {
     PropertyAnimationAccessors accessors;
 }
 
-// TODO: Add aplite type for this here.
-struct PropertyAnimation {}
+version(PEBBLE_APLITE) {
+    private union PropertyAnimationValue {
+        GRect grect;
+        GPoint gpoint;
+        short int16;
+    }
+
+    private struct PropertyAntimationValuePair {
+        PropertyAnimationValue from;
+        PropertyAnimationValue to;
+    }
+
+    /// A property animation object.
+    struct PropertyAnimation {
+    @nogc:
+    @safe:
+    pure:
+    nothrow:
+        /// The "inherited" state from the "base class".
+        /// See_Also: Animation.
+        private Animation animation;
+        private PropertyAnimationValuePair values;
+        /// The subject of this animation.
+        void *subject;
+
+        ///
+        @property GRect from_grect() const {
+            return values.from.grect;
+        }
+
+        ///
+        @property void from(GRect rect) const {
+            values.from.grect = rect;
+        }
+
+        ///
+        @property GRect from_gpoint() const {
+            return values.from.gpoint;
+        }
+
+        ///
+        @property void from(GPoint point) const {
+            values.from.gpoint = point;
+        }
+
+        ///
+        @property GRect from_int16() const {
+            return values.from.int16;
+        }
+
+        ///
+        @property void from(short value) const {
+            values.from.int16 = value;
+        }
+
+        ///
+        @property GRect to_grect() const {
+            return values.to.grect;
+        }
+
+        ///
+        @property void to_grect(GRect rect) const {
+            return values.to.grect = rect;
+        }
+
+        ///
+        @property GRect to_gpoint() const {
+            return values.to.gpoint;
+        }
+
+        ///
+        @property void to_gpoint(GPoint point) const {
+            return values.to.gpoint = point;
+        }
+
+        ///
+        @property GRect to_int16() const {
+            return values.to.int16;
+        }
+
+        ///
+        @property void to_int16(short value) const {
+            return values.to.int16 = value;
+        }
+    }
+} else {
+    /// A property animation object.
+    struct PropertyAnimation {}
+}
 
 /**
  * Convenience function to create and initialize a property animation that
@@ -1022,10 +1109,18 @@ extern(C) void property_animation_update_grect
  *
  * Returns: The Animation within this PropertyAnimation.
  */
+@trusted pure
 version(PEBBLE_BASALT)
 extern(C) Animation* property_animation_get_animation
 (PropertyAnimation* property_animation);
 
+/// ditto
+@trusted pure
+version(PEBBLE_APLITE)
+Animation* property_animation_get_animation
+(PropertyAnimation* property_animation) {
+    return property_animation.animation;
+}
 
 /**
  * Convenience function to clone a property animation instance
@@ -1039,509 +1134,689 @@ PropertyAnimation* property_animation_clone(PropertyAnimation* from) {
     return cast(PropertyAnimation*) animation_clone(cast(Animation*) from);
 }
 
-// All of these animation properties are only available on basalt.
-version(PEBBLE_BASALT) {
-    /**
-     * Helper function used by the property_animation_get|set_subject macros.
-     *
-     * Params:
-     * property_animation = Handle to the property animation.
-     * subject = The subject to get or set.
-     * set = true to set new subject, false to retrieve existing value.
-     *
-     * Returns: true if successful, false on failure
-     *    (usually a bad animation_h)
-     */
-    pure
-    extern(C) bool property_animation_subject
-    (PropertyAnimation* property_animation, void** subject, bool set);
+/**
+ * Helper function used by the property_animation_get|set_subject macros.
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * subject = The subject to get or set.
+ * set = true to set new subject, false to retrieve existing value.
+ *
+ * Returns: true if successful, false on failure
+ *    (usually a bad animation_h)
+ */
+version(PEBBLE_BASALT)
+@trusted pure
+extern(C) bool property_animation_subject
+(PropertyAnimation* property_animation, void** subject, bool set);
 
-    /**
-     * Helper function used by the property_animation_get|set_from_.* macros.
-     *
-     * Params:
-     * property_animation = Handle to the property animation.
-     * from = Pointer to the value.
-     * size = Size of the from value.
-     * set = true to set new value, false to retrieve existing one.
-     *
-     * Returns: true if successful, false on failure
-     *     (usually a bad animation_h)
-     */
-    pure
-    version(PEBBLE_BASALT)
-    extern(C) bool property_animation_from
-    (PropertyAnimation* property_animation, void* from, size_t size, bool set);
+/**
+ * Helper function used by the property_animation_get|set_from_.* macros.
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * from = Pointer to the value.
+ * size = Size of the from value.
+ * set = true to set new value, false to retrieve existing one.
+ *
+ * Returns: true if successful, false on failure
+ *     (usually a bad animation_h)
+ */
+version(PEBBLE_BASALT)
+@trusted pure
+extern(C) bool property_animation_from
+(PropertyAnimation* property_animation, void* from, size_t size, bool set);
 
 
-    /**
-     * Helper function used by the property_animation_get|set_to_.* macros
-     *
-     * Params:
-     * property_animation = Handle to the property animation.
-     * to = Pointer to the value.
-     * size = Size of the to value.
-     * set = true to set new value, false to retrieve existing one.
-     *
-     * Returns: true if successful, false on failure
-     *    (usually a bad animation_h)
-     */
-    pure
-    version(PEBBLE_BASALT)
-    extern(C) bool property_animation_to
-    (PropertyAnimation* property_animation, void* to, size_t size, bool set);
+/**
+ * Helper function used by the property_animation_get|set_to_.* macros
+ *
+ * Params:
+ * property_animation = Handle to the property animation.
+ * to = Pointer to the value.
+ * size = Size of the to value.
+ * set = true to set new value, false to retrieve existing one.
+ *
+ * Returns: true if successful, false on failure
+ *    (usually a bad animation_h)
+ */
+version(PEBBLE_BASALT)
+@trusted pure
+extern(C) bool property_animation_to
+(PropertyAnimation* property_animation, void* to, size_t size, bool set);
 
-    /**
-     * Convenience function to retrieve the 'from' GRect value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure
-     */
-    deprecated("Use animation.from_grect instead of this function")
-    pure
-    bool property_animation_get_from_grect
-    (PropertyAnimation* property_animation, GRect* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, GRect.sizeof, false);
-    }
+/**
+ * Convenience function to retrieve the 'from' GRect value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from_grect instead of this function")
+@trusted pure
+bool property_animation_get_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GRect.sizeof, false);
+}
 
-    /// Get a 'from' GRect in a safe way.
-    /// An AssertionError will be thrown if getting the rect fails.
-    @trusted pure
-    @property GRect from_grect(const(PropertyAnimation)* property_animation) {
-        GRect rect;
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from_grect instead of this function")
+@trusted pure
+bool property_animation_get_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    *value_ptr = property_animation.values.from.grect;
 
-        auto returnValue = property_animation_from(
-            cast(PropertyAnimation*) property_animation,
-            &rect,
-            GRect.sizeof,
-            false
-        );
+    return true;
+}
 
-        assert(returnValue, "Getting a GRect failed!");
+/// Get a 'from' GRect in a safe way.
+/// An AssertionError will be thrown if getting the rect fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property GRect from_grect(const(PropertyAnimation)* property_animation) {
+    GRect rect;
 
-        return rect;
-    }
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &rect,
+        GRect.sizeof,
+        false
+    );
 
-    /**
-     * Convenience function to set the 'from' GRect value of property animation
-     * handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.from = rect; instead of this function")
-    pure
-    bool property_animation_set_from_grect
-    (PropertyAnimation* property_animation, GRect* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, GRect.sizeof, true);
-    }
+    assert(returnValue, "Getting a GRect failed!");
 
-    /// Set a 'from' GRect in a safe way.
-    /// An AssertionError will be thrown if setting the rect fails.
-    @trusted pure
-    @property void from
-    (PropertyAnimation* property_animation, GRect rect) {
-        auto returnValue = property_animation_from(
-            property_animation, &rect, GRect.sizeof, true);
+    return rect;
+}
 
-        assert(returnValue, "Setting a GRect failed!");
-    }
+/**
+ * Convenience function to set the 'from' GRect value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from = rect; instead of this function")
+@trusted pure
+bool property_animation_set_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GRect.sizeof, true);
+}
 
-    /**
-     * Convenience function to retrieve the 'from' GPoint value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure
-     */
-    deprecated("Use animation.from_gpoint instead of this function")
-    pure
-    bool property_animation_get_from_gpoint
-    (PropertyAnimation* property_animation, GPoint* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, GPoint.sizeof, false);
-    }
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from = rect; instead of this function")
+@trusted pure
+bool property_animation_set_from_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    property_animation.values.from.grect = *value_ptr;
 
-    /// Get a 'from' GPoint in a safe way.
-    /// An AssertionError will be thrown if getting the point fails.
-    @trusted pure
-    @property GPoint from_gpoint
-    (const(PropertyAnimation)* property_animation) {
-        GPoint point;
+    return true;
+}
 
-        auto returnValue = property_animation_from(
-            cast(PropertyAnimation*) property_animation,
-            &point,
-            GPoint.sizeof,
-            false
-        );
+/// Set a 'from' GRect in a safe way.
+/// An AssertionError will be thrown if setting the rect fails.
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, GRect rect) {
+    auto returnValue = property_animation_from(
+        property_animation, &rect, GRect.sizeof, true);
 
-        assert(returnValue, "Getting a GPoint failed!");
+    assert(returnValue, "Setting a GRect failed!");
+}
 
-        return point;
-    }
+/**
+ * Convenience function to retrieve the 'from' GPoint value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from_gpoint instead of this function")
+@trusted pure
+bool property_animation_get_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GPoint.sizeof, false);
+}
 
-    /**
-     * Convenience function to set the 'from' GPoint value of property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure
-     */
-    deprecated("Use animation.from = point; instead of this function")
-    pure
-    bool property_animation_set_from_gpoint
-    (PropertyAnimation* property_animation, GPoint* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, GPoint.sizeof, true);
-    }
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from_gpoint instead of this function")
+@trusted pure
+bool property_animation_get_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    *value_ptr = property_animation.values.from.gpoint;
 
-    /// Set a 'from' GPoint in a safe way.
-    /// An AssertionError will be thrown if setting the point fails.
-    @trusted pure
-    @property void from
-    (PropertyAnimation* property_animation, GPoint point) {
-        auto returnValue = property_animation_from(
-            property_animation, &point, GPoint.sizeof, true);
+    return true;
+}
 
-        assert(returnValue, "Setting a GPoint failed!");
-    }
+/// Get a 'from' GPoint in a safe way.
+/// An AssertionError will be thrown if getting the point fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property GPoint from_gpoint
+(const(PropertyAnimation)* property_animation) {
+    GPoint point;
 
-    /**
-     * Convenience function to retrieve the 'from' int16_t value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.from_int16; instead of this function")
-    pure
-    bool property_animation_get_from_int16
-    (PropertyAnimation* property_animation, short* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, short.sizeof, false);
-    }
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &point,
+        GPoint.sizeof,
+        false
+    );
 
-    /// Get a 'from' short in a safe way.
-    /// An AssertionError will be thrown if getting the short fails.
-    @trusted pure
-    @property short from_int16(const(PropertyAnimation)* property_animation) {
-        short value;
+    assert(returnValue, "Getting a GPoint failed!");
 
-        auto returnValue = property_animation_from(
-            cast(PropertyAnimation*) property_animation,
-            &value,
-            short.sizeof,
-            false
-        );
+    return point;
+}
 
-        assert(returnValue, "Getting a GPoint failed!");
+/**
+ * Convenience function to set the 'from' GPoint value of property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from = point; instead of this function")
+@trusted pure
+bool property_animation_set_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, GPoint.sizeof, true);
+}
 
-        return value;
-    }
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from = point; instead of this function")
+@trusted pure
+bool property_animation_set_from_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    property_animation.values.from.gpoint = *value_ptr;
 
-    /**
-     * Convenience function to set the 'from' int16_t value of property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure
-     */
-    deprecated("Use animation.from = value; instead of this function")
-    pure
-    bool property_animation_set_from_int16
-    (PropertyAnimation* property_animation, short* value_ptr) {
-        return property_animation_from(
-            property_animation, value_ptr, short.sizeof, true);
-    }
+    return true;
+}
 
-    /// Set a 'from' short in a safe way.
-    /// An AssertionError will be thrown if setting the short fails.
-    @trusted pure
-    @property void from
-    (PropertyAnimation* property_animation, short value) {
-        auto returnValue = property_animation_from(
-            property_animation, &value, short.sizeof, true);
+/// Set a 'from' GPoint in a safe way.
+/// An AssertionError will be thrown if setting the point fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, GPoint point) {
+    auto returnValue = property_animation_from(
+        property_animation, &point, GPoint.sizeof, true);
 
-        assert(returnValue, "Setting a short failed!");
-    }
+    assert(returnValue, "Setting a GPoint failed!");
+}
 
-    /**
-     * Convenience function to retrieve the 'to' GRect value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.to_grect instead of this function")
-    pure
-    bool property_animation_get_to_grect
-    (PropertyAnimation* property_animation, GRect* value_ptr) {
-        return property_animation_to(
-            property_animation, value_ptr, GRect.sizeof, false);
-    }
+/**
+ * Convenience function to retrieve the 'from' int16_t value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from_int16; instead of this function")
+@trusted pure
+bool property_animation_get_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, short.sizeof, false);
+}
 
-    /// Get a 'to' GRect in a safe way.
-    /// An AssertionError will be thrown if getting the rect fails.
-    @trusted pure
-    @property GRect to_grect(const(PropertyAnimation)* property_animation) {
-        GRect rect;
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from_int16 instead of this function")
+@trusted pure
+bool property_animation_get_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    *value_ptr = property_animation.values.from.int16;
 
-        auto returnValue = property_animation_to(
-            cast(PropertyAnimation*) property_animation,
-            &rect,
-            GRect.sizeof,
-            false
-        );
+    return true;
+}
 
-        assert(returnValue, "Getting a GRect failed!");
+/// Get a 'from' short in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property short from_int16(const(PropertyAnimation)* property_animation) {
+    short value;
 
-        return rect;
-    }
+    auto returnValue = property_animation_from(
+        cast(PropertyAnimation*) property_animation,
+        &value,
+        short.sizeof,
+        false
+    );
 
-    /**
-     * Convenience function to set the 'to' GRect value of property animation
-     * handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.to = rect; instead of this function")
-    pure
-    bool property_animation_set_to_grect
-    (PropertyAnimation* property_animation, GRect* value_ptr) {
-        return property_animation_to(
-            property_animation, value_ptr, GRect.sizeof, true);
-    }
+    assert(returnValue, "Getting a GPoint failed!");
 
-    /// Set a 'to' GRect in a safe way.
-    /// An AssertionError will be thrown if setting the rect fails.
-    @trusted pure
-    @property void to
-    (PropertyAnimation* property_animation, GRect rect) {
-        auto returnValue = property_animation_to(
-            property_animation, &rect, GRect.sizeof, true);
+    return value;
+}
 
-        assert(returnValue, "Setting a GRect failed!");
-    }
+/**
+ * Convenience function to set the 'from' int16_t value of property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.from = value; instead of this function")
+@trusted pure
+bool property_animation_set_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_from(
+        property_animation, value_ptr, short.sizeof, true);
+}
 
-    /**
-     * Convenience function to retrieve the 'to' GPoint value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure
-     */
-    deprecated("Use animation.to_gpoint instead of this function")
-    pure
-    bool property_animation_get_to_gpoint
-    (PropertyAnimation* property_animation, GPoint* value_ptr) {
-        return property_animation_to(
-            property_animation, value_ptr, GPoint.sizeof, false);
-    }
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.from = value; instead of this function")
+@trusted pure
+bool property_animation_set_from_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    property_animation.values.from.int16 = *value_ptr;
 
-    /// Get a 'to' GPoint in a safe way.
-    /// An AssertionError will be thrown if getting the point fails.
-    @trusted pure
-    @property GPoint to_gpoint(const(PropertyAnimation)* property_animation) {
-        GPoint point;
+    return true;
+}
 
-        auto returnValue = property_animation_to(
-            cast(PropertyAnimation*) property_animation,
-            &point,
-            GPoint.sizeof,
-            false
-        );
 
-        assert(returnValue, "Getting a GPoint failed!");
+/// Set a 'from' short in a safe way.
+/// An AssertionError will be thrown if setting the short fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void from
+(PropertyAnimation* property_animation, short value) {
+    auto returnValue = property_animation_from(
+        property_animation, &value, short.sizeof, true);
 
-        return point;
-    }
+    assert(returnValue, "Setting a short failed!");
+}
 
-    /**
-     * Convenience function to set the 'to' GPoint value of property animation
-     * handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.to = point; instead of this function")
-    pure
-    bool property_animation_set_to_gpoint
-    (PropertyAnimation* property_animation, GPoint* value_ptr) {
-        return property_animation_to
-            (property_animation, value_ptr, GPoint.sizeof, true);
-    }
+/**
+ * Convenience function to retrieve the 'to' GRect value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to_grect instead of this function")
+@trusted pure
+bool property_animation_get_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GRect.sizeof, false);
+}
 
-    /// Set a 'to' GPoint in a safe way.
-    /// An AssertionError will be thrown if setting the point fails.
-    @trusted pure
-    @property void to
-    (PropertyAnimation* property_animation, GPoint point) {
-        auto returnValue = property_animation_to(
-            property_animation, &point, GPoint.sizeof, true);
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to_grect instead of this function")
+@trusted pure
+bool property_animation_get_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    *value_ptr = property_animation.values.to.grect;
 
-        assert(returnValue, "Setting a GPoint failed!");
-    }
+    return true;
+}
 
-    /**
-     * Convenience function to retrieve the 'to' int16_t value from property
-     * animation handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = The value will be retrieved into this pointer.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.to_int16 instead of this function")
-    pure
-    bool property_animation_get_to_int16
-    (PropertyAnimation* property_animation, short* value_ptr) {
-        return property_animation_to
-            (property_animation, value_ptr, short.sizeof, false);
-    }
+/// Get a 'to' GRect in a safe way.
+/// An AssertionError will be thrown if getting the rect fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property GRect to_grect(const(PropertyAnimation)* property_animation) {
+    GRect rect;
 
-    /// Get a 'to' short in a safe way.
-    /// An AssertionError will be thrown if getting the short fails.
-    @trusted pure
-    @property short to_int16(const(PropertyAnimation)* property_animation) {
-        short value;
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &rect,
+        GRect.sizeof,
+        false
+    );
 
-        auto returnValue = property_animation_to(
-            cast(PropertyAnimation*) property_animation,
-            &value,
-            short.sizeof,
-            false
-        );
+    assert(returnValue, "Getting a GRect failed!");
 
-        assert(returnValue, "Getting a short failed!");
+    return rect;
+}
 
-        return value;
-    }
+/**
+ * Convenience function to set the 'to' GRect value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to = rect; instead of this function")
+@trusted pure
+bool property_animation_set_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GRect.sizeof, true);
+}
 
-    /**
-     * Convenience function to set the 'to' int16_t value of property animation
-     * handle.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new value.
-     *
-     * Returns: true on success, false on failure.
-     */
-    deprecated("Use animation.to = value; instead of this function")
-    pure
-    bool property_animation_set_to_int16
-    (PropertyAnimation* property_animation, short* value_ptr) {
-        return property_animation_to
-            (property_animation, value_ptr, short.sizeof, true);
-    }
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to = rect; instead of this function")
+@trusted pure
+bool property_animation_set_to_grect
+(PropertyAnimation* property_animation, GRect* value_ptr) {
+    property_animation.values.to.grect = *value_ptr;
 
-    /// Set a 'to' short in a safe way.
-    /// An AssertionError will be thrown if setting the short fails.
-    @trusted pure
-    @property void to
-    (PropertyAnimation* property_animation, short value) {
-        auto returnValue = property_animation_to(
-            property_animation, &value, short.sizeof, true);
+    return true;
+}
 
-        assert(returnValue, "Setting a short failed!");
-    }
+/// Set a 'to' GRect in a safe way.
+/// An AssertionError will be thrown if setting the rect fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, GRect rect) {
+    auto returnValue = property_animation_to(
+        property_animation, &rect, GRect.sizeof, true);
 
-    /**
-     * Retrieve the subject of a property animation
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer used to store the subject of this property
-     *     animation.
-     *
-     * Returns: The subject of this PropertyAnimation.
-     */
-    deprecated("Use animation.subject instead of this function")
-    pure
-    bool property_animation_get_subject
-    (PropertyAnimation* property_animation, void** value_ptr) {
-        return property_animation_subject(
-            property_animation,
-            value_ptr,
-            false
-        );
-    }
+    assert(returnValue, "Setting a GRect failed!");
+}
 
-    /// Get a 'subject' in a safe way.
-    /// An AssertionError will be thrown if getting the subject fails.
-    @trusted pure
-    @property void* subject(const(PropertyAnimation)* property_animation) {
-        void* subject;
+/**
+ * Convenience function to retrieve the 'to' GPoint value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to_gpoint instead of this function")
+@trusted pure
+bool property_animation_get_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_to(
+        property_animation, value_ptr, GPoint.sizeof, false);
+}
 
-        auto returnValue = property_animation_subject(
-            cast(PropertyAnimation*) property_animation,
-            &subject,
-            false
-        );
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to_gpoint instead of this function")
+@trusted pure
+bool property_animation_get_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    *value_ptr = property_animation.values.to.gpoint;
 
-        assert(returnValue, "Getting the subject failed!");
+    return true;
+}
 
-        return subject;
-    }
+/// Get a 'to' GPoint in a safe way.
+/// An AssertionError will be thrown if getting the point fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property GPoint to_gpoint(const(PropertyAnimation)* property_animation) {
+    GPoint point;
 
-    /**
-     * Set the subject of a property animation.
-     *
-     * Params:
-     * property_animation = The PropertyAnimation to be accessed.
-     * value_ptr = Pointer to the new subject value.
-     */
-    deprecated("Use animation.subject = subject; instead of this function")
-    pure
-    bool property_animation_set_subject
-    (PropertyAnimation* property_animation, void** value_ptr) {
-        return property_animation_subject(property_animation, value_ptr, true);
-    }
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &point,
+        GPoint.sizeof,
+        false
+    );
 
-    /// Get a 'subject' in a safe way.
-    /// An AssertionError will be thrown if getting the short fails.
-    @trusted pure
-    @property void subject
-    (PropertyAnimation* property_animation, void* subject) {
-        auto returnValue = property_animation_subject(
-            property_animation, &subject, true);
+    assert(returnValue, "Getting a GPoint failed!");
 
-        assert(returnValue, "Getting the subject failed!");
-    }
+    return point;
+}
+
+/**
+ * Convenience function to set the 'to' GPoint value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to = point; instead of this function")
+@trusted pure
+bool property_animation_set_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, GPoint.sizeof, true);
+}
+
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to = point; instead of this function")
+@trusted pure
+bool property_animation_set_to_gpoint
+(PropertyAnimation* property_animation, GPoint* value_ptr) {
+    property_animation.values.to.gpoint = *value_ptr;
+
+    return true;
+}
+
+/// Set a 'to' GPoint in a safe way.
+/// An AssertionError will be thrown if setting the point fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, GPoint point) {
+    auto returnValue = property_animation_to(
+        property_animation, &point, GPoint.sizeof, true);
+
+    assert(returnValue, "Setting a GPoint failed!");
+}
+
+/**
+ * Convenience function to retrieve the 'to' int16_t value from property
+ * animation handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = The value will be retrieved into this pointer.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to_int16 instead of this function")
+@trusted pure
+bool property_animation_get_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, short.sizeof, false);
+}
+
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to_int16 instead of this function")
+@trusted pure
+bool property_animation_get_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    *value_ptr = property_animation.values.to.int16;
+
+    return true;
+}
+
+/// Get a 'to' short in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property short to_int16(const(PropertyAnimation)* property_animation) {
+    short value;
+
+    auto returnValue = property_animation_to(
+        cast(PropertyAnimation*) property_animation,
+        &value,
+        short.sizeof,
+        false
+    );
+
+    assert(returnValue, "Getting a short failed!");
+
+    return value;
+}
+
+/**
+ * Convenience function to set the 'to' int16_t value of property animation
+ * handle.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new value.
+ *
+ * Returns: true on success, false on failure.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.to = value; instead of this function")
+@trusted pure
+bool property_animation_set_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    return property_animation_to
+        (property_animation, value_ptr, short.sizeof, true);
+}
+
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.to = value; instead of this function")
+@trusted pure
+bool property_animation_set_to_int16
+(PropertyAnimation* property_animation, short* value_ptr) {
+    property_animation.values.to.int16 = *value_ptr;
+
+    return true;
+}
+
+/// Set a 'to' short in a safe way.
+/// An AssertionError will be thrown if setting the short fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void to
+(PropertyAnimation* property_animation, short value) {
+    auto returnValue = property_animation_to(
+        property_animation, &value, short.sizeof, true);
+
+    assert(returnValue, "Setting a short failed!");
+}
+
+/**
+ * Retrieve the subject of a property animation
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer used to store the subject of this property
+ *     animation.
+ *
+ * Returns: The subject of this PropertyAnimation.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.subject instead of this function")
+@trusted pure
+bool property_animation_get_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    return property_animation_subject(
+        property_animation,
+        value_ptr,
+        false
+    );
+}
+
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.subject instead of this function")
+@trusted pure
+bool property_animation_get_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    *valud_ptr = property_animation.subject;
+
+    return true;
+}
+
+/// Get a 'subject' in a safe way.
+/// An AssertionError will be thrown if getting the subject fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void* subject(const(PropertyAnimation)* property_animation) {
+    void* subject;
+
+    auto returnValue = property_animation_subject(
+        cast(PropertyAnimation*) property_animation,
+        &subject,
+        false
+    );
+
+    assert(returnValue, "Getting the subject failed!");
+
+    return subject;
+}
+
+/**
+ * Set the subject of a property animation.
+ *
+ * Params:
+ * property_animation = The PropertyAnimation to be accessed.
+ * value_ptr = Pointer to the new subject value.
+ */
+version(PEBBLE_BASALT)
+deprecated("Use animation.subject = subject; instead of this function")
+@trusted pure
+bool property_animation_set_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    return property_animation_subject(property_animation, value_ptr, true);
+}
+
+/// ditto
+version(PEBBLE_APLITE)
+deprecated("Use animation.subject = subject instead of this function")
+@trusted pure
+bool property_animation_set_subject
+(PropertyAnimation* property_animation, void** value_ptr) {
+    property_animation.subject = *value_ptr;
+
+    return true;
+}
+
+/// Get a 'subject' in a safe way.
+/// An AssertionError will be thrown if getting the short fails.
+version(PEBBLE_BASALT)
+@trusted pure
+@property void subject
+(PropertyAnimation* property_animation, void* subject) {
+    auto returnValue = property_animation_subject(
+        property_animation, &subject, true);
+
+    assert(returnValue, "Getting the subject failed!");
 }
