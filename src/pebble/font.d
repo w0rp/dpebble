@@ -7,8 +7,88 @@ import pebble.gsize;
 import pebble.grect;
 import pebble.resource;
 
+import pebble.versions;
+
 @nogc:
 nothrow:
+
+// Font names common to all versions.
+
+///
+enum const(char)* FONT_KEY_GOTHIC_14 = "RESOURCE_ID_GOTHIC_14";
+///
+enum const(char)* FONT_KEY_GOTHIC_14_BOLD = "RESOURCE_ID_GOTHIC_14_BOLD";
+///
+enum const(char)* FONT_KEY_GOTHIC_18 = "RESOURCE_ID_GOTHIC_18";
+///
+enum const(char)* FONT_KEY_GOTHIC_18_BOLD = "RESOURCE_ID_GOTHIC_18_BOLD";
+///
+enum const(char)* FONT_KEY_GOTHIC_24 = "RESOURCE_ID_GOTHIC_24";
+///
+enum const(char)* FONT_KEY_GOTHIC_28 = "RESOURCE_ID_GOTHIC_28";
+///
+enum const(char)* FONT_KEY_GOTHIC_28_BOLD = "RESOURCE_ID_GOTHIC_28_BOLD";
+///
+enum const(char)* FONT_KEY_GOTHIC_24_BOLD = "RESOURCE_ID_GOTHIC_24_BOLD";
+
+///
+enum const(char)* FONT_KEY_BITHAM_18_LIGHT_SUBSET =
+    "RESOURCE_ID_BITHAM_18_LIGHT_SUBSET";
+///
+enum const(char)* FONT_KEY_BITHAM_30_BLACK =
+    "RESOURCE_ID_BITHAM_30_BLACK";
+///
+enum const(char)* FONT_KEY_BITHAM_34_MEDIUM_NUMBERS =
+    "RESOURCE_ID_BITHAM_34_MEDIUM_NUMBERS";
+///
+enum const(char)* FONT_KEY_BITHAM_34_LIGHT_SUBSET =
+    "RESOURCE_ID_BITHAM_34_LIGHT_SUBSET";
+///
+enum const(char)* FONT_KEY_BITHAM_42_LIGHT = "RESOURCE_ID_BITHAM_42_LIGHT";
+///
+enum const(char)* FONT_KEY_BITHAM_42_BOLD = "RESOURCE_ID_BITHAM_42_BOLD";
+///
+enum const(char)* FONT_KEY_BITHAM_42_MEDIUM_NUMBERS =
+    "RESOURCE_ID_BITHAM_42_MEDIUM_NUMBERS";
+
+///
+enum const(char)* FONT_KEY_ROBOTO_CONDENSED_21 =
+    "RESOURCE_ID_ROBOTO_CONDENSED_21";
+///
+enum const(char)* FONT_KEY_ROBOTO_BOLD_SUBSET_49 =
+    "RESOURCE_ID_ROBOTO_BOLD_SUBSET_49";
+
+///
+enum const(char)* FONT_KEY_DROID_SERIF_28_BOLD =
+    "RESOURCE_ID_DROID_SERIF_28_BOLD";
+
+///
+enum const(char)* FONT_KEY_FONT_FALLBACK = FONT_KEY_GOTHIC_14;
+
+version(PEBBLE_BASALT) {
+    ///
+    enum const(char)* FONT_KEY_GOTHIC_09 = "RESOURCE_ID_GOTHIC_09";
+
+    ///
+    enum const(char)* FONT_KEY_LECO_20_BOLD_NUMBERS =
+        "RESOURCE_ID_LECO_20_BOLD_NUMBERS";
+    ///
+    enum const(char)* FONT_KEY_LECO_32_BOLD_NUMBERS =
+        "RESOURCE_ID_LECO_32_BOLD_NUMBERS";
+    ///
+    enum const(char)* FONT_KEY_LECO_36_BOLD_NUMBERS =
+        "RESOURCE_ID_LECO_36_BOLD_NUMBERS";
+    ///
+    enum const(char)* FONT_KEY_LECO_38_BOLD_NUMBERS =
+        "RESOURCE_ID_LECO_38_BOLD_NUMBERS";
+    ///
+    enum const(char)* FONT_KEY_LECO_28_LIGHT_NUMBERS =
+        "RESOURCE_ID_LECO_28_LIGHT_NUMBERS";
+
+    ///
+    enum const(char)* FONT_KEY_FONT_FALLBACK_INTERNAL =
+        "RESOURCE_ID_FONT_FALLBACK_INTERNAL";
+}
 
 struct GFontType{}
 

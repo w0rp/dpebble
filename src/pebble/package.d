@@ -1,13 +1,34 @@
 /**
  * This module mirrors the basalt and aplite Pebble headers with color
  * definitions, etc.
+ *
+ * C standard library functions will also be publicly imported.
+ *
+ * The following standard library functions are not supported on Pebble
+ * watches:
+ *
+ * fopen, fclose, fread, fwrite, fseek, ftell, fsetpos, fscanf, fgetc
+ * fgets, fputc, fputs
+ *
+ * fprintf, sprintf, vfprintf, vsprintf, vsnprinf
+ *
+ * open, close, creat, read, write, stat
+ *
+ * alloca, mmap, brk, sbrk
  */
 module pebble;
+
+// Import all of the supported C standard library functions.
+// The functions which aren't supported on the watch will be excluded.
+public import core.stdc.locale;
+public import core.stdc.stdlib;
+public import core.stdc.string;
 
 public import pebble.versions;
 
 public import pebble.math;
 public import pebble.watchinfo;
+// This module will publicly import C standard library symbols.
 public import pebble.clock;
 public import pebble.uuid;
 public import pebble.logging;
@@ -39,3 +60,4 @@ public import pebble.vibration;
 public import pebble.light;
 public import pebble.launch;
 public import pebble.misc;
+

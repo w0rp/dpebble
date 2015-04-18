@@ -3,7 +3,8 @@
  */
 module pebble.clock;
 
-public import core.stdc.time;
+// Import the standard time symbols we don't redefine.
+public import core.stdc.time: time_t, clock_t, clock, strftime, CLOCKS_PER_SEC;
 
 import pebble.versions;
 
@@ -12,7 +13,10 @@ nothrow:
 
 // basalt redefines C standard library time functions to support a GMT offset
 // and a timezone in the time structures.
-version(PEBBLE_BASALT) {
+version(PEBBLE_APLITE) {
+    // Import the regular C standard library versions on the old watches.
+    public import core.stdc.time: tm, localtime, gmtime, mktime, time;
+} else {
     ///
     enum TZ_LEN = 6;
 
