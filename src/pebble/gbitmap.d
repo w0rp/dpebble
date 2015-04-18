@@ -1,7 +1,7 @@
 /**
  * This module defines bitmaps for Pebble watches.
  */
-module pebble.bitmap;
+module pebble.gbitmap;
 
 import pebble.versions;
 
